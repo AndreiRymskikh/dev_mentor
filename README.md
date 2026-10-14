@@ -43,6 +43,7 @@ Available verification commands:
 npm run lint
 npm run typecheck
 npm run build
+npm run smoke
 ```
 
 ## Specifications and AI workflow
@@ -52,3 +53,5 @@ npm run build
 - `.ai/specs/YYYY-MM-DD-slug.md`: SDD specifications, moved to `implemented/` after verification or `archive/` when superseded or abandoned.
 - `.ai/runs/YYYY-MM-DD-slug.md`: autonomous AI run plans, progress, decisions, and verification results.
 - `.ai/lessons.md` and `.ai/lessons/`: durable findings and prevention rules recorded after corrections and bug fixes.
+
+`npm run smoke` starts the production app on localhost:3100, verifies the homepage, assets, and shared Tailwind styles, then stops the server. Run it after a successful build; override the port with `SMOKE_PORT`.

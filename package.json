@@ -9,8 +9,9 @@
     "dev": "npm run dev --workspace @devmentor/app",
     "start": "npm run start --workspace @devmentor/app",
     "build": "npm run build --workspace @devmentor/app",
-    "lint": "eslint packages",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "lint": "eslint packages scripts",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "smoke": "node scripts/smoke-app.mjs"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
