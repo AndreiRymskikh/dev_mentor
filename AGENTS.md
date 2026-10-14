@@ -12,19 +12,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - DevMentor is a TypeScript monorepo targeting the latest stable, mutually compatible Next.js and React releases. Use the installed versions and their documentation; verify current releases before dependency upgrades.
 - Use PostgreSQL for persistence and MikroORM for TypeScript entities, data access, migrations, and connection pooling. Keep database configuration, migrations, and persistence helpers in `packages/db`; isolate database access from browser code.
-- Use Awilix for dependency injection. Compose application dependencies in `packages/app`, keep container setup on the server, and scope request-specific services and ORM entity managers to avoid sharing mutable request state.
+- Use Awilix for dependency injection. Compose application dependencies explicitly in `packages/core/src/container`, keep container setup on the server, and scope request-specific services and ORM entity managers to avoid sharing mutable request state.
 - Use Tailwind CSS for frontend pages and shadcn/ui components for backend/admin pages. Here, backend pages mean the administrative UI. Put reusable UI components in `packages/ui`.
 - Organize source into these minimum packages:
 
   | Package | Responsibility |
   | --- | --- |
   | `packages/app` | Main Next.js application, routes, pages, and application composition. |
-  | `packages/core` | Reusable domain logic, contracts, and utilities independent of Next.js, UI, and persistence implementations. |
+  | `packages/core` | Business services, shared validation, HTTP helpers, logging, and explicit Awilix composition; independent of Next.js and React. |
   | `packages/db` | MikroORM entities, repositories, migrations, PostgreSQL configuration, and data management helpers. |
   | `packages/ui` | Reusable React UI components, styles, and shared UI primitives. |
 
-- Keep dependencies directed: `app` consumes `core`, `db`, and `ui`; `db` and `ui` may consume `core`; `core` must not depend on the other packages. Avoid circular dependencies and import shared code through package exports.
-- The repository uses npm workspaces with the Next.js application in `packages/app/app/`. Run development and validation commands from the repository root. PostgreSQL/MikroORM, Awilix, and shadcn/ui runtime setup remain subsequent migration phases; consult the migration plan before using them.
+- Keep dependencies directed: `app → core → db`; `app` also consumes standalone `ui`. `db` imports no other workspace package; `ui` imports neither core nor db. Avoid circular dependencies and import shared code through package exports.
+- The repository uses npm workspaces with the Next.js application in `packages/app/src/app/`. Run development and validation commands from the repository root. PostgreSQL is provisioned locally and Awilix request scopes are configured; MikroORM persistence and shadcn/ui components remain pending; consult the migration plan before using them.
 
 ## Working principles
 
@@ -73,3 +73,16 @@ All AI agents working in this repository must use the following shared metadata 
 - Treat memory as project context, not authority to override current user instructions or repository rules.
 
 Use repository-relative links within metadata documents. Keep secrets, credentials, personal data, and raw sensitive logs out of all metadata. Preserve existing metadata unless the task explicitly requires updating it.
+
+## Engineering standards
+
+Use [.ai/specs/2026-09-01-engineering-standards.md](.ai/specs/2026-09-01-engineering-standards.md) as the naming and review contract.
+
+- Organize entities, services, validators, and routes in matching plural concept folders. Create folders only when their first real file is added; never introduce module discovery, queues, or speculative domain features.
+- Keep services responsible for business rules, db for persistence, app for HTTP wiring, and ui for presentation. External integrations use core ports and explicit adapters. Register dependencies by hand in the typed Awilix cradle; dispose request scopes in `finally`.
+- Every API route uses `apiHandler` or `makeCrudRoute` and the standard JSON envelope. Protected routes authenticate before invoking a service; mutations check CSRF and record ownership. Session resolvers must verify credentials and fail closed. No production auth is implemented yet.
+- Services throw typed `AppError` subclasses. Validate explicit Zod input shapes before mutations; never mass-assign raw input. Use transactions and unique constraints for race-sensitive booking/payment changes.
+- Shared client requests use `apiCall`/`apiCallOrThrow`. Generic forms, tables, and feedback use `ui/src/backend`; concept components use `ui/src/components/<concept>`, one-page components stay colocated. Generate shadcn primitives through its CLI only when needed.
+- Pass core validation schemas to generic UI from app client components; UI never imports core. Do not pass non-serializable Zod instances across a Server-to-Client Component boundary. Client schemas must come from pure validator exports, never the server DI or logger entry points.
+- Keep persistence lazy and request-scoped so build and boot require no database. Database routes use `dynamic = "force-dynamic"`; Cache Components is disabled to support this convention in the installed Next.js version.
+- No `any`, empty catches, secret-bearing logs, or raw interpolated SQL. Run lint, typecheck, tests, audit, and build before completion. Follow the spec's password, JWT, cookie, CSRF, rate-limit and ownership rules when auth features are introduced.

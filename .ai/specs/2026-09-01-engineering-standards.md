@@ -573,3 +573,26 @@ commit.
 9. After each step, confirm `npm run build` still succeeds and `/admin/users` /
    `/api/health` still work — they're the regression check for the whole migration
    until real features replace them.
+
+
+## Implementation Plan
+
+Implementation adaptation approved by the owner: this spec supersedes the older dependency direction in AGENTS.md/README.md. The actual bootstrap has no auth/mentor entities, users service, or admin screen. Existing-file move steps and the users reference refactor are deferred until those features exist, rather than fabricating marketplace data or exposing an unauthenticated users endpoint.
+
+- [x] Phase 1: enforce `app → core → db`, standalone UI, move app to src/app, and reconcile agent/product docs.
+- [x] Phase 2: implement HTTP errors, API envelopes, fail-closed auth/ownership/CSRF utilities, schema-validated CRUD; demonstrate on public health route and test mutations with isolated fake services.
+- [x] Phase 3: implement independent client API helper, schema-driven form, controlled table, shared feedback, and explicit Awilix request scopes; test behavior and isolation.
+- [ ] Phase 4: run dependency installation, lint, typecheck, tests, audit, build, and startup smoke; record any external blockers.
+
+Clarifications: UI receives pure core schemas through app props and never imports core. `requireRole` is an optional utility, not an RBAC feature. Auth verification is injected and fails closed until implemented. Cache Components is disabled because its route-segment conventions conflict with the specified force-dynamic DB routes. Event bus and concept validators remain deferred as section 5 requires. No shadcn primitives are hand-written or added without a consumer.
+
+
+## Verification — 2026-10-14
+
+Implemented the approved adaptation in the current checkout. Added explicit exports/dependency boundaries and ESLint regression checks; src/app relocation; core HTTP, config, logger and Awilix scope utilities; independent UI API, form, table and feedback utilities; database-independent /api/health; engineering docs and product-scope reconciliation.
+
+Passed: cached dependency installation; lint covering packages/scripts/tests; typechecking all workspaces and tests; all 11 tests (including interactive form behavior and package boundaries); production build; production HTTP smoke for home/assets/shared styles/health/request isolation; diff whitespace validation.
+
+Full `npm run check` stops at `npm audit`: one unpatched high-severity braces advisory (GHSA-vfj7-8cjw-p6xm) affects six dependency entries through micromatch/fast-glob, including Awilix and Next ESLint tooling. Registry reports braces 3.0.3 as latest and vulnerable. Suggested automated fixes downgrade Awilix to 6 and Next ESLint to 14, which would be breaking changes. No forced downgrade, advisory suppression or claim of a clean gate was made. Build and startup were verified separately after the failed audit gate. Phase 4 remains unchecked until the advisory is resolved.
+
+No user/admin domain implementation, MikroORM runtime, or event bus is claimed. Those source-spec steps depend on feature entities and persistence work not present in this bootstrap. No PR was opened or review submitted; gh and pipeline configuration are absent. Changes remain locally reviewable.

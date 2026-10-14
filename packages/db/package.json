@@ -9,7 +9,5 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@devmentor/core": "0.1.0"
-  }
+  "dependencies": {}
 }

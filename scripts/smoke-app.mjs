@@ -44,7 +44,14 @@ try {
     css += await result.text();
   }
   if (!css.includes(".bg-zinc-50")) throw new Error("Shared PageShell Tailwind styles missing.");
-  console.log("Production smoke check passed: homepage, static assets, shared styles.");
+  const health = await fetch(`${origin}/api/health`);
+  const result = await health.json();
+  if (!health.ok || result.ok !== true || result.data.status !== "ok" || typeof result.data.requestId !== "string") {
+    throw new Error("Health route did not return the standard success envelope.");
+  }
+  const second = await (await fetch(`${origin}/api/health`)).json();
+  if (second.data.requestId === result.data.requestId) throw new Error("Health requests reused a request scope.");
+  console.log("Production smoke check passed: homepage, assets, shared styles, health and request scopes.");
 } finally {
   if (!stopped) {
     const exited = new Promise((resolve) => server.once("exit", resolve));

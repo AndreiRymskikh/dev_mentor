@@ -411,7 +411,7 @@ Functions:
 - admin permissions matrix
 - organizations/tenants
 - module/plugin runtime
-- DI container
+- Plugin/module runtime and auto-discovered DI registration (explicit Awilix dependency injection is in scope)
 - queues/workers
 - custom encryption
 - video calling implementation

@@ -6,7 +6,7 @@ DevMentor is a TypeScript application built with Next.js and React. Its target a
 
 - **Application:** latest stable, mutually compatible Next.js, React, and TypeScript releases. The repository's installed versions are recorded in `package.json` and `package-lock.json`; upgrades should verify compatibility.
 - **Database:** PostgreSQL with MikroORM for TypeScript entities, data access, migrations, and connection pooling.
-- **Dependency injection:** Awilix, with application composition and server container setup owned by the app package.
+- **Dependency injection:** Awilix, with explicit server container registration and request scopes in the core package.
 - **Frontend pages:** Tailwind CSS.
 - **Backend/admin pages:** shadcn/ui components. Backend pages here refer to the administrative UI.
 
@@ -20,11 +20,11 @@ packages/
 └── ui/      # Reusable React components and styles
 ```
 
-`app` consumes `core`, `db`, and `ui`. The `db` and `ui` packages may depend on `core`; `core` stays independent of Next.js, UI, and persistence implementations. Shared code is consumed through package exports, with no circular dependencies.
+Dependencies follow `app → core → db`, with standalone `ui` consumed by `app`. Core stays independent of Next.js and React; db and ui import no other workspace package. Shared code is consumed through package exports, with no circular dependencies.
 
-Database access and the Awilix container stay on the server. Request-specific services and ORM entity managers use request scopes; database connection pooling is managed by the persistence layer. Database schema changes are captured in migrations under `packages/db`.
+Database access and the Awilix container stay on the server. Request-specific services use request scopes. MikroORM entity-manager scoping and connection pooling will be implemented in the persistence stage; schema changes will use migrations under `packages/db`.
 
-The npm workspace structure is implemented. Routes live in `packages/app/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages currently expose shared contracts; PostgreSQL, MikroORM, Awilix, and shadcn/ui runtime configuration are subsequent phases in the [migration plan](.ai/specs/2026-10-14-monorepo-migration.md).
+The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages currently expose shared contracts; PostgreSQL is provisioned locally and Awilix scopes are configured. MikroORM persistence and shadcn/ui components are subsequent phases in the [migration plan](.ai/specs/2026-10-14-monorepo-migration.md).
 
 ## Local development
 
@@ -35,13 +35,15 @@ npm install
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The current entry page is `packages/app/app/page.tsx`. Root `dev`, `build`, and `start` scripts delegate to the app workspace.
+Open [localhost:3000](http://localhost:3000). The current entry page is `packages/app/src/app/page.tsx`. Root `dev`, `build`, and `start` scripts delegate to the app workspace.
 
 Available verification commands:
 
 ```bash
 npm run lint
 npm run typecheck
+npm test
+npm audit
 npm run build
 npm run smoke
 ```
@@ -74,3 +76,11 @@ The official PostgreSQL 18 Alpine image uses a persistent named volume mounted a
 Compose reads the root `.env`. Next.js runs in `packages/app`, so when ORM integration is added, provide the same `DATABASE_URL` in `packages/app/.env.local` (or the process environment); Next.js does not automatically read the root file. Within Compose networking the hostname is `postgres` and the port is `5432`; host-run applications use `127.0.0.1` and `POSTGRES_PORT`. URL-encode special characters in passwords used in connection URLs. Environment files are ignored; only `.env.example` is committed.
 
 MikroORM entities, migrations, pooling, and application connection lifecycle are still pending in phase 2. Schema changes will use ORM migrations rather than container initialization scripts.
+
+## Shared engineering foundations
+
+Core exports HTTP helpers through `@devmentor/core/http` and request scopes through `@devmentor/core/container`. `/api/health` demonstrates both without needing PostgreSQL. API responses use `{ ok: true, data }` or `{ ok: false, error: { code, message, fieldErrors? } }`.
+
+UI exposes independent `@devmentor/ui/backend/api`, `/forms`, `/tables`, and `/feedback` entry points. Application code passes pure validation schemas into `CrudForm`; UI does not import core. `DataTable` uses controlled pagination: its caller supplies the current page rows, total count, and page-change callback.
+
+The shared auth helpers require a verified session resolver; they do not implement login or JWT authentication. Auth/mentor entities, the users admin example, domain events, and concept validators will be added with their first feature specification. MikroORM integration remains a separate persistence stage. See the [engineering standards](.ai/specs/2026-09-01-engineering-standards.md).

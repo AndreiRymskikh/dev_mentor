@@ -4,7 +4,7 @@ Preserve the current home page, routes, fonts, styles, and assets while establis
 
 ## Phases and completion criteria
 
-- [ ] Phase 1: npm workspace foundation. Move Next.js to packages/app; create core, db, ui exports and dependencies; extract shared UI without changing rendering; root dev/start/build/lint/typecheck scripts work. Completion: lint, workspace type checks, production build, and HTTP smoke check pass.
+- [x] Phase 1: npm workspace foundation. Move Next.js to packages/app; create core, db, ui exports and dependencies; extract shared UI without changing rendering; root dev/start/build/lint/typecheck scripts work. Completion: lint, workspace type checks, production build, and HTTP smoke check pass.
 - [ ] Phase 2: PostgreSQL and MikroORM. Add server-only configuration, pooled connection lifecycle, request entity-manager isolation, migration commands, and a local database environment. Completion: connection and migration smoke checks pass against PostgreSQL.
 - [ ] Phase 3: Awilix and admin UI. Wire server request scopes and persistence services; configure shadcn/ui in the shared UI package when the first admin flow is specified. Completion: scope isolation checks and the agreed admin flow pass.
 
@@ -31,3 +31,8 @@ Checks: offline dependency installation passed (367 packages, no reported vulner
 Added root docker-compose.yml with official PostgreSQL 18 Alpine, localhost-only port mapping, persistent named storage at /var/lib/postgresql, and readiness health check. Added .env.example, ignored generated local credentials, root db lifecycle/SQL scripts, and README setup instructions.
 
 Checks passed: Compose configuration validation; container startup with health wait; password-authenticated TCP SQL smoke query (PostgreSQL 18.6, devmentor database); git diff whitespace check; local .env confirmed ignored. Development database left running on localhost:5432. This completes the local environment part of phase 2 only. MikroORM integration, pool lifecycle, request entity-manager isolation, migrations and their smoke checks remain pending. Phase 1 build/runtime verification remains pending as previously recorded.
+
+
+## Engineering standards follow-up
+
+During engineering standards implementation, phase 1 production build and HTTP smoke verification passed under permitted execution (homepage, assets and shared styles). Phase 1 is now complete. Routes now live in packages/app/src/app and dependencies follow the engineering spec's app → core → db direction with standalone UI. Awilix request scopes and health route are implemented; ORM entity-manager scope integration remains phase 2 work. The full engineering gate has a separate unresolved dependency audit blocker, recorded in its specification.
