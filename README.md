@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevMentor
 
-## Getting Started
+DevMentor is a TypeScript application built with Next.js and React. Its target architecture is a monorepo with reusable domain, persistence, and UI packages.
 
-First, run the development server:
+## Technology choices
+
+- **Application:** latest stable, mutually compatible Next.js, React, and TypeScript releases. The repository's installed versions are recorded in `package.json` and `package-lock.json`; upgrades should verify compatibility.
+- **Database:** PostgreSQL with MikroORM for TypeScript entities, data access, migrations, and connection pooling.
+- **Dependency injection:** Awilix, with application composition and server container setup owned by the app package.
+- **Frontend pages:** Tailwind CSS.
+- **Backend/admin pages:** shadcn/ui components. Backend pages here refer to the administrative UI.
+
+## Target package structure
+
+```text
+packages/
+├── app/     # Main Next.js application and dependency composition
+├── core/    # Reusable domain logic, contracts, and utilities
+├── db/      # MikroORM entities, repositories, migrations, and database helpers
+└── ui/      # Reusable React components and styles
+```
+
+`app` consumes `core`, `db`, and `ui`. The `db` and `ui` packages may depend on `core`; `core` stays independent of Next.js, UI, and persistence implementations. Shared code is consumed through package exports, with no circular dependencies.
+
+Database access and the Awilix container stay on the server. Request-specific services and ORM entity managers use request scopes; database connection pooling is managed by the persistence layer. Database schema changes are captured in migrations under `packages/db`.
+
+The package structure is planned. The current repository is a root-level Next.js starter with its routes in `app/`; PostgreSQL, MikroORM, Awilix, shadcn/ui, and workspace packages have not yet been configured.
+
+## Local development
+
+With dependencies installed:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [localhost:3000](http://localhost:3000). The current entry page is `app/page.tsx`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Available verification commands:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+## Specifications and AI workflow
 
-To learn more about Next.js, take a look at the following resources:
+[AGENTS.md](AGENTS.md) defines the shared architecture and coding-agent rules; [CLAUDE.md](CLAUDE.md) imports them.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `.ai/specs/YYYY-MM-DD-slug.md`: SDD specifications, moved to `implemented/` after verification or `archive/` when superseded or abandoned.
+- `.ai/runs/YYYY-MM-DD-slug.md`: autonomous AI run plans, progress, decisions, and verification results.
+- `.ai/lessons.md` and `.ai/lessons/`: durable findings and prevention rules recorded after corrections and bug fixes.
