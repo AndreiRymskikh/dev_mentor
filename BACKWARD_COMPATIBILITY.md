@@ -1,0 +1,17 @@
+# Backward compatibility
+
+DevMentor is a private, unreleased npm-workspace application. These current contracts are protected against accidental changes, including between internal packages. Intentional breaking changes require an explicit specification, coordinated consumer updates, tests, and a migration note in the PR. No public semver/deprecation window is established yet.
+
+| Surface | Protected behavior | Required change path |
+| --- | --- | --- |
+| Package exports | @devmentor/core HTTP/container/config entry points, db repository contracts, ui PageShell and backend API/forms/tables/feedback entry points; app → core → db and standalone UI | Update all consumers together; retain aliases when consumers cannot migrate atomically; typecheck and test the contract. |
+| HTTP | GET /api/health is database-independent and returns the standard success envelope. Failures use ok:false and error.code/message/optional fieldErrors with appropriate status; unexpected failures never expose raw errors. | Document response/status changes and update client helpers, route and integration tests in the same change. |
+| UI routes | Home content/assets remain available. /admin intentionally returns HTTP 404 until the owner-approved admin feature exists. | Replace admin's 404 contract with specified auth/ownership scenarios when introducing that feature; update browser tests. |
+| Security helpers | Session resolution fails closed; ownership and mutation CSRF checks deny invalid requests. | Treat weakened auth, ownership or CSRF behavior as a security change requiring explicit review, failure-path tests and risk-high review/QA. |
+| Commands | Root dev/start/build/lint/typecheck/test/coverage/integration scripts, argument forwarding, and database lifecycle/migration script names | Preserve delegating aliases when renaming; update CI, README and pipeline validation configuration together. ORM CLI commands remain definitions awaiting ORM integration. |
+| Local PostgreSQL | Compose uses PostgreSQL 18, a persistent postgres_data volume and localhost-only port binding. Environment template names POSTGRES_DB/USER/PASSWORD/PORT and DATABASE_URL are configuration contracts. | Never reset volumes as part of routine changes. Major upgrades require reviewed migration or backup/restore; keep real credentials ignored. |
+| AI metadata | agentic.config.json version 1, provider descriptors, spec/run naming, and lessons index conventions | Preserve custom settings and metadata; document schema/path changes and migrate consumers before removing old paths. |
+
+There are no implemented MikroORM entities/schema migrations, business events, payment webhooks or authentication cookies to inventory yet. Add their actual contracts here when those features ship; do not claim compatibility for hypothetical APIs.
+
+Changes to shared contracts, auth, money, or schema migrations are high-risk and require the pipeline's second-person review and QA rules. Verification includes meaningful 100% production TypeScript unit coverage, typecheck, build and applicable browser/database integration checks.
