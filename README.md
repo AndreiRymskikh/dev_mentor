@@ -84,3 +84,38 @@ Core exports HTTP helpers through `@devmentor/core/http` and request scopes thro
 UI exposes independent `@devmentor/ui/backend/api`, `/forms`, `/tables`, and `/feedback` entry points. Application code passes pure validation schemas into `CrudForm`; UI does not import core. `DataTable` uses controlled pagination: its caller supplies the current page rows, total count, and page-change callback.
 
 The shared auth helpers require a verified session resolver; they do not implement login or JWT authentication. Auth/mentor entities, the users admin example, domain events, and concept validators will be added with their first feature specification. MikroORM integration remains a separate persistence stage. See the [engineering standards](.ai/specs/2026-09-01-engineering-standards.md).
+
+## Database workspace commands
+
+Root commands delegate to `packages/db` and forward CLI arguments:
+
+| Root command | Database workspace command |
+| --- | --- |
+| `npm run db:migration:create` | `migration:create` |
+| `npm run db:migrate` | `migration:up` |
+| `npm run db:migrate:down` | `migration:down` |
+| `npm run db:schema:update` | `schema:update` |
+| `npm run db:seed` | `seed` |
+
+These commands invoke the MikroORM CLI. They require the pending MikroORM setup: matching CLI/PostgreSQL/migrations/seeder packages, ORM configuration, entities and seeders. They are script definitions, not completed ORM integration. For example, once configured, `npm run db:migration:create -- --name=initial` forwards the name to MikroORM. Use migrations for tracked schema changes; reserve schema updates for local development. Review a down migration before running it, as rollback can remove data.
+
+## PR CI and tests
+
+[CI](.github/workflows/ci.yml) runs on every pull request, on pushes to `develop`/`main`, and manually. It uses Node 24 and `npm ci`, with separate **Production build**, **Lint and TypeScript**, **Unit tests (100% coverage)**, and **PostgreSQL and browser integration** jobs. Configure these four job names as required status checks in GitHub branch protection if merges must be mechanically blocked.
+
+```bash
+npm ci
+npm run test:unit
+npm run test:coverage
+npm run browser:install          # Linux: add -- --with-deps
+npm run build
+npm run test:integration         # Requires a running Docker engine
+```
+
+Vitest/V8 enforces 100% lines, statements, functions and branches per production TypeScript/TSX file, including Next configuration. It does not exclude untested production files. Generated declarations, assets, dependencies and test/operational tooling are outside that metric. Reports are in `coverage/`; CI uploads them even when coverage fails.
+
+Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and the `/admin` not-found page, while HTTP checks verify 200/404 statuses. `/admin` remains intentionally unimplemented. The current app has no persistence runtime, so these tests verify database readiness and app/browser behavior separately; migration/fixture setup and actual persistence tests must be added with ORM integration. Developer Compose data is untouched.
+
+The browser session, app process and test container are closed in cleanup. Snapshots, screenshots and app logs are retained in ignored `test-results/integration/` and uploaded by CI. Timeouts are centralized in `tests/integration/config.ts`. The integration script fails when no production build exists; it never silently skips tests when Docker or Chromium is missing.
+
+`npm run check` additionally runs `npm audit`. The previously recorded unpatched braces advisory remains a separate local full-gate blocker; it is not concealed by the four requested CI checks.

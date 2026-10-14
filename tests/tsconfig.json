@@ -1,4 +1,10 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["./**/*.ts", "./**/*.tsx"]
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.mts",
+    "../packages/app/.next/types/**/*.ts",
+    "../vitest.config.mts"
+  ]
 }

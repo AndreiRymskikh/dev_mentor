@@ -7,7 +7,12 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "migration:create": "mikro-orm migration:create",
+    "migration:up": "mikro-orm migration:up",
+    "migration:down": "mikro-orm migration:down",
+    "schema:update": "mikro-orm schema:update",
+    "seed": "mikro-orm seeder:run"
   },
   "dependencies": {}
 }

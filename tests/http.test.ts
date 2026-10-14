@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { z } from "zod";
 import { apiHandler, makeCrudRoute, requireSession, assertOwnership, requireCsrf, UnauthorizedError, NotFoundError } from "@devmentor/core/http";
@@ -56,4 +56,40 @@ test("server environment permits database-free boot but rejects invalid supplied
   assert.equal(readEnv({}).NODE_ENV, "development");
   assert.throws(() => readEnv({ JWT_SECRET: "short" }), /Invalid server environment/);
   assert.throws(() => readEnv({ DATABASE_URL: "invalid" }), /Invalid server environment/);
+});
+
+test("all domain errors preserve custom and default messages and status", async () => {
+  const { ForbiddenError, ValidationError, ConflictError, requireRole, assertOwnsBooking } = await import("@devmentor/core/http");
+  for (const Constructor of [NotFoundError, UnauthorizedError, ForbiddenError, ValidationError, ConflictError]) {
+    assert.ok(new Constructor().message);
+    assert.equal(new Constructor("custom").message, "custom");
+  }
+  const session = { userId: "owner", role: "mentor" };
+  assert.doesNotThrow(() => requireRole(session, "mentor"));
+  assert.throws(() => requireRole(session, "student"), ForbiddenError);
+  assert.doesNotThrow(() => assertOwnsBooking(session, { studentId: "owner" }));
+  assert.throws(() => assertOwnsBooking(session, { studentId: "other" }), ForbiddenError);
+  assert.deepEqual(await requireSession(request({}), async () => session), session);
+  await assert.rejects(requireSession(request({}), async () => ({ userId: "" })), UnauthorizedError);
+  await assert.rejects(requireSession(request({}), async () => ({ userId: 123 } as unknown as { userId: string })), UnauthorizedError);
+  assert.doesNotThrow(() => requireCsrf(request({}, { "X-DevMentor-CSRF": "1", origin: "http://localhost" })));
+  await assert.rejects(withScope(() => { throw new Error("scope failure"); }), /scope failure/);
+  const { readEnv } = await import("@devmentor/core/config");
+  assert.ok(readEnv().NODE_ENV);
+});
+test("CRUD supports list/update/delete, missing operations and root/nested validation", async () => {
+  const empty = makeCrudRoute({ authorize: async () => {} });
+  assert.equal((await empty.GET(new Request("http://localhost/api/demo"))).status, 404);
+  for (const method of ["POST", "PUT", "DELETE"] as const) assert.equal((await empty[method](request({}))).status, 404);
+  const schema = z.object({ name: z.string() });
+  const route = makeCrudRoute({ authorize: async () => {}, list: async (): Promise<string[] | { name: string }> => ["one"], update: { schema, run: async (value) => value }, remove: { schema, run: async (value) => value } });
+  assert.deepEqual((await (await route.GET(new Request("http://localhost/api/demo"))).json()).data, ["one"]);
+  for (const method of ["PUT", "DELETE"] as const) assert.deepEqual((await (await route[method](request({ name: "test" }))).json()).data, { name: "test" });
+  const invalid = makeCrudRoute({ authorize: async () => {}, create: { schema: z.string(), run: async (value) => value } });
+  assert.ok((await (await invalid.POST(request({}))).json()).error.fieldErrors._form);
+  const refined = z.object({ name: z.string().min(3).regex(/^X/), nested: z.object({ value: z.string() }) });
+  const nested = makeCrudRoute({ authorize: async () => {}, create: { schema: refined, run: async (value) => value } });
+  const errors = (await (await nested.POST(request({ name: "a", nested: { value: 1 } }))).json()).error.fieldErrors;
+  assert.equal(errors.name.length, 2);
+  assert.ok(errors["nested.value"]);
 });
