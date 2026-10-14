@@ -8,8 +8,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-## Working principles
-
 ## DevMentor architecture
 
 - DevMentor is a TypeScript monorepo targeting the latest stable, mutually compatible Next.js and React releases. Use the installed versions and their documentation; verify current releases before dependency upgrades.
@@ -26,7 +24,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   | `packages/ui` | Reusable React UI components, styles, and shared UI primitives. |
 
 - Keep dependencies directed: `app` consumes `core`, `db`, and `ui`; `db` and `ui` may consume `core`; `core` must not depend on the other packages. Avoid circular dependencies and import shared code through package exports.
-- The repository currently has a root-level Next.js `app/` directory. The package layout above is the target architecture; do not assume the workspace migration or planned dependencies are already installed.
+- The repository uses npm workspaces with the Next.js application in `packages/app/app/`. Run development and validation commands from the repository root. PostgreSQL/MikroORM, Awilix, and shadcn/ui runtime setup remain subsequent migration phases; consult the migration plan before using them.
 
 ## Working principles
 

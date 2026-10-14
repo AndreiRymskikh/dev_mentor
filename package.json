@@ -1,17 +1,16 @@
 {
-  "name": "dev_mentor",
+  "name": "devmentor",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.4.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "dev": "npm run dev --workspace @devmentor/app",
+    "start": "npm run start --workspace @devmentor/app",
+    "build": "npm run build --workspace @devmentor/app",
+    "lint": "eslint packages",
+    "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

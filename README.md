@@ -10,7 +10,7 @@ DevMentor is a TypeScript application built with Next.js and React. Its target a
 - **Frontend pages:** Tailwind CSS.
 - **Backend/admin pages:** shadcn/ui components. Backend pages here refer to the administrative UI.
 
-## Target package structure
+## Package structure
 
 ```text
 packages/
@@ -24,22 +24,24 @@ packages/
 
 Database access and the Awilix container stay on the server. Request-specific services and ORM entity managers use request scopes; database connection pooling is managed by the persistence layer. Database schema changes are captured in migrations under `packages/db`.
 
-The package structure is planned. The current repository is a root-level Next.js starter with its routes in `app/`; PostgreSQL, MikroORM, Awilix, shadcn/ui, and workspace packages have not yet been configured.
+The npm workspace structure is implemented. Routes live in `packages/app/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages currently expose shared contracts; PostgreSQL, MikroORM, Awilix, and shadcn/ui runtime configuration are subsequent phases in the [migration plan](.ai/specs/2026-10-14-monorepo-migration.md).
 
 ## Local development
 
-With dependencies installed:
+From the repository root:
 
 ```bash
+npm install
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The current entry page is `app/page.tsx`.
+Open [localhost:3000](http://localhost:3000). The current entry page is `packages/app/app/page.tsx`. Root `dev`, `build`, and `start` scripts delegate to the app workspace.
 
 Available verification commands:
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
 ```
 
