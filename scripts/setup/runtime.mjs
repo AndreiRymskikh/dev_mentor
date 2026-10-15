@@ -25,7 +25,7 @@ export function createRuntime(root, host = process) {
     root, npmCli, environment: host.env, nodeMajor: Number(host.versions.node.split('.')[0]),
     now: Date.now, sleep,
     log: (message) => console.log(message),
-    run: (command, args, env = {}) => execute(command, args, { cwd: root, env: { ...host.env, ...env }, maxBuffer: 16 * 1024 * 1024, signal: abort.signal }),
+    run: (command, args, env = {}, interruptible = true) => execute(command, args, { cwd: root, env: { ...host.env, ...env }, maxBuffer: 16 * 1024 * 1024, signal: interruptible ? abort.signal : undefined }),
     npm: (args, env) => io.run(host.execPath, [npmCli, ...args], env),
     async read(name) {
       try { return await fs.readFile(path.join(root, name), 'utf8'); }
@@ -91,10 +91,10 @@ export function createRuntime(root, host = process) {
       const wait = new Promise((resolve) => { child.once('error', () => { alive = false; resolve(1); }); child.once('exit', (code) => { alive = false; resolve(code ?? 0); }); });
       return { alive: () => alive, wait, async stop() {
         if (!alive) return;
-        if (host.platform === 'win32') await io.run('taskkill', ['/pid', String(child.pid), '/T', '/F']);
+        if (host.platform === 'win32') await io.run('taskkill', ['/pid', String(child.pid), '/T', '/F'], {}, false);
         else { try { host.kill(-child.pid, 'SIGTERM'); } catch { /* Child already exited; wait below confirms cleanup. */ } }
         await Promise.race([wait, io.sleep(5000, undefined, { ref: false })]);
-        if (alive) { host.kill(child.pid, 'SIGKILL'); await wait; }
+        if (alive) { host.kill(host.platform === 'win32' ? child.pid : -child.pid, 'SIGKILL'); await wait; }
       } };
     },
     async claim(identity) {
