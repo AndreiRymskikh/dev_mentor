@@ -29,7 +29,9 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:integration": "tsx --tsconfig tsconfig.base.json tests/integration/run.mts",
-    "browser:install": "agent-browser install"
+    "browser:install": "agent-browser install",
+    "setup": "node scripts/setup.mjs",
+    "test:setup": "tsx --tsconfig tsconfig.base.json tests/integration/setup.mts"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

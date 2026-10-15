@@ -6,5 +6,9 @@
     "./**/*.mts",
     "../packages/app/.next/types/**/*.ts",
     "../vitest.config.mts"
-  ]
+  ],
+  "compilerOptions": {
+    "allowJs": true,
+    "allowImportingTsExtensions": true
+  }
 }

@@ -26,14 +26,34 @@ Database access and the Awilix container stay on the server. Request-specific se
 
 The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages currently expose shared contracts; PostgreSQL is provisioned locally and Awilix scopes are configured. MikroORM persistence and shadcn/ui components are subsequent phases in the [migration plan](.ai/specs/2026-10-14-monorepo-migration.md).
 
-## Local development
+## Getting started
 
-From the repository root:
+Install Node.js 24+ and Docker with Compose v2, and start the Docker engine. From a fresh checkout:
+
+```bash
+npm run setup
+```
+
+Setup installs missing or drifted dependencies, creates a private root `.env` only when absent, starts local PostgreSQL and verifies authenticated access, then starts the development server in the foreground. It uses Node builtins and works before `node_modules` exists. Browser installation and CI tests remain separate optional steps.
+
+Rerunning validates current state and skips healthy dependencies, existing configuration and a healthy database. A setup-owned server with the same repository, dependency fingerprint, effective configuration and port is reused. Existing credentials and database data are preserved. Use `PORT=3001 npm run setup` on POSIX shells to choose another application port (PowerShell: `$env:PORT=3001; npm run setup`). `POSTGRES_PORT` and DATABASE_URL must describe the same database connection.
+
+Ctrl+C stops only the development server owned by this setup invocation; PostgreSQL data remains. If another setup is still preparing, retry after it reports ready. An occupied port belonging to an unverified process is reported rather than killed. After an abnormal termination, verify no installer/dev process is running before removing only `.devmentor/setup.lock` and retrying; never remove database volumes for routine recovery.
+
+Existing invalid or incomplete `.env` files are left unchanged with recovery instructions. Explicit POSTGRES_* and DATABASE_URL process values override the file, but must remain mutually consistent; the same effective settings are supplied to Compose, database checks and dev. If PostgreSQL storage already exists and credentials are missing, recover the original credentials instead of generating replacements. Secrets are not printed. Installer state under `.devmentor/` is ignored.
+
+### Manual alternative
+
+The original commands remain available. Prepare `.env` from `.env.example`, set POSTGRES_PASSWORD and the matching encoded DATABASE_URL (see Local PostgreSQL below), then run:
 
 ```bash
 npm install
+npm run db:up
+npm run db:check
 npm run dev
 ```
+
+When the app needs DATABASE_URL, export it to the dev process or place the matching value in `packages/app/.env.local`; setup supplies it automatically.
 
 Open [localhost:3000](http://localhost:3000). The current entry page is `packages/app/src/app/page.tsx`. Root `dev`, `build`, and `start` scripts delegate to the app workspace.
 
@@ -119,3 +139,5 @@ Integration runs start a PostgreSQL 18 Testcontainer with random credentials and
 The browser session, app process and test container are closed in cleanup. Snapshots, screenshots and app logs are retained in ignored `test-results/integration/` and uploaded by CI. Timeouts are centralized in `tests/integration/config.ts`. The integration script fails when no production build exists; it never silently skips tests when Docker or Chromium is missing.
 
 `npm run check` additionally runs `npm audit`. The previously recorded unpatched braces advisory remains a separate local full-gate blocker; it is not concealed by the four requested CI checks.
+
+`npm run test:setup` exercises a real first run and rerun in a temporary checkout with unique Compose resources and free ports. It verifies credential/dependency preservation, server reuse and a persisted SQL sentinel, then removes only its fixture resources. The normal integration runner includes this scenario. `scripts/setup` is included in the 100% unit coverage gate; no coverage threshold is relaxed.

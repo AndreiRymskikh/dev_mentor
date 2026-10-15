@@ -12,6 +12,7 @@ import { integrationConfig as config } from "./config";
 import type { BrowserResult } from "./context";
 import { testHome } from "./scenarios/home";
 import { testAdmin } from "./scenarios/admin";
+import { testInstaller } from "./setup.mts";
 
 const exec = promisify(execFile);
 const session = `devmentor-${randomUUID()}`;
@@ -92,6 +93,7 @@ async function main() {
   const context = { baseUrl, artifacts, browser };
   await testHome(context);
   await testAdmin(context);
+  await testInstaller();
   console.log("Integration passed: ephemeral PostgreSQL, home page and admin 404.");
 }
 try { await main(); }
