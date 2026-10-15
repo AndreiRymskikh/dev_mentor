@@ -12,9 +12,9 @@ Implement the reviewed Node-builtins-only setup flow without changing applicatio
 
 ### Phase 1: Installer and unit coverage
 
-- [ ] 1.1 Native runtime and state/credential checks.
-- [ ] 1.2 Staged installer, CLI and npm setup command.
-- [ ] 1.3 Meaningful 100% installer unit coverage.
+- [x] 1.1 Native runtime and state/credential checks.
+- [x] 1.2 Staged installer, CLI and npm setup command.
+- [x] 1.3 Meaningful 100% installer unit coverage.
 
 ### Phase 2: Evidence and documentation
 
@@ -25,3 +25,5 @@ Implement the reviewed Node-builtins-only setup flow without changing applicatio
 ## Risks
 
 Preserve credentials/volumes; never reclaim unverified locks or kill unrelated ports. Known braces audit advisory may block completion. No gh pipeline labels exist, so guarded mutations skip missing names.
+
+Phase 1 verified: 35 unit tests pass, including native filesystem/control-channel/process adapters. All installer and existing production sources have 100% statements, branches, functions and lines. Typecheck passed. Initial sandbox socket failures were resolved by permitted execution; no tests were skipped.
