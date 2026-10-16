@@ -11,3 +11,5 @@ For each lesson, record the problem, root cause or supporting evidence, recommen
 - **Use the shared JSX configuration in monorepo tests.** Moving app tsconfig left root TSX tests without the automatic React JSX runtime. Explicitly point the runner at tsconfig.base.json and typecheck test sources. See [test configuration](../tests/tsconfig.json).
 
 - **Keep shutdown commands independent of work cancellation.** Aborting setup must not cancel the Windows taskkill command used to stop its owned process tree. Use an uncancelled cleanup path and cover interruption plus forced shutdown in [runtime tests](../tests/setup-runtime.test.ts).
+
+- **Extract primitives through feature delivery.** A proposed foundations-first spec risked making a candidate abstraction inventory mandatory before any working consumer existed. Require a concrete feature consumer and inspect existing helpers before adding a primitive; separate product/security decisions instead of bundling them into one approval. See [users/auth specification run](runs/2026-10-16-users-auth-primitives-spec.md).
