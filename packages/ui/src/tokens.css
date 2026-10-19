@@ -1,0 +1,122 @@
+/* Approved home-page tokens. Provenance and contrast: ../../../lekcja-06/tokeny.md.
+ * Raw variables are private to this file; consumers use semantic/component tokens.
+ * Light is default. OS dark preference applies unless data-theme="light" is set
+ * on the root element. data-theme="dark" explicitly selects dark mode.
+ * This file defines values only; it does not style or import application UI.
+ */
+:root {
+  --raw-color-f6f7f2: #f6f7f2;
+  --raw-color-ffffff: #ffffff;
+  --raw-color-18332f: #18332f;
+  --raw-color-16312d: #16312d;
+  --raw-color-c7ef83: #c7ef83;
+  --raw-color-e9efdf: #e9efdf;
+  --raw-color-5d6f59: #5d6f59;
+  --raw-color-31534a: #31534a;
+  --raw-color-e4ece6: #e4ece6;
+  --raw-color-9fb6aa: #9fb6aa;
+  --raw-color-c6b4e0: #c6b4e0;
+  --raw-color-dce2d9: #dce2d9;
+  --raw-color-627069: #627069;
+  --raw-color-547137: #547137;
+  --raw-color-142c29: #142c29;
+  --raw-color-203d35: #203d35;
+  --raw-color-d6f3a6: #d6f3a6;
+  --raw-space-4: 4px;
+  --raw-space-8: 8px;
+  --raw-space-12: 12px;
+  --raw-space-16: 16px;
+  --raw-space-24: 24px;
+  --raw-space-32: 32px;
+  --raw-space-48: 48px;
+  --raw-space-64: 64px;
+  --raw-space-80: 80px;
+  --raw-radius-8: 8px;
+  --raw-radius-12: 12px;
+  --raw-radius-16: 16px;
+  --raw-radius-round: 50%;
+  --raw-font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --raw-font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --raw-duration-interaction: 200ms;
+  --raw-duration-none: 0ms;
+  --raw-shadow-code-panel: 0 22px 45px -30px #18332f80;
+
+  /* Purpose-based aliases and component exceptions. */
+  --background: var(--raw-color-f6f7f2);
+  --foreground: var(--raw-color-18332f);
+  --surface-card: var(--raw-color-ffffff);
+  --surface-support: var(--raw-color-e9efdf);
+  --surface-inverse: var(--raw-color-16312d);
+  --text-muted: var(--raw-color-627069);
+  --text-support: var(--raw-color-5d6f59);
+  --text-accent: var(--raw-color-547137);
+  --text-inverse: var(--raw-color-e4ece6);
+  --text-inverse-muted: var(--raw-color-9fb6aa);
+  --action-primary: var(--raw-color-18332f);
+  --action-primary-hover: var(--raw-color-31534a);
+  --text-on-action: var(--raw-color-ffffff);
+  --border-subtle: var(--raw-color-dce2d9);
+  --border-control: var(--raw-color-627069);
+  --focus-ring: var(--raw-color-547137);
+  --space-related: var(--raw-space-8);
+  --space-group: var(--raw-space-24);
+  --space-panel: var(--raw-space-24);
+  --space-section: var(--raw-space-64);
+  --space-page-gutter: calc(var(--raw-space-32) + var(--raw-space-8));
+  --radius-control: var(--raw-radius-8);
+  --radius-panel: var(--raw-radius-12);
+  --font-body: var(--raw-font-sans);
+  --font-code: var(--raw-font-mono);
+  --motion-duration-interaction: var(--raw-duration-interaction);
+  --code-panel-radius: var(--raw-radius-16);
+  --code-panel-shadow: var(--raw-shadow-code-panel);
+  --code-syntax-keyword: var(--raw-color-c6b4e0);
+  --code-syntax-highlight: var(--raw-color-c7ef83);
+}
+
+:root[data-theme="dark"] {
+  --background: var(--raw-color-142c29);
+  --foreground: var(--raw-color-e4ece6);
+  --surface-card: var(--raw-color-18332f);
+  --surface-support: var(--raw-color-203d35);
+  --text-muted: var(--raw-color-9fb6aa);
+  --text-support: var(--raw-color-9fb6aa);
+  --text-accent: var(--raw-color-c7ef83);
+  --action-primary: var(--raw-color-c7ef83);
+  --action-primary-hover: var(--raw-color-d6f3a6);
+  --text-on-action: var(--raw-color-142c29);
+  --border-subtle: var(--raw-color-203d35);
+  --border-control: var(--raw-color-9fb6aa);
+  --focus-ring: var(--raw-color-c7ef83);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: var(--raw-color-142c29);
+    --foreground: var(--raw-color-e4ece6);
+    --surface-card: var(--raw-color-18332f);
+    --surface-support: var(--raw-color-203d35);
+    --text-muted: var(--raw-color-9fb6aa);
+    --text-support: var(--raw-color-9fb6aa);
+    --text-accent: var(--raw-color-c7ef83);
+    --action-primary: var(--raw-color-c7ef83);
+    --action-primary-hover: var(--raw-color-d6f3a6);
+    --text-on-action: var(--raw-color-142c29);
+    --border-subtle: var(--raw-color-203d35);
+    --border-control: var(--raw-color-9fb6aa);
+    --focus-ring: var(--raw-color-c7ef83);
+  }
+}
+
+@media (max-width: 650px) {
+  :root {
+    --space-section: var(--raw-space-48);
+    --space-page-gutter: calc(var(--raw-space-16) + var(--raw-space-4));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-interaction: var(--raw-duration-none);
+  }
+}
