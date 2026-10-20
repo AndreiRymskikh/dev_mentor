@@ -1,0 +1,15 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../color.stories';
+import { Doc, Source } from '../foundations';
+
+<Meta of={Stories} />
+
+<Unstyled>
+  <Doc title="Color">
+    <h2>Use purpose, then verify the pair</h2>
+    <p>Use background and foreground for the page; surface-card for a contained panel; text-muted only on the page or a card. On surface-support, use text-support. Reserve action-primary for the main action. Raw palette variables are private to tokens.css.</p>
+    <p>The measured table covers every permitted text/background and essential interface pairing. Switching themes updates the actual computed values. A failing pair blocks use; decorative borders are explicitly excluded from control identification.</p>
+    <Source ids="A1, P1/P2; F04/F07; WCAG 1.4.1, 1.4.3, 1.4.11" />
+    <Canvas of={Stories.Guide} />
+  </Doc>
+</Unstyled>

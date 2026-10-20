@@ -1,0 +1,56 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../primitives/label.stories';
+import { Doc, Source } from '../foundations';
+import { ApiTable } from '../batch-one-helpers';
+
+<Meta of={Stories} />
+<Unstyled><Doc title="Label">
+<h2>1. Purpose</h2>
+<p>Give a form control a permanent, programmatically associated name.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>2. When to use</h2>
+<p>Use with a single input when no additional field feedback is needed. Prefer FormField when you need hints, required/optional wording or errors, so those associations are not rebuilt on every screen.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>3. When not to use</h2>
+<p>Do not use Label as a heading, status badge, button or a placeholder. A group of choices needs a fieldset/legend in its eventual pattern, rather than one Label pretending to describe every control.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>4. Anatomy</h2>
+<p>The Radix label root renders a native label. Its htmlFor matches exactly one control id. Text and requirement metadata can wrap without losing the association.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>5. Variants and sizes</h2>
+<p>One style uses the approved 14px label role and 600 weight. No size or emphasis variants are approved. The label remains legible when its control is unavailable.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<Canvas of={Stories.Playground} />
+<h2>6. States</h2>
+<p>Label has no independent hover, focus, pressed, selected, loading or error state. Clicking it focuses the associated enabled control. Disabled appearance must not fade the label. Field errors and loading belong to FormField or the form action rather than a colored Label.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<Canvas of={Stories.States} />
+<h2>7. Behavior and accessibility</h2>
+<p>htmlFor and id must match and remain unique within the document. A label is not in the tab order: the native control receives keyboard focus. Radix keeps native label behavior and guards accidental selection on repeated mouse activation. Supply a visible reason near a disabled control; do not disable the label to hide essential context. WCAG: 1.3.1 (relationships), 2.1.1 (keyboard), 2.4.7 (focus), 2.5.8 (target size), 3.3.1/3.3.2 (errors and labels), 4.1.2/4.1.3 (name/state and announcements).</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>8. Content</h2>
+<p>Name the value with concise, familiar wording: Email or Session feedback. Avoid sentence-long instructions inside the label; place them in a hint. There is no hard character limit: wrap longer translations and keep the name visible above the input.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>9. Responsiveness</h2>
+<p>Verify at 320, 768 and 1440px in both themes. Preserve the source order, wrap labels and feedback, and keep the approved minimum target height rather than shrinking type. Use semantic group/panel spacing and a readable body measure. The narrow story is a fluid maximum-width specimen; it must not force horizontal page overflow. [F02/F03/F06; WCAG 1.4.10]</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<Canvas of={Stories.Narrow} />
+<Canvas of={Stories.LongContent} />
+<h2>10. API</h2>
+<ApiTable rows={[["htmlFor", "string; normally required by composition", "Matches the input/textarea id."], ["children", "ReactNode", "A visible, meaningful control name."], ["className", "string; omitted", "Semantic composition classes only."], ["Native Radix label props and ref", "ComponentProps<LabelPrimitive.Root>", "Preserves label events and native association."]]} />
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2; real package TypeScript signatures" />
+<h2>11. Code</h2>
+<h3>Minimal</h3>
+<pre><code>{"<Label htmlFor=\"email\">Email</Label>\n<Input id=\"email\" type=\"email\" />"}</code></pre>
+<h3>Typical DevMentor composition</h3>
+<pre><code>{"<FormField label=\"Email\" hint=\"Use your registered address.\">{control => <Input {...control} type=\"email\" />}</FormField>"}</code></pre>
+<p>Import Label from @devmentor/ui/components/ui/label. Snippet callbacks and state belong to the consuming screen. Examples do not create a backend endpoint.</p>
+<Canvas of={Stories.Interaction} />
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>12. Good and bad</h2>
+<div className="ds-good-bad"><section><h3>Good</h3><pre><code>{"<Label htmlFor=\"email\">Email</Label>\n<Input id=\"email\" />"}</code></pre><p>The matching identifiers connect the visible name to the control.</p></section><section><h3>Bad — code illustration only</h3><pre><code>{"<Label htmlFor=\"other\">Email</Label>\n<Input id=\"email\" />"}</code></pre><p>A mismatched association leaves the input unnamed; use FormField to generate it safely.</p></section></div>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2" />
+<h2>13. Related</h2>
+<p>FormField composes Label and feedback. A heading names a section, not a control. Input and Textarea own focus and editing.</p>
+<Source ids="AUTH UI/UX; F02/F04; WCAG 1.3.1, 3.3.2, 4.1.2; approved Stage 0 batch plan" />
+</Doc></Unstyled>

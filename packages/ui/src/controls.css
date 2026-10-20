@@ -1,0 +1,39 @@
+/* A1, F02–F08: these utilities are also applied by frozen Storybook states. */
+@utility dm-focus-state {
+  outline: var(--focus-width) solid var(--focus-ring);
+  outline-offset: var(--space-focus-offset);
+}
+@utility dm-primary-hover { background: var(--action-primary-hover); }
+@utility dm-text-hover { background: var(--surface-support); color: var(--foreground); }
+@utility dm-control-hover { border-color: var(--foreground); }
+@utility dm-link-hover { text-decoration-thickness: var(--focus-width); }
+
+.dm-focus:focus-visible { @apply dm-focus-state; }
+.dm-action { display: inline-flex; flex-direction: column; align-items: stretch; gap: var(--space-related); max-width: var(--size-fill); min-width: var(--space-none); }
+.dm-button { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-related); border: var(--border-width) solid; border-radius: var(--radius-control); padding: var(--space-related) var(--space-control-inline); font: inherit; font-size: var(--font-size-label); font-weight: var(--weight-label); line-height: var(--line-label); overflow-wrap: anywhere; white-space: normal; cursor: pointer; transition: background-color var(--motion-duration-interaction), border-color var(--motion-duration-interaction); }
+.dm-button-primary { background: var(--action-primary); color: var(--text-on-action); border-color: var(--action-primary); }
+.dm-button-text { background: none; color: var(--text-accent); border-color: var(--border-invisible); }
+.dm-button-primary:enabled:hover, .dm-button-primary:enabled:active { @apply dm-primary-hover; }
+.dm-button-text:enabled:hover, .dm-button-text:enabled:active { @apply dm-text-hover; }
+.dm-button[aria-pressed="true"] { text-decoration: underline; text-decoration-thickness: var(--focus-width); }
+.dm-button:disabled { background: var(--surface-card); color: var(--text-muted); border-color: var(--border-control); cursor: not-allowed; }
+.dm-size-default { min-height: var(--size-control); }
+.dm-size-compact { min-height: var(--size-control-compact); }
+.dm-size-icon { min-height: var(--size-icon-action); width: var(--size-icon-action); padding: var(--space-none); }
+.dm-button svg, .dm-icon { flex-shrink: 0; width: var(--size-icon-inline); height: var(--size-icon-inline); }
+.dm-size-icon svg { width: var(--size-icon-standalone); height: var(--size-icon-standalone); }
+.dm-link { display: inline-flex; align-items: center; min-height: var(--size-target-min); max-width: var(--size-fill); color: var(--text-accent); font: inherit; text-decoration: underline; text-decoration-thickness: var(--border-width); text-underline-offset: var(--space-focus-offset); overflow-wrap: anywhere; }
+.dm-link:hover, .dm-link:active { @apply dm-link-hover; }
+.dm-control { display: block; box-sizing: border-box; min-width: var(--space-none); width: var(--size-fill); border: var(--border-width) solid var(--border-control); border-radius: var(--radius-control); padding: var(--space-related) var(--space-control-inline); background: var(--surface-card); color: var(--foreground); font-family: var(--font-body); font-size: var(--font-size-body); line-height: var(--line-body); transition: border-color var(--motion-duration-interaction); }
+.dm-control:enabled:hover { @apply dm-control-hover; }
+.dm-control::placeholder { color: var(--text-muted); opacity: var(--opacity-content); }
+.dm-control:disabled { color: var(--text-muted); cursor: not-allowed; }
+.dm-control[readonly] { background: var(--surface-support); }
+.dm-control[readonly]::placeholder { color: var(--text-support); }
+.dm-control[aria-invalid="true"] { border-color: var(--foreground); }
+.dm-input.dm-size-compact { font-size: var(--font-size-label); line-height: var(--line-label); }
+.dm-textarea { min-height: var(--size-textarea-min); resize: vertical; }
+.dm-label { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-related); color: var(--foreground); font-family: var(--font-body); font-size: var(--font-size-label); font-weight: var(--weight-label); line-height: var(--line-label); overflow-wrap: anywhere; }
+.dm-field { display: grid; gap: var(--space-related); min-width: var(--space-none); }
+.dm-help, .dm-field-indicator { margin: var(--space-none); color: var(--text-muted); font-size: var(--font-size-label); font-weight: var(--weight-body); line-height: var(--line-label); overflow-wrap: anywhere; }
+.dm-field-error { display: flex; align-items: start; gap: var(--space-related); margin: var(--space-none); color: var(--foreground); font-size: var(--font-size-label); line-height: var(--line-label); overflow-wrap: anywhere; }

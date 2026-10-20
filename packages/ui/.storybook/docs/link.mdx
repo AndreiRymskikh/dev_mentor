@@ -1,0 +1,57 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../primitives/link.stories';
+import { Doc, Source } from '../foundations';
+import { ApiTable } from '../batch-one-helpers';
+
+<Meta of={Stories} />
+<Unstyled><Doc title="Link and text action">
+<h2>1. Purpose</h2>
+<p>Take a developer to a destination while keeping navigation distinct from an action.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>2. When to use</h2>
+<p>Use Link for mentor details, public-work evidence, password recovery and external support contact. For an operation such as clearing filters, use Button variant=text instead.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>3. When not to use</h2>
+<p>Do not use a link with href=# to trigger a mutation, and do not make an anchor look disabled. If a destination is unavailable, show explanatory text until it exists. Do not turn navigation into an onClick-only button.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>4. Anatomy</h2>
+<p>A native anchor has a required destination and meaningful text. Its underline makes the link recognizable without color alone. Optional target and rel preserve native browser behavior. A new-tab link needs a visible warning in its text.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>5. Variants and sizes</h2>
+<p>There is one Link style with no visual size variants. It uses the approved accent, underline and minimum 24px target. Text action is the existing Button text variant; it is not an anchor variant. Links inside body copy should remain readable in context.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<Canvas of={Stories.NavigationAndAction} />
+<h2>6. States</h2>
+<p>Default, hover, focus-visible and pressed are demonstrated. Hover thickens the underline without introducing a new color. Visited uses the same product style. Selected, error, disabled and loading are not independent Link states; describe missing destinations instead of publishing a broken link. A current navigation item may use native aria-current when its parent navigation warrants it.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<Canvas of={Stories.States} />
+<h2>7. Behavior and accessibility</h2>
+<p>Tab focuses the anchor; Enter follows it. Browser context menus, copy-link and new-tab behavior are preserved. URL parsing allows web, email and relative destinations and rejects executable schemes. target=_blank merges noopener/noreferrer with caller relations. Public work must remain evidence rather than a rating badge. Use onClick only for observation or explicit native prevention in a demo, not as the primary navigation contract. WCAG: 1.3.1 (relationships), 2.1.1 (keyboard), 2.4.7 (focus), 2.5.8 (target size), 3.3.1/3.3.2 (errors and labels), 4.1.2/4.1.3 (name/state and announcements).</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<p>The playground intercepts clicks to keep its test frame open; the separate built-browser check verifies native anchor navigation. This harness behavior is not part of the exported Link API. [TASK interaction testing]</p>
+<h2>8. Content</h2>
+<p>Name the destination: View public work or Reset password, not Click here. Warn opens in a new tab when target=_blank. There is no artificial character limit; text wraps at narrow widths. Do not expose sensitive token-bearing links in examples.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>9. Responsiveness</h2>
+<p>Verify at 320, 768 and 1440px in both themes. Preserve the source order, wrap labels and feedback, and keep the approved minimum target height rather than shrinking type. Use semantic group/panel spacing and a readable body measure. The narrow story is a fluid maximum-width specimen; it must not force horizontal page overflow. [F02/F03/F06; WCAG 1.4.10]</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<Canvas of={Stories.Narrow} />
+<Canvas of={Stories.LongContent} />
+<h2>10. API</h2>
+<ApiTable rows={[["href", "string; required", "Web, email or relative URL; unsupported schemes throw."], ["children", "ReactNode", "Meaningful destination text."], ["target / rel", "Native anchor values; omitted", "New tabs automatically add noopener and noreferrer."], ["className", "string; omitted", "Token-based composition classes."], ["Native anchor props and ref", "ComponentProps<a>", "Preserves keyboard navigation, aria-current and native browser affordances."]]} />
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2; real package TypeScript signatures" />
+<h2>11. Code</h2>
+<h3>Minimal</h3>
+<pre><code>{"<Link href=\"/forgot-password\">Reset password</Link>"}</code></pre>
+<h3>Typical DevMentor composition</h3>
+<pre><code>{"<Link href={publicWorkUrl} target=\"_blank\">View public work (opens in a new tab)</Link>"}</code></pre>
+<p>Import Link from @devmentor/ui/components/ui/link. Snippet callbacks and state belong to the consuming screen. Examples do not create a backend endpoint.</p>
+<Canvas of={Stories.Interaction} />
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>12. Good and bad</h2>
+<div className="ds-good-bad"><section><h3>Good</h3><pre><code>{"<Link href=\"/mentors\">Find a mentor</Link>"}</code></pre><p>The label names a real destination and retains native navigation.</p></section><section><h3>Bad — code illustration only</h3><pre><code>{"<a href=\"#\" onClick={save}>Save profile</a>"}</code></pre><p>Saving is an operation; use a Button and expose its pending/error states.</p></section></div>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2" />
+<h2>13. Related</h2>
+<p>Button performs an action. Button variant=text gives an action lower emphasis. Missing public work is explanatory content, not a disabled Link.</p>
+<Source ids="N02; BRIEF D04; ENG security; F02–F05; TASK Stage 2; approved Stage 0 batch plan" />
+</Doc></Unstyled>

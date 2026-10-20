@@ -1,0 +1,15 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../typography.stories';
+import { Doc, Source } from '../foundations';
+
+<Meta of={Stories} />
+
+<Unstyled>
+  <Doc title="Typography">
+    <h2>Choose a text role before a size</h2>
+    <p>A screen title uses the page-heading role; subsections use section-heading; ordinary explanations use body. Labels stay visible. Metadata carries secondary context, never the only instruction needed to act. Numbers use tabular numerals where comparison matters. Code uses the bundled mono family.</p>
+    <p>Body measure is capped at 65 characters. Inter Variable and JetBrains Mono Variable are bundled as local assets under OFL-1.1. Marketing hero type is limited to the approved marketing context, not administrative forms. Long content must wrap without clipping.</p>
+    <Source ids="F01/F02; A1; WCAG 1.4.4, 1.4.10" />
+    <Canvas of={Stories.Guide} />
+  </Doc>
+</Unstyled>

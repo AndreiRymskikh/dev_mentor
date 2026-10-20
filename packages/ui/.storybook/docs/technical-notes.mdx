@@ -1,0 +1,19 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Doc, Source } from '../foundations';
+import * as Stories from '../contracts.stories';
+
+<Meta of={Stories} />
+<Unstyled><Doc title="Technical notes">
+<p>DevMentor uses React and Tailwind CSS. The approved component base is shadcn/ui on Radix. Stage 1 supplied foundations. Stage 2 batch 1 adds CLI-generated Button, Input, Textarea and Label adapted to DevMentor tokens, plus composed Link and FormField. Their manuals document the product-specific APIs rather than every upstream variant.</p>
+<h2>Sources and authority</h2>
+<p>A1 is the accepted home-page design. P1 and P2 are the approved contrast corrections and dark palette in lekcja-06/tokeny.md. F01–F08 were approved in packages/ui/POSTEP.md. The missing references and backlog files are not replaced with invented IDs. C1–C5 are provisional documentation groups.</p>
+<p>The product brief D02–D04 keeps payment, sessions and support external. N01 excludes video; N02 excludes public ratings. Use public work to establish relevant experience. Invitations and dispute tools remain missing scope.</p>
+<h2>Commands and boundaries</h2>
+<p>From the repository root: npm run storybook, npm run build-storybook, npm run test:storybook:themes, npm run check:tokens, npm run test:foundations and npm run typecheck:storybook. These are local commands; no deployment or publication is configured.</p>
+<p>The styles export is opt-in: @devmentor/ui/styles.css bundles fonts, token aliases and base text styles. @devmentor/ui/tokens.css defines values only. Existing component APIs and application routes remain intact. Stories import package components; documentation-only specimens live in .storybook and are not exported as product components.</p>
+<h2>Token checker policy</h2>
+<p>Authored src, .storybook and executable docs examples are checked for literal colors, palette utilities, arbitrary Tailwind values and raw-token consumption. Only src/tokens.css may define raw values. Vendor files, the generated MSW worker and generated builds are excluded. Structural CSS keywords are permitted. Visual dimensions use semantic tokens; the token file owns the literal media breakpoint because CSS variables cannot appear in media conditions. Node tests exercise checker failure paths.</p>
+<h2>Fonts and accessibility</h2>
+<p>Inter Variable and JetBrains Mono Variable are local Fontsource packages licensed OFL-1.1; the built documentation includes the <a href="/licenses/inter-OFL.txt">Inter license</a> and <a href="/licenses/jetbrains-mono-OFL.txt">JetBrains Mono license</a>. No font CDN is used by this design system. Accessibility tests fail on violations in both themes. Automated checks do not replace keyboard and responsive review.</p>
+<Source ids="TASK rules 3–5, 7–12; approved Stage 0 Q1–Q5; F01–F08; BRIEF D02–D04/N01/N02" />
+</Doc></Unstyled>

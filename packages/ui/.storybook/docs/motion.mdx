@@ -1,0 +1,15 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../motion.stories';
+import { Doc, Source } from '../foundations';
+
+<Meta of={Stories} />
+
+<Unstyled>
+  <Doc title="Motion">
+    <h2>Motion explains a state change</h2>
+    <p>Use motion-duration-interaction for hover and focus transitions. It resolves to 200ms normally and 0ms when reduced motion is requested. Avoid decorative motion, shimmer and pulsing skeletons.</p>
+    <p>Retain the action label while a request is pending; expose busy status to assistive technology. Never animate a false success before server confirmation. Hover the specimen and inspect its computed token; test reduced-motion through your browser preference.</p>
+    <Source ids="F04/F08; TASK forms; WCAG 2.3.3 (AAA guidance), 4.1.3" />
+    <Canvas of={Stories.Guide} />
+  </Doc>
+</Unstyled>

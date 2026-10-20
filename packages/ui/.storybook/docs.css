@@ -1,0 +1,61 @@
+@reference "../src/styles.css";
+/* Documentation helpers only; source decisions: POSTEP F01–F08, A1 and P1/P2. */
+.ds-doc { padding: var(--space-panel); background: var(--background); color: var(--foreground); font-family: var(--font-body); font-size: var(--font-size-body); line-height: var(--line-body); }
+.ds-doc h1 { font-size: var(--font-size-page); line-height: var(--line-heading); font-weight: var(--weight-heading); }
+.ds-doc h2 { font-size: var(--font-size-section); line-height: var(--line-heading); font-weight: var(--weight-heading); margin-block: var(--space-group); }
+.ds-doc h3, .ds-doc summary { font-size: var(--font-size-body); font-weight: var(--weight-label); }
+.ds-doc p, .ds-doc li { max-width: var(--size-body-measure); }
+.ds-doc > p, .ds-doc > ul, .ds-doc > ol { margin-block: var(--space-group); }
+.ds-doc a { color: var(--text-accent); text-decoration: underline; }
+.ds-doc code { font-family: var(--font-code); font-size: var(--font-size-code); }
+.ds-doc :focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--space-focus-offset); }
+.ds-doc table { width: 100%; border-collapse: collapse; text-align: left; font-size: var(--font-size-label); }
+.ds-doc th, .ds-doc td { padding: var(--space-related); border-bottom: var(--border-width) solid var(--border-subtle); vertical-align: top; overflow-wrap: anywhere; }
+.ds-doc th { font-weight: var(--weight-label); }
+.ds-scroll { overflow-x: auto; }
+.ds-stack { display: grid; gap: var(--space-group); }
+.ds-row { display: flex; flex-wrap: wrap; gap: var(--space-related); align-items: center; }
+.ds-sample { border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-panel); padding: var(--space-panel); background: var(--surface-card); color: var(--foreground); }
+.ds-swatch { display: inline-block; width: var(--size-control); height: var(--size-control); border: var(--border-width) solid var(--border-control); border-radius: var(--radius-control); }
+.ds-caption { font-size: var(--font-size-metadata); color: var(--text-muted); }
+.ds-role-heading { font-size: var(--font-size-page); line-height: var(--line-heading); font-weight: var(--weight-heading); }
+.ds-role-section { font-size: var(--font-size-section); line-height: var(--line-heading); font-weight: var(--weight-heading); }
+.ds-role-hero { font-size: var(--font-size-hero); line-height: var(--line-hero); font-weight: var(--weight-heading); }
+.ds-role-label { font-size: var(--font-size-label); line-height: var(--line-label); font-weight: var(--weight-label); }
+.ds-role-metadata { font-size: var(--font-size-metadata); line-height: var(--line-label); }
+.ds-role-numbers { font-size: var(--font-size-numbers); font-variant-numeric: tabular-nums; }
+.ds-role-code { font-family: var(--font-code); font-size: var(--font-size-code); line-height: var(--line-code); }
+.ds-related { gap: var(--space-related); }
+.ds-groups { gap: var(--space-group); }
+.ds-section { padding-block: var(--space-section); }
+.ds-measure { max-width: var(--size-body-measure); }
+.ds-control-guide { min-height: var(--size-control); padding-inline: var(--space-control-inline); border: var(--border-width) solid var(--border-control); border-radius: var(--radius-control); display: flex; align-items: center; }
+.ds-focus-guide { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--space-focus-offset); }
+.ds-code-panel { border-radius: var(--code-panel-radius); background: var(--surface-inverse); color: var(--text-inverse); box-shadow: var(--code-panel-shadow); padding: var(--space-panel); }
+.ds-motion-guide { transition: background-color var(--motion-duration-interaction); }
+.ds-motion-guide:hover { background: var(--surface-support); }
+.ds-icon-inline { width: var(--size-icon-inline); height: var(--size-icon-inline); }
+.ds-icon-standalone { width: var(--size-icon-standalone); height: var(--size-icon-standalone); }
+.ds-layout { box-sizing: border-box; max-width: var(--size-content-max); padding-inline: var(--space-page-gutter); margin-inline: auto; width: 100%; }
+.ds-layout-narrow { max-width: var(--size-layout-narrow); }
+.ds-layout-medium { max-width: var(--size-layout-medium); }
+.ds-layout-wide { max-width: var(--size-layout-wide); }
+.ds-portaled { position: fixed; inset-inline: var(--space-page-gutter); bottom: var(--space-group); background: var(--surface-card); color: var(--foreground); border: var(--border-width) solid var(--border-control); border-radius: var(--radius-panel); padding: var(--space-panel); }
+
+/* P2: document chrome follows the root theme as well as unstyled previews. */
+.sbdocs.sbdocs-wrapper, .sbdocs.sbdocs-content { background: var(--background); color: var(--foreground); }
+
+/* Documentation only; same utilities as the real hover/focus declarations. */
+.dm-focus[data-preview-state="focus"] { @apply dm-focus-state; }
+.dm-button-primary[data-preview-state="hover"], .dm-button-primary[data-preview-state="pressed"] { @apply dm-primary-hover; }
+.dm-button-text[data-preview-state="hover"], .dm-button-text[data-preview-state="pressed"] { @apply dm-text-hover; }
+.dm-control[data-preview-state="hover"] { @apply dm-control-hover; }
+.dm-link[data-preview-state="hover"], .dm-link[data-preview-state="pressed"] { @apply dm-link-hover; }
+.ds-state-grid { display: grid; gap: var(--space-group); }
+.ds-state-grid > section { min-width: var(--space-none); }
+.ds-demo-form { display: grid; gap: var(--space-group); max-width: var(--size-body-measure); }
+.ds-narrow { max-width: var(--size-layout-narrow); }
+.ds-good-bad { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(var(--size-fill), var(--size-layout-narrow)), 1fr)); gap: var(--space-group); }
+.ds-good-bad pre, .ds-doc pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* F06/WCAG 1.4.10: long package import paths are text, and must wrap too. */
+.ds-doc p, .ds-doc li { overflow-wrap: anywhere; }

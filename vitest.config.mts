@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   oxc: { jsx: { runtime: "automatic" } },
   test: {
-    include: ["tests/**/*.test.{ts,tsx}"],
+    include: ["tests/**/*.test.{ts,tsx}", "packages/ui/tests/**/*.test.{ts,tsx}"],
     environment: "node",
     restoreMocks: true,
     unstubGlobals: true,

@@ -1,0 +1,16 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../themes.stories';
+import { Doc, Source } from '../foundations';
+
+<Meta of={Stories} />
+
+<Unstyled>
+  <Doc title="Themes">
+    <h2>Theme belongs to the document root</h2>
+    <p>Select Light or Dark in the toolbar. The decorator writes data-theme to document.documentElement, so body portals and the main canvas resolve the same variables. The theme is not a CSS class placed only on the story wrapper.</p>
+    <p>The token file follows the OS preference when no explicit root theme exists; an explicit light or dark value wins. Both themes run the same browser interaction and accessibility checks. The portal specimen is a documentation probe, not a Dialog implementation.</p>
+    <Source ids="P2; F04; TASK rule 9" />
+    <Canvas of={Stories.Guide} />
+    <Canvas of={Stories.PortalInheritance} />
+  </Doc>
+</Unstyled>

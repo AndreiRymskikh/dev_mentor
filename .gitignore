@@ -51,3 +51,7 @@ next-env.d.ts
 
 # Local installer state (never PostgreSQL data)
 /.devmentor/
+
+# Local design-system builds and browser evidence
+/packages/ui/storybook-static/
+/packages/ui/.storybook/test-results/

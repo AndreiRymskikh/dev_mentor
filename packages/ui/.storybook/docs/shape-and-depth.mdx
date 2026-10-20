@@ -1,0 +1,15 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../shape-and-depth.stories';
+import { Doc, Source } from '../foundations';
+
+<Meta of={Stories} />
+
+<Unstyled>
+  <Doc title="Shape and depth">
+    <h2>Shape follows the job</h2>
+    <p>Controls use radius-control (8px); panels use radius-panel (12px). The code illustration alone has a 16px radius and its approved shadow. Use border-control to identify an essential control; border-subtle separates decoration only.</p>
+    <p>Standard controls are at least 48px tall; 40px compact controls are reserved for dense administrative rows. Icon action targets are 40px. Focus uses the approved outline and a surface-colored offset so it remains distinct around filled actions. The specimens below show geometry only, not available components.</p>
+    <Source ids="A1; P1; F03/F04/F08; WCAG 1.4.11, 2.4.7, 2.5.8" />
+    <Canvas of={Stories.Guide} />
+  </Doc>
+</Unstyled>

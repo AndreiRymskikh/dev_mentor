@@ -5,7 +5,9 @@
     "./**/*.tsx",
     "./**/*.mts",
     "../packages/app/.next/types/**/*.ts",
-    "../vitest.config.mts"
+    "../vitest.config.mts",
+    "../packages/ui/tests/**/*.ts",
+    "../packages/ui/tests/**/*.tsx"
   ],
   "compilerOptions": {
     "allowJs": true,

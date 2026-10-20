@@ -1,0 +1,56 @@
+import { Meta, Canvas, Unstyled } from '@storybook/addon-docs/blocks';
+import * as Stories from '../primitives/input.stories';
+import { Doc, Source } from '../foundations';
+import { ApiTable } from '../batch-one-helpers';
+
+<Meta of={Stories} />
+<Unstyled><Doc title="Input">
+<h2>1. Purpose</h2>
+<p>Collect a single-line value such as the email address used to sign in.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>2. When to use</h2>
+<p>Use for short text, email, password and native search inputs. Compose it with FormField for a label, hint, validation feedback and requirement state. Set autocomplete to match the real account flow.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>3. When not to use</h2>
+<p>Use Textarea for multiple lines. Do not use Input as a checkbox, radio, file uploader or select: those controls belong to later batches. A placeholder is an example, never a replacement for Label.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>4. Anatomy</h2>
+<p>The native input supplies its value, caret and native constraints. FormField supplies the visible label, optional hint, required/optional text, error icon/message and disabled reason. The control alone does not validate the form.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>5. Variants and sizes</h2>
+<p>Default density is at least 48px high. Compact is at least 40px and reserved for dense administrative rows such as a user-list filter. There are no decorative or status-color variants.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<Canvas of={Stories.Densities} />
+<h2>6. States</h2>
+<p>Default, hover, focus, disabled, read-only and invalid states are shown. Read-only values stay focusable and copyable; disabled values cannot be edited or tabbed to and need a visible explanation. Native selection remains available for text. Pressed and selected are editing interactions, not separate visual variants. Loading belongs to the form action; it must not erase entered values.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<Canvas of={Stories.States} />
+<h2>7. Behavior and accessibility</h2>
+<p>Native keyboard editing and browser autocomplete are preserved. Label activation focuses its matching input. The control receives aria-invalid and description IDs from FormField. Its owner decides blur/submit validation, focuses the first error after failed submission and preserves entered data. Do not announce an error on every keystroke. Essential borders use border-control; focus uses the approved outline. WCAG: 1.3.1 (relationships), 2.1.1 (keyboard), 2.4.7 (focus), 2.5.8 (target size), 3.3.1/3.3.2 (errors and labels), 4.1.2/4.1.3 (name/state and announcements).</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>8. Content</h2>
+<p>Use a permanent visible label. Use a realistic example such as alex@example.com in the placeholder, with a hint explaining constraints. There is no default maximum length: the consuming specification supplies maxLength. Long labels wrap; a long single-line value scrolls inside its control. Do not shrink type for longer translations.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>9. Responsiveness</h2>
+<p>Verify at 320, 768 and 1440px in both themes. Preserve the source order, wrap labels and feedback, and keep the approved minimum target height rather than shrinking type. Use semantic group/panel spacing and a readable body measure. The narrow story is a fluid maximum-width specimen; it must not force horizontal page overflow. [F02/F03/F06; WCAG 1.4.10]</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<Canvas of={Stories.Narrow} />
+<Canvas of={Stories.LongContent} />
+<h2>10. API</h2>
+<ApiTable rows={[["type", "Native input type; text", "Use an appropriate single-line text type; other control families are separate components."], ["density", "'default' | 'compact'; default", "Standard or administrative compact height."], ["value / defaultValue / onChange", "Native controlled/uncontrolled props", "The owner manages state."], ["required / disabled / readOnly", "Native booleans; omitted", "Preserve native semantics and provide contextual guidance."], ["aria-invalid / aria-describedby", "Native ARIA props", "Normally supplied by FormField."], ["className and remaining native props/ref", "ComponentProps<input>", "Includes autocomplete, name, maxLength and inputMode."]]} />
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2; real package TypeScript signatures" />
+<h2>11. Code</h2>
+<h3>Minimal</h3>
+<pre><code>{"<FormField label=\"Email\">{control => <Input {...control} type=\"email\" autoComplete=\"email\" />}</FormField>"}</code></pre>
+<h3>Typical DevMentor composition</h3>
+<pre><code>{"<FormField label=\"Email\" hint=\"Use your registered address.\" error={emailError} required>{control => <Input {...control} type=\"email\" autoComplete=\"email\" value={email} onChange={updateEmail} />}</FormField>"}</code></pre>
+<p>Import Input from @devmentor/ui/components/ui/input. Snippet callbacks and state belong to the consuming screen. Examples do not create a backend endpoint.</p>
+<Canvas of={Stories.Interaction} />
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>12. Good and bad</h2>
+<div className="ds-good-bad"><section><h3>Good</h3><pre><code>{"<FormField label=\"Email\">{control => <Input {...control} type=\"email\" />}</FormField>"}</code></pre><p>The label remains visible and is programmatically associated.</p></section><section><h3>Bad — code illustration only</h3><pre><code>{"<Input placeholder=\"Email\" />"}</code></pre><p>A placeholder disappears during typing and does not provide the required label.</p></section></div>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2" />
+<h2>13. Related</h2>
+<p>Textarea is multiline. Label is association only. FormField adds accessible hints/errors; the form owner supplies validation and server behavior.</p>
+<Source ids="AUTH UI/UX; F02–F04; TASK forms; WCAG 1.3.1, 2.5.8, 3.3.2; approved Stage 0 batch plan" />
+</Doc></Unstyled>
