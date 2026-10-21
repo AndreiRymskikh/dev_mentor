@@ -8,6 +8,8 @@ Status: proposed design for review; no implementation performed. Source: [issue 
 
 ## Confirmed decisions
 
+- Implementation started 2026-10-21; progress and manual phase gates live in [track.md](../../track.md). Owner override: defer GitHub authentication and deliver a button explaining it will be implemented soon. OAuth endpoints, ExternalIdentity/OAuthAttempt persistence, provider configuration and live-provider acceptance are outside this implementation. Remaining GitHub descriptions below are retained as deferred design. Completion is assessed against this reduced scope.
+
 - One user can hold developer, mentor and administrator roles simultaneously. Registration grants developer; users can add mentor themselves. Only administrators grant administrator, except the first-admin operator bootstrap.
 - Email verification and password recovery are included. Account linking/unlinking is deferred: credentials and GitHub collisions are rejected without merging identities or attaching new credentials.
 - One feature specification; reusable foundations are delivered through working feature slices. Concrete abstractions cover the agreed MVP, not deferred vault/subscriptions/MCP.
