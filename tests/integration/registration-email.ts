@@ -1,3 +1,4 @@
+import { integrationConfig as config } from "./config";
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { SMTPServer } from "smtp-server";
@@ -13,7 +14,7 @@ export async function testRegistrationEmail(runtime: ReturnType<typeof createDat
   let rejectDelivery = false;
   let stall = false;
   const server = new SMTPServer({
-    secure: false, disabledCommands: ["AUTH", "STARTTLS"], logger: false, closeTimeout: 1000,
+    secure: false, disabledCommands: ["AUTH", "STARTTLS"], logger: false, closeTimeout: config.smtpCloseTimeoutMs,
     onData(stream, _session, callback) {
       let body = "";
       stream.on("data", (chunk: Buffer) => { body += chunk.toString("utf8"); });
@@ -66,7 +67,7 @@ export async function testRegistrationEmail(runtime: ReturnType<typeof createDat
     stall = true;
     const started = Date.now();
     await assert.rejects(sender.send({ type: "verification", to: "stall@example.test", token: "s".repeat(43) }), /Service temporarily unavailable/);
-    assert.ok(Date.now() - started < 12000, "overall SMTP deadline must bound DATA completion");
+    assert.ok(Date.now() - started < config.smtpDeadlineAssertionMs, "overall SMTP deadline must bound DATA completion");
     assert.deepEqual(logs, ["emails.verification.delivery_failed"]);
     console.log("Registration email passed: real SMTP delivery, persisted digest, collision, failure invalidation, recovery and stalled delivery cancellation.");
   } finally {

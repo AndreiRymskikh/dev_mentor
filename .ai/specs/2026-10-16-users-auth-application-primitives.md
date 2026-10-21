@@ -4,7 +4,7 @@
 
 Proposed: deliver issue [#4](https://github.com/AndreiRymskikh/dev_mentor/issues/4) using reusable server, persistence and UI primitives that can support the agreed catalog, availability, booking and feedback flows. The application already has HTTP envelopes, CRUD wiring, fail-closed security helpers, request-scoped Awilix composition and basic UI helpers; it has no production authentication or ORM runtime. Extend and validate those foundations through real users/authentication flows rather than introduce a parallel framework.
 
-Status: proposed design for review; no implementation performed. Source: [issue #4](https://github.com/AndreiRymskikh/dev_mentor/issues/4).
+Status: implementation in progress; phase/task completion and outstanding manual gates are tracked in [track.md](../../track.md). No security sign-off or overall completion is claimed. Source: [issue #4](https://github.com/AndreiRymskikh/dev_mentor/issues/4).
 
 ## Confirmed decisions
 

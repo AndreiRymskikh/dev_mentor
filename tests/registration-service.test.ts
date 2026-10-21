@@ -1,3 +1,4 @@
+vi.mock("node:timers/promises", () => ({ setTimeout: vi.fn().mockResolvedValue(undefined) }));
 import { createHash } from "node:crypto";
 import { expect, test, vi } from "vitest";
 import { RegistrationService } from "../packages/core/src/services/users/registration.service";
@@ -54,4 +55,27 @@ test("storage errors are safe and delivery/invalidation errors preserve generic 
   context.repository.invalidateVerification.mockRejectedValueOnce(new Error("private SQL"));
   expect(await context.service.register(input, "ip")).toEqual(result);
   expect(context.log.warn.mock.calls).toEqual([["emails.verification.delivery_failed"], ["emails.verification.delivery_failed"], ["emails.verification.invalidation_failed"]]);
+});
+
+test("new, duplicate and stalled-delivery outcomes share the full SMTP response window", async () => {
+  const { setTimeout: wait } = await import("node:timers/promises");
+  const clock = vi.spyOn(Date, "now");
+  try {
+    for (const outcome of ["new", "duplicate", "rejected", "stalled", "overrun"] as const) {
+      const context = setup();
+      clock.mockReturnValue(100000);
+      context.repository.create.mockResolvedValueOnce(outcome === "duplicate" ? null : "id");
+      context.email.send.mockImplementationOnce(async () => {
+        if (outcome === "stalled") { clock.mockReturnValue(110000); throw new Error("SMTP deadline"); }
+        if (outcome === "overrun") { clock.mockReturnValue(116000); throw new Error("Storage outage overrun"); }
+        if (outcome === "rejected") throw new Error("SMTP rejected");
+      });
+      vi.mocked(wait).mockClear();
+      const result = await context.service.register(input, "ip");
+      expect(result.message).toContain("If registration can proceed");
+      if (outcome === "overrun") expect(wait).not.toHaveBeenCalled();
+      else if (outcome === "stalled") expect(wait).toHaveBeenCalledWith(5000);
+      else expect(wait).toHaveBeenCalledWith(15000);
+    }
+  } finally { clock.mockRestore(); }
 });

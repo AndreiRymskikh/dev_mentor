@@ -15,10 +15,13 @@ import { testAdmin } from "./scenarios/admin";
 import { testDatabase } from "./database";
 import { testInstaller } from "./setup.mts";
 
+import { registrationFixture } from "./registration-http";
+
 const exec = promisify(execFile);
 const session = `devmentor-${randomUUID()}`;
 const artifacts = path.resolve(config.artifacts);
 const browserCli = path.resolve("node_modules/agent-browser/bin/agent-browser.js");
+let mail: Awaited<ReturnType<typeof registrationFixture>> | undefined;
 let database: StartedPostgreSqlContainer | undefined;
 let app: ChildProcess | undefined;
 let appExited = false;
@@ -52,6 +55,7 @@ async function shutdown() {
     await Promise.race([exited, delay(5000)]);
     if (!appExited) { app.kill("SIGKILL"); await exited; }
   }
+  if (mail) await mail.close();
   if (database) await database.stop();
 }
 async function main() {
@@ -73,10 +77,11 @@ async function main() {
   } finally { await client.end(); }
   process.env.DATABASE_URL = database.getConnectionUri();
   await testDatabase(database.getConnectionUri());
+  mail = await registrationFixture();
   const port = await freePort();
   const baseUrl = `http://127.0.0.1:${port}`;
   app = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "packages/app", "--hostname", "127.0.0.1", "--port", String(port)], {
-    env: { ...process.env, NODE_ENV: "production", DATABASE_URL: database.getConnectionUri() },
+    env: { ...process.env, NODE_ENV: "production", ...mail.environment, DATABASE_URL: database.getConnectionUri() },
     stdio: ["ignore", "pipe", "pipe"],
   });
   app.once("exit", () => { appExited = true; });
@@ -94,6 +99,7 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
+  await mail.test(baseUrl, database.getConnectionUri());
   await testHome(context);
   await testAdmin(context);
   await testInstaller();

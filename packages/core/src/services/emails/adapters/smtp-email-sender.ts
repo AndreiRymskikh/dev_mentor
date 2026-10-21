@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ServiceUnavailableError } from "../../../http/errors";
 import type { EmailMessage, EmailSender } from "../email-sender.port";
 
-const DELIVERY_TIMEOUT_MS = 10_000;
+import { EMAIL_DELIVERY_TIMEOUT_MS as DELIVERY_TIMEOUT_MS } from "../delivery-policy";
 
 const configuration = z.object({
   APP_ORIGIN: z.url(),

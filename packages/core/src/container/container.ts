@@ -1,3 +1,7 @@
+import { RegistrationRepository, RateLimitRepository } from "@devmentor/db";
+import { RegistrationService } from "../services/users/registration.service";
+import { RateLimitService } from "../services/limits/rate-limit.service";
+import { SmtpEmailSender } from "../services/emails/adapters/smtp-email-sender";
 import { randomUUID } from "node:crypto";
 import { asFunction, asValue, createContainer, InjectionMode } from "awilix";
 import { logger } from "../logger";
@@ -5,7 +9,16 @@ import type { Cradle } from "./cradle";
 
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
-  container.register({ logger: asValue(logger), requestId: asFunction(() => randomUUID()).scoped() });
+  container.register({
+    logger: asValue(logger),
+    requestId: asFunction(() => randomUUID()).scoped(),
+    registrationRepository: asFunction(() => new RegistrationRepository()).scoped(),
+    rateLimitRepository: asFunction(() => new RateLimitRepository()).scoped(),
+    emailSender: asFunction(() => new SmtpEmailSender()).scoped(),
+    rateLimitService: asFunction(({ rateLimitRepository }: Cradle) => new RateLimitService(rateLimitRepository, () => process.env.RATE_LIMIT_SECRET)).scoped(),
+    registrationService: asFunction(({ registrationRepository, rateLimitService, emailSender, logger }: Cradle) =>
+      new RegistrationService(registrationRepository, rateLimitService, emailSender, { warn: (event) => logger.warn({ event }, "Email delivery event") })).scoped(),
+  });
   return container;
 }
 const container = createAppContainer();

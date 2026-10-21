@@ -90,10 +90,12 @@ test("rate service hashes operation-scoped identity, applies policy and denies c
 
  test("failed delivery invalidation locks user and conditionally updates only the issued active token", async () => {
   const runtime = createDatabaseRuntime();
+  const execute = vi.fn();
   const findOneOrFail = vi.fn().mockResolvedValue({});
   const nativeUpdate = vi.fn();
-  vi.spyOn(runtime, "transaction").mockImplementation(async (work) => work({ findOneOrFail, nativeUpdate } as never));
+  vi.spyOn(runtime, "transaction").mockImplementation(async (work) => work({ findOneOrFail, nativeUpdate, execute } as never));
   await new RegistrationRepository(runtime).invalidateVerification("user", "digest");
+  expect(execute).toHaveBeenCalledWith("select set_config(?, ?, true), set_config(?, ?, true)", ["lock_timeout", "1s", "statement_timeout", "1s"]);
   expect(findOneOrFail.mock.calls[0][1]).toEqual({ id: "user" });
   expect(findOneOrFail.mock.calls[0][2]).toEqual({ lockMode: LockMode.PESSIMISTIC_WRITE });
   expect(nativeUpdate).toHaveBeenCalledWith(ActionToken, { userId: "user", purpose: "verify-email", digest: "digest", consumedAt: null }, { consumedAt: expect.any(Date) });

@@ -39,6 +39,7 @@ export class RegistrationRepository {
   /** Serialize with future token writers; never revoke a replacement token. */
   async invalidateVerification(userId: string, digest: string): Promise<void> {
     await this.runtime.transaction(async (em) => {
+      await em.execute("select set_config(?, ?, true), set_config(?, ?, true)", ["lock_timeout", "1s", "statement_timeout", "1s"]);
       await em.findOneOrFail(User, { id: userId }, { lockMode: LockMode.PESSIMISTIC_WRITE });
       await em.nativeUpdate(ActionToken, { userId, purpose: "verify-email", digest, consumedAt: null }, { consumedAt: new Date() });
     });

@@ -172,5 +172,30 @@ awaiting delivery. Delivery failure keeps the public response generic and invali
 only that issued token. If the database is also unavailable, revocation cannot be
 guaranteed; the service records a fixed event without sensitive diagnostics. Same-account
 verification resend is a phase 3 feature; phase 2 integration proves recovery through a
-subsequent successful registration after a simulated SMTP failure. No registration route
-is exposed until task P2.3.
+subsequent successful registration after a simulated SMTP failure. The registration API is now exposed through task P2.3; use the checkpoint below.
+
+### Phase 2 registration API checkpoint
+
+Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links are delivered now, but their pages and token consumption arrive in phase 3/4.
+
+For development, optionally start [Mailpit](https://github.com/axllent/mailpit) pinned to [v1.31.5](https://github.com/axllent/mailpit/releases/tag/v1.31.5):
+
+```sh
+docker run --rm --name devmentor-mailpit -p127.0.0.1:1025:1025 -p127.0.0.1:8025:8025 axllent/mailpit:v1.31.5
+```
+
+Open its [local mailbox](http://localhost:8025). This optional manual command was not executed during implementation; automated tests use their own SMTPServer fixture. For development only, this or an existing loopback SMTP sink can use `SMTP_LOCAL_SINK=true`, `SMTP_HOST=127.0.0.1`, its listening port, and `APP_ORIGIN=http://localhost:3000`. This intentionally rejects production mode. The automated integration suite provisions its own authenticated STARTTLS sink and disposable database; it needs Docker and OpenSSL and never resets the Compose database.
+
+Start `npm run dev`, then run:
+
+```sh
+curl -i http://localhost:3000/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"email":"your-test-mailbox@example.com","displayName":"Manual Test","password":"a unique test password"}'
+```
+
+Expect a generic JSON 202, `Cache-Control: no-store`, and no session cookie. A duplicate or delivery failure returns the same response. Admitted registrations intentionally take at least 15 seconds, including duplicates: the response window covers the 10-second SMTP deadline and cleanup budget to reduce account-existence timing disclosure. Severe database/network outages can exceed that window; this is not a constant-time guarantee under outages. Invalid fields or forged `roles` return 400, removing the CSRF header returns 403, and missing server configuration or unavailable persistence returns safe 503.
+
+Next's request does not expose a trusted peer address. Registration therefore uses one conservative shared bucket across clients (10 registrations/hour), ignoring `X-Forwarded-For` and `X-Real-IP`. There is no trusted-proxy configuration yet. Email limits also apply; 429 includes bounded `Retry-After`. This conservative limit is intentional until a verified proxy integration is introduced. Restarting the app does not clear database-backed limits. `/api/health` remains independent of database and mail configuration; `/admin` remains 404.

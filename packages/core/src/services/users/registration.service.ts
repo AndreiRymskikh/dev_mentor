@@ -1,3 +1,5 @@
+import { setTimeout as wait } from "node:timers/promises";
+import { REGISTRATION_RESPONSE_WINDOW_MS } from "../emails/delivery-policy";
 import { createHash, randomBytes } from "node:crypto";
 import type { RegistrationRepository } from "@devmentor/db";
 import { registerSchema } from "../../validators/users/register.schema";
@@ -32,6 +34,7 @@ export class RegistrationService {
     await this.limits.registration(ip);
     await this.limits.email(email, ip);
     this.email.assertConfigured();
+    const responseStarted = Date.now();
     const passwordHash = await hashPassword(password);
     const token = randomBytes(32).toString("base64url");
     const digest = createHash("sha256").update(token).digest("hex");
@@ -54,6 +57,8 @@ export class RegistrationService {
         }
       }
     }
+    const remaining = REGISTRATION_RESPONSE_WINDOW_MS - (Date.now() - responseStarted);
+    if (remaining > 0) await wait(remaining);
     return { message: "If registration can proceed, check your email for verification instructions." };
   }
 }

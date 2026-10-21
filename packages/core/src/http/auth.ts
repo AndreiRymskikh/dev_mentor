@@ -1,4 +1,4 @@
-import { ForbiddenError, UnauthorizedError } from "./errors";
+import { ForbiddenError, UnauthorizedError, ServiceUnavailableError } from "./errors";
 
 export interface Session { userId: string; role?: string }
 export type SessionResolver = (request: Request) => Promise<Session | null>;
@@ -20,8 +20,16 @@ export function assertOwnership(session: Session, ownerId: string | null | undef
 export function assertOwnsBooking(session: Session, booking: { studentId: string }): void {
   assertOwnership(session, booking.studentId);
 }
-export function requireCsrf(request: Request): void {
+export function requireCsrf(request: Request, trustedOrigin?: string): void {
   if (request.headers.get("X-DevMentor-CSRF") !== "1") throw new ForbiddenError("Invalid request origin");
+  let expected = new URL(request.url).origin;
+  if (trustedOrigin !== undefined) {
+    let configured: URL;
+    try { configured = new URL(trustedOrigin); }
+    catch { throw new ServiceUnavailableError(); }
+    if (!["http:", "https:"].includes(configured.protocol) || configured.username || configured.password || configured.pathname !== "/" || configured.search || configured.hash) throw new ServiceUnavailableError();
+    expected = configured.origin;
+  }
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) throw new ForbiddenError("Invalid request origin");
+  if (origin && origin !== expected) throw new ForbiddenError("Invalid request origin");
 }

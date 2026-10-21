@@ -13,7 +13,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 ## Phase 2 — Registration and email (current)
 - [x] P2.1 Explicit repositories, strict registration validation, bcrypt and atomic database rate limits.
 - [x] P2.2 Email port/SMTP adapter, token issuance/invalidation and registration service; delivery failure/retry checks.
-- [ ] P2.3 Scoped composition and registration API; CSRF, generic 202 response metadata and disposable database/mail tests.
+- [x] P2.3 Scoped composition and registration API; CSRF, generic 202 response metadata and disposable database/mail tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
 ## Phase 3 — Verified credentials and sessions
@@ -49,3 +49,7 @@ P1.2 reviewed and committed with this update: six explicit auth entity schemas a
 P2.1 committed as `62eaefc`: narrow atomic registration repository, pure strict schema, pinned bcryptjs3.0.3 cost12, PostgreSQL atomic HMAC-only hourly limits. Lint/typecheck, 66 tests with100% all coverage metrics, Webpack build and full disposable PostgreSQL/browser/installer integration passed. Default Turbopack EPERM and six existing high audit findings remain; phase2 manual checkpoint remains pending.
 
 P2.2 reviewed and committed with this update: atomic initial verification digest, strict registration service, explicit email port and Nodemailer10.1.7 SMTP adapter with TLS/fixed origin and ten-second active cancellation. Unit coverage74 tests100% all metrics; lint/typecheck, production Webpack build and full disposable DB/SMTP/browser/installer integration passed. Six existing high audit findings remain. SMTP recovery is subsequent new registration; same-account resend remainsP3.1. P2.3 and manual phase checkpoint remain open.
+
+P2.3 implemented: explicit lazy scoped DI, bounded streaming JSON registration route, CSRF against validated configured public origin, generic202/no-store, safe429 Retry-After and compatible typed success metadata/cookies. Scoped independent review corrected SMTP timing enumeration with a15-second shared public completion window (documented outage limits). Lint/typecheck,82 tests100% all metrics, production Webpack build and full disposable PostgreSQL/authenticatedSTARTTLS/productionHTTP/browser/installer integration passed. Default Turbopack remains blocked by worker-portEPERM; audit retains six existing high findings. README includes local Mailpit/manual curl instructions. Phase2 owner manual checkpoint is pending; stop before phase3.
+
+P2.2 commit: `4d3a667`. P2.3 parent-reviewed and committed with this tracker update. Phase 2 implementation is ready for manual testing; remaining acceptance/full-gate checkboxes stay open. Issue #4 is not complete.
