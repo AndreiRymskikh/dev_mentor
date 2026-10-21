@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { compare, getRounds } from "bcryptjs";
-import { UniqueConstraintViolationException } from "@mikro-orm/postgresql";
-import { createDatabaseRuntime, RegistrationRepository, RateLimitRepository, User, UserRole, Credential } from "../packages/db/src";
+import { LockMode, UniqueConstraintViolationException } from "@mikro-orm/postgresql";
+import { createDatabaseRuntime, RegistrationRepository, RateLimitRepository, User, UserRole, Credential, ActionToken } from "../packages/db/src";
 import { registerSchema } from "../packages/core/src/validators/users/register.schema";
 import { hashPassword } from "../packages/core/src/services/credentials/password";
 import { RateLimitService } from "../packages/core/src/services/limits/rate-limit.service";
@@ -34,13 +34,14 @@ test("registration writes only explicit identity, baseline role and credential i
   const flush = vi.fn();
   const transaction = vi.spyOn(runtime, "transaction").mockImplementation(async (work) => work({ create, flush } as never));
   const repository = new RegistrationRepository(runtime);
-  const input = { normalizedEmail: "person@example.test", displayName: "Person", passwordHash: "hash" };
+  const input = { normalizedEmail: "person@example.test", displayName: "Person", passwordHash: "hash", verificationDigest: "a".repeat(64), verificationExpiresAt: new Date() };
   const id = await repository.create(input);
   expect(id).toMatch(/^[a-f0-9-]{36}$/);
   expect(create.mock.calls).toEqual([
     [User, { id, normalizedEmail: input.normalizedEmail, displayName: input.displayName, createdAt: expect.any(Date), updatedAt: expect.any(Date) }],
     [UserRole, { userId: id, role: "developer" }],
     [Credential, { userId: id, passwordHash: "hash", passwordChangedAt: expect.any(Date) }],
+    [ActionToken, { id: expect.any(String), userId: id, purpose: "verify-email", digest: input.verificationDigest, expiresAt: input.verificationExpiresAt }],
   ]);
   expect(flush).toHaveBeenCalledOnce();
   transaction.mockRejectedValueOnce(new UniqueConstraintViolationException(new Error("sensitive constraint")));
@@ -85,4 +86,15 @@ test("rate service hashes operation-scoped identity, applies policy and denies c
   }
   await expect(new RateLimitService({ consume }, () => { throw new Error("config"); }).registration("shared")).rejects.toEqual(new ServiceUnavailableError());
   expect([0, 0.2, 4000, Infinity, NaN].map((value) => new RateLimitError(value).retryAfterSeconds)).toEqual([1, 1, 3600, 3600, 3600]);
+});
+
+ test("failed delivery invalidation locks user and conditionally updates only the issued active token", async () => {
+  const runtime = createDatabaseRuntime();
+  const findOneOrFail = vi.fn().mockResolvedValue({});
+  const nativeUpdate = vi.fn();
+  vi.spyOn(runtime, "transaction").mockImplementation(async (work) => work({ findOneOrFail, nativeUpdate } as never));
+  await new RegistrationRepository(runtime).invalidateVerification("user", "digest");
+  expect(findOneOrFail.mock.calls[0][1]).toEqual({ id: "user" });
+  expect(findOneOrFail.mock.calls[0][2]).toEqual({ lockMode: LockMode.PESSIMISTIC_WRITE });
+  expect(nativeUpdate).toHaveBeenCalledWith(ActionToken, { userId: "user", purpose: "verify-email", digest: "digest", consumedAt: null }, { consumedAt: expect.any(Date) });
 });

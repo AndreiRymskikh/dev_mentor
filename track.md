@@ -12,7 +12,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 
 ## Phase 2 — Registration and email (current)
 - [x] P2.1 Explicit repositories, strict registration validation, bcrypt and atomic database rate limits.
-- [ ] P2.2 Email port/SMTP adapter, token issuance/invalidation and registration service; delivery failure/retry checks.
+- [x] P2.2 Email port/SMTP adapter, token issuance/invalidation and registration service; delivery failure/retry checks.
 - [ ] P2.3 Scoped composition and registration API; CSRF, generic 202 response metadata and disposable database/mail tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
@@ -46,4 +46,6 @@ P1.1 reviewed and committed with this tracker update. Exact MikroORM 7.2.5 pins;
 
 P1.2 reviewed and committed with this update: six explicit auth entity schemas and additive migration; locked empty-data rollback; root migration CLI config; real disposable ORM/constraint/CLI tests. Lint/typecheck, 61 unit tests with 100% coverage, production webpack build and full PostgreSQL/browser/installer integration passed. `npm audit` still reports the six existing high findings; therefore the complete phase gate remains open. Default Turbopack build has the previously recorded execution restriction. README supplies the phase 1 manual checkpoint (`npm run test:integration`) without touching Compose data. Owner checkpoint has not been performed. Implementation pauses here before phase 2.
 
-P2.1 implemented: narrow atomic registration repository, pure strict schema, pinned bcryptjs3.0.3 cost12, PostgreSQL atomic HMAC-only hourly limits. Lint/typecheck, 66 tests with100% all coverage metrics, Webpack build and full disposable PostgreSQL/browser/installer integration passed. Default Turbopack EPERM and six existing high audit findings remain. Task awaits parent commit; phase2 manual checkpoint remains pending.
+P2.1 committed as `62eaefc`: narrow atomic registration repository, pure strict schema, pinned bcryptjs3.0.3 cost12, PostgreSQL atomic HMAC-only hourly limits. Lint/typecheck, 66 tests with100% all coverage metrics, Webpack build and full disposable PostgreSQL/browser/installer integration passed. Default Turbopack EPERM and six existing high audit findings remain; phase2 manual checkpoint remains pending.
+
+P2.2 reviewed and committed with this update: atomic initial verification digest, strict registration service, explicit email port and Nodemailer10.1.7 SMTP adapter with TLS/fixed origin and ten-second active cancellation. Unit coverage74 tests100% all metrics; lint/typecheck, production Webpack build and full disposable DB/SMTP/browser/installer integration passed. Six existing high audit findings remain. SMTP recovery is subsequent new registration; same-account resend remainsP3.1. P2.3 and manual phase checkpoint remain open.

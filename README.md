@@ -151,3 +151,26 @@ The browser session, app process and test container are closed in cleanup. Snaps
 `npm run check` additionally runs `npm audit`. The previously recorded unpatched braces advisory remains a separate local full-gate blocker; it is not concealed by the four requested CI checks.
 
 `npm run test:setup` exercises a real first run and rerun in a temporary checkout with unique Compose resources and free ports. It verifies credential/dependency preservation, server reuse and a persisted SQL sentinel, then removes only its fixture resources. The normal integration runner includes this scenario. `scripts/setup` is included in the 100% unit coverage gate; no coverage threshold is relaxed.
+
+### Registration email configuration (phase 2)
+
+Registration services require `RATE_LIMIT_SECRET` (at least 32 random bytes), fixed
+`APP_ORIGIN` and `EMAIL_FROM`, plus `SMTP_HOST`/`SMTP_PORT`. Production SMTP requires
+`SMTP_USER`/`SMTP_PASSWORD` and verified TLS (implicit on port 465, required STARTTLS
+otherwise); `APP_ORIGIN` must be an HTTPS origin without a path/query/credentials.
+Configuration is checked only when registering or sending email, so build and health
+remain independent of secrets. Never derive the origin or sender from request headers.
+
+For development, explicitly set `SMTP_LOCAL_SINK=true`, `NODE_ENV=development` and
+an IP literal loopback `SMTP_HOST` (`127.0.0.1` or `::1`) with your local mail-sink port.
+This policy permits plaintext to that sink only. Do not use real recipients or external
+SMTP credentials for tests: integration starts its own disposable loopback SMTP sink.
+A ten-second overall delivery deadline closes the connection across connect/auth/send.
+
+Initial registration atomically persists a 24-hour verification token digest before
+awaiting delivery. Delivery failure keeps the public response generic and invalidates
+only that issued token. If the database is also unavailable, revocation cannot be
+guaranteed; the service records a fixed event without sensitive diagnostics. Same-account
+verification resend is a phase 3 feature; phase 2 integration proves recovery through a
+subsequent successful registration after a simulated SMTP failure. No registration route
+is exposed until task P2.3.

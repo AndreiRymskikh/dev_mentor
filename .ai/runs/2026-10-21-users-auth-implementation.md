@@ -57,3 +57,52 @@ Validation: lint and typecheck passed. Elevated full coverage passed66 tests, 10
 P2.1 full `npm run test:integration` passed: disposable database race/rollback tests, home/admin404 browser flows, installer preservation and cleanup. No developer Compose data touched. Parent review/commit pending; P2.2 not started by this subagent.
 
 Parent reviewed P2.1 production code, unit assertions and disposable race checks; `git diff --check` passed. Task committed with this update. Proceed to P2.2; no manual phase result inferred.
+
+## P2.2 — Registration orchestration and bounded SMTP delivery
+
+Added RegistrationService with strict boundary validation and explicit field errors,
+registration/email limits before hashing or persistence, bcrypt credentials, a cryptographic
+32-byte base64url token and SHA-256 digest with 24-hour expiry. RegistrationRepository
+now atomically writes the initial verification token with the identity/credential/developer
+membership. Duplicate identities preserve existing data and return the same public result.
+Storage failures become typed safe 503. Fixed SMTP configuration is validated before
+persistence and evaluated lazily, independent of health/build.
+
+EmailSender port has explicit verification/password-reset message types; SmtpEmailSender
+uses exact Nodemailer 10.1.7 and its documented [SMTPConnection API](https://nodemailer.com/extras/smtp-connection).
+Version verified through npm, with official [SMTP configuration](https://nodemailer.com/smtp)
+and installed maintained implementation checked for close/deadline behavior. SMTP server
+sink is exact smtp-server3.20.2, used only in tests. Production uses authenticated verified
+TLS and HTTPS fixed APP_ORIGIN; explicit plaintext sink policy requires development/test
+and IP literal loopback. Sender/origin never come from Host headers. A single ten-second
+overall deadline owns and closes the SMTP connection across DNS/connect/auth/send; late
+connect/auth callbacks cannot continue after settlement. All timer paths clear their timer.
+No SMTP protocol debugging, raw credentials, recipients or tokens are logged.
+
+Persisted tokens precede awaited send. On failure, fixed delivery_failed event is recorded
+and invalidation locks User then conditionally consumes only the issued active digest.
+A replacement remains valid. If invalidation storage itself fails, generic public success
+still holds and a fixed invalidation_failed event records the limitation: simultaneous
+DB outage prevents guaranteed immediate revocation. No automatic retry or outbox introduced.
+Same-account resend remains P3.1; the integration recovery assertion is a subsequent
+new registration after SMTP returns, not same-account resend.
+
+Unit assertions cover strict/privilege validation, safe config/storage failures, ordering,
+crypto digest/TTL, generic duplicate/delivery responses, fixed diagnostics, conditional
+locked invalidation, production TLS/auth, hostile recipient/token input, every SMTP error
+and timeout phase, and late callbacks after timeout. Real disposable Postgres+loopback SMTP
+proves fragment token matches stored digest, delivery failure consumes token, a subsequent
+send succeeds, stale invalidation preserves replacement, and stalled DATA is actively
+bounded. Required-token fixture now uses a distinct digest for invalid-credential rollback
+so its assertion reaches the credential constraint rather than a token unique collision.
+
+Validation final: lint and typecheck passed. Elevated coverage passed74 tests with100%
+statements647/647, branches428/428, functions153/153, lines488/488. Webpack production build
+passed; existing default Turbopack worker-port restriction remains documented. Full elevated
+integration passed PostgreSQL/SMTP plus home/admin404 browser and installer preservation,
+with cleanup. npm audit reports the same six existing high findings; no unrelated fix
+applied. git diff --check passed. README/.env.example document actual config and limitations.
+P2.2 awaits parent review/commit. No routes or DI are added until P2.3; owner phase2 manual
+checkpoint remains pending.
+
+Parent reviewed service/repository atomicity, fixed diagnostics, SMTP timeout guards and disposable SMTP evidence. Task committed with this update; proceed to P2.3.
