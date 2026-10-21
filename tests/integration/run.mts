@@ -12,6 +12,7 @@ import { integrationConfig as config } from "./config";
 import type { BrowserResult } from "./context";
 import { testHome } from "./scenarios/home";
 import { testAdmin } from "./scenarios/admin";
+import { testDatabase } from "./database";
 import { testInstaller } from "./setup.mts";
 
 const exec = promisify(execFile);
@@ -70,6 +71,8 @@ async function main() {
     const result = await client.query<{ value: string }>("SELECT value FROM integration_probe");
     assert.equal(result.rows[0].value, "ephemeral");
   } finally { await client.end(); }
+  process.env.DATABASE_URL = database.getConnectionUri();
+  await testDatabase(database.getConnectionUri());
   const port = await freePort();
   const baseUrl = `http://127.0.0.1:${port}`;
   app = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "packages/app", "--hostname", "127.0.0.1", "--port", String(port)], {

@@ -1,3 +1,11 @@
+import { Migrator } from "@mikro-orm/migrations";
+import { Migration202610210001 } from "./migrations/Migration202610210001";
+import { User } from "./entities/users/user.entity";
+import { UserRole } from "./entities/users/user-role.entity";
+import { Credential } from "./entities/credentials/credential.entity";
+import { AuthSession } from "./entities/sessions/auth-session.entity";
+import { ActionToken } from "./entities/tokens/action-token.entity";
+import { RateLimitBucket } from "./entities/limits/rate-limit-bucket.entity";
 import { defineConfig } from "@mikro-orm/postgresql";
 
 /** Read secrets only when persistence is requested, never during module loading. */
@@ -15,7 +23,9 @@ export function databaseOptions() {
   }
   return defineConfig({
     clientUrl,
-    entities: [],
+    entities: [User, UserRole, Credential, AuthSession, ActionToken, RateLimitBucket],
+    extensions: [Migrator],
+    migrations: { migrationsList: [Migration202610210001], snapshot: false, transactional: true, allOrNothing: true },
     discovery: { warnWhenNoEntities: false },
     allowGlobalContext: false,
     debug: false,

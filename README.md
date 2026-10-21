@@ -22,9 +22,9 @@ packages/
 
 Dependencies follow `app → core → db`, with standalone `ui` consumed by `app`. Core stays independent of Next.js and React; db and ui import no other workspace package. Shared code is consumed through package exports, with no circular dependencies.
 
-Database access and the Awilix container stay on the server. Request-specific services use request scopes. MikroORM entity-manager scoping and connection pooling will be implemented in the persistence stage; schema changes will use migrations under `packages/db`.
+Database access and the Awilix container stay on the server. Request-specific services use request scopes. MikroORM uses a lazy shared pool with fresh request managers and transaction-bound managers; explicit migrations live under `packages/db/src/migrations`.
 
-The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages currently expose shared contracts; PostgreSQL is provisioned locally and Awilix scopes are configured. MikroORM persistence and shadcn/ui components are subsequent phases in the [migration plan](.ai/specs/2026-10-14-monorepo-migration.md).
+The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages expose shared contracts and a lazy persistence runtime; PostgreSQL is provisioned locally and Awilix scopes are configured. The auth database foundation is implemented; authentication services/routes and shadcn/ui administration remain pending. See [implementation status](track.md).
 
 ## Getting started
 
@@ -95,7 +95,7 @@ The official PostgreSQL 18 Alpine image uses a persistent named volume mounted a
 
 Compose reads the root `.env`. Next.js runs in `packages/app`, so when ORM integration is added, provide the same `DATABASE_URL` in `packages/app/.env.local` (or the process environment); Next.js does not automatically read the root file. Within Compose networking the hostname is `postgres` and the port is `5432`; host-run applications use `127.0.0.1` and `POSTGRES_PORT`. URL-encode special characters in passwords used in connection URLs. Environment files are ignored; only `.env.example` is committed.
 
-MikroORM entities, migrations, pooling, and application connection lifecycle are still pending in phase 2. Schema changes will use ORM migrations rather than container initialization scripts.
+MikroORM 7.2.5 provides the lazy database runtime and explicit auth schema migrations. Application routes do not yet consume persistence. Schema changes use reviewed migrations.
 
 ## Shared engineering foundations
 
@@ -117,7 +117,17 @@ Root commands delegate to `packages/db` and forward CLI arguments:
 | `npm run db:schema:update` | `schema:update` |
 | `npm run db:seed` | `seed` |
 
-These commands invoke the MikroORM CLI. They require the pending MikroORM setup: matching CLI/PostgreSQL/migrations/seeder packages, ORM configuration, entities and seeders. They are script definitions, not completed ORM integration. For example, once configured, `npm run db:migration:create -- --name=initial` forwards the name to MikroORM. Use migrations for tracked schema changes; reserve schema updates for local development. Review a down migration before running it, as rollback can remove data.
+Migration commands now use the installed MikroORM CLI and explicit configuration. Supply `DATABASE_URL` in the process environment; the CLI does not implicitly load the root `.env`. `npm run db:migrate` applies the tracked migration. `npm run db:migrate:down` refuses if users or rate-limit data exist and holds table locks through its check and drop. Roll back application routes while retaining production schema/data; destructive production removal needs an approved backup/export and data-loss plan. `db:schema:update` bypasses reviewed migrations and must not be used to deploy this schema. No seeders are implemented yet; `db:seed` remains a reserved alias.
+
+For the phase 1 manual checkpoint, run these from the repository root:
+
+```sh
+npm run test:integration
+```
+
+This starts its own disposable PostgreSQL container, applies migrations, checks entity/schema drift, ORM writes/reads, constraints and transaction rollback, proves empty rollback succeeds and populated rollback is refused, then checks home and `/admin` HTTP/browser behavior. It stops its own resources and never resets Compose data. A production build and installed browser are prerequisites (`npm run build`, `npm run browser:install`). Authentication routes and screens become testable in later phases.
+
+To inspect operator command argument forwarding without connecting to any database, run `npm run db:migrate -- --help` and `npm run db:migrate:down -- --help`.
 
 ## PR CI and tests
 
@@ -134,7 +144,7 @@ npm run test:integration         # Requires a running Docker engine
 
 Vitest/V8 enforces 100% lines, statements, functions and branches per production TypeScript/TSX file, including Next configuration. It does not exclude untested production files. Generated declarations, assets, dependencies and test/operational tooling are outside that metric. Reports are in `coverage/`; CI uploads them even when coverage fails.
 
-Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and the `/admin` not-found page, while HTTP checks verify 200/404 statuses. `/admin` remains intentionally unimplemented. The current app has no persistence runtime, so these tests verify database readiness and app/browser behavior separately; migration/fixture setup and actual persistence tests must be added with ORM integration. Developer Compose data is untouched.
+Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and the `/admin` not-found page, while HTTP checks verify 200/404 statuses. `/admin` remains intentionally unimplemented. The runner verifies the real ORM and migrations before starting the app; public app routes remain independent of persistence. Developer Compose data is untouched.
 
 The browser session, app process and test container are closed in cleanup. Snapshots, screenshots and app logs are retained in ignored `test-results/integration/` and uploaded by CI. Timeouts are centralized in `tests/integration/config.ts`. The integration script fails when no production build exists; it never silently skips tests when Docker or Chromium is missing.
 

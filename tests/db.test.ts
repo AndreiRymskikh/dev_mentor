@@ -131,3 +131,24 @@ describe("lazy database lifetime", () => {
     expect(f.close).toHaveBeenCalledTimes(2);
   });
 });
+
+// Exercise the explicit SQL migration contract independently of a live driver.
+describe("auth schema migration", () => {
+  it("queues additive DDL and locks before rejecting destructive rollback", async () => {
+    const { Migration202610210001 } = await import("../packages/db/src/migrations/Migration202610210001");
+    const migration = Object.create(Migration202610210001.prototype) as InstanceType<typeof Migration202610210001>;
+    const addSql = vi.fn();
+    migration.addSql = addSql;
+    migration.up();
+    const up = addSql.mock.calls.map(([sql]) => String(sql)).join("\n");
+    expect(up).toContain('create table "users"');
+    expect(up).toContain('references "users" ("id")');
+    expect(up).toContain("attempt_count >= 0");
+    expect(up).not.toMatch(/oauth|external.identit/i);
+    addSql.mockClear();
+    migration.down();
+    expect(addSql.mock.calls[0][0]).toMatch(/^lock table .*access exclusive/);
+    expect(addSql.mock.calls[1][0]).toContain("Refusing destructive auth rollback");
+    expect(addSql.mock.calls[2][0]).toMatch(/^drop table/);
+  });
+});

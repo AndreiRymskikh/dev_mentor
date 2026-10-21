@@ -21,5 +21,10 @@
   },
   "devDependencies": {
     "@mikro-orm/cli": "7.2.5"
+  },
+  "mikro-orm": {
+    "configPaths": [
+      "./mikro-orm.config.ts"
+    ]
   }
 }
