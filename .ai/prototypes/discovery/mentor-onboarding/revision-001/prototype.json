@@ -1,0 +1,22 @@
+{
+  "format": "discovery-prototype-v1",
+  "skill": "om-mockup-prototype",
+  "slug": "mentor-onboarding",
+  "revision": 1,
+  "revisionPath": ".ai/prototypes/discovery/mentor-onboarding/revision-001",
+  "previousRevision": null,
+  "brief": ".ai/specs/product-brief.md",
+  "flow": "mentor onboarding",
+  "panelReport": null,
+  "verification": "not-run",
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "b64263a8d3770b214e60d6d6de26d586c301e5dc97eeb85211ec0ed72fce3383"
+    },
+    {
+      "path": "README.md",
+      "sha256": "b109c77e63ca83d38debc9741e39dac971aec84a996e3940f798a0029638dc3b"
+    }
+  ]
+}
