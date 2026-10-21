@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./http": "./src/http/index.ts",
     "./container": "./src/container/index.ts",
-    "./config": "./src/config/index.ts"
+    "./config": "./src/config/index.ts",
+    "./validators/users": "./src/validators/users/register.schema.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
@@ -15,6 +16,7 @@
   "dependencies": {
     "@devmentor/db": "0.1.0",
     "awilix": "^13.0.5",
+    "bcryptjs": "3.0.3",
     "pino": "^10.4.0",
     "zod": "^4.6.7"
   }

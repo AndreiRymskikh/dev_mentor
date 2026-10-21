@@ -4,14 +4,14 @@ Started 2026-10-21. [Specification](.ai/specs/2026-10-16-users-auth-application-
 
 Each task uses a subagent, meaningful tests and a separate commit. Pause after each phase for owner manual testing. GitHub auth is deferred: show a button with coming-soon feedback; no OAuth endpoints or provider storage/secrets.
 
-## Phase 1 — Database foundation (current)
+## Phase 1 — Database foundation
 - [x] P1.1 Pinned MikroORM/PostgreSQL dependencies, lazy shared runtime, isolated request/transaction lifetime and tests.
 - [x] P1.2 Users, memberships, credentials, sessions, action tokens and rate-limit schema; explicit migrations, safe rollback, operator commands and disposable PostgreSQL tests.
 - [ ] Phase gate: lint, typecheck, 100% coverage, audit, build and disposable database verification; provide manual instructions.
 - [ ] Owner manual checkpoint passed.
 
-## Phase 2 — Registration and email
-- [ ] P2.1 Explicit repositories, strict registration validation, bcrypt and atomic database rate limits.
+## Phase 2 — Registration and email (current)
+- [x] P2.1 Explicit repositories, strict registration validation, bcrypt and atomic database rate limits.
 - [ ] P2.2 Email port/SMTP adapter, token issuance/invalidation and registration service; delivery failure/retry checks.
 - [ ] P2.3 Scoped composition and registration API; CSRF, generic 202 response metadata and disposable database/mail tests.
 - [ ] Validation and owner manual API checkpoint passed.
@@ -40,6 +40,10 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Owner final manual acceptance passed.
 
 ## Evidence
+2026-10-21 resume: owner requested implementation of issue #4 after the phase 1 checkpoint. Continue phase 2 under the existing per-task subagent/commit and manual phase-gate workflow. This authorizes continuation; it does not establish that owner manual checks or the full phase 1 gate passed. Issue #4 remains open, unassigned and unclaimed by another actor; no open PR was found.
+
 P1.1 reviewed and committed with this tracker update. Exact MikroORM 7.2.5 pins; lazy shared runtime and isolated request/transaction managers. Lint, typecheck and full unit coverage passed (60 tests; 100% all four metrics). Audit reports six existing high-severity dependency findings outside the new ORM tree. Default build fails with Turbopack worker port EPERM even with escalation; parent successfully verified `npm run build --workspace @devmentor/app -- --webpack`. Real ORM initialization without a connection passed; disposable PostgreSQL verification belongs to P1.2.
 
 P1.2 reviewed and committed with this update: six explicit auth entity schemas and additive migration; locked empty-data rollback; root migration CLI config; real disposable ORM/constraint/CLI tests. Lint/typecheck, 61 unit tests with 100% coverage, production webpack build and full PostgreSQL/browser/installer integration passed. `npm audit` still reports the six existing high findings; therefore the complete phase gate remains open. Default Turbopack build has the previously recorded execution restriction. README supplies the phase 1 manual checkpoint (`npm run test:integration`) without touching Compose data. Owner checkpoint has not been performed. Implementation pauses here before phase 2.
+
+P2.1 implemented: narrow atomic registration repository, pure strict schema, pinned bcryptjs3.0.3 cost12, PostgreSQL atomic HMAC-only hourly limits. Lint/typecheck, 66 tests with100% all coverage metrics, Webpack build and full disposable PostgreSQL/browser/installer integration passed. Default Turbopack EPERM and six existing high audit findings remain. Task awaits parent commit; phase2 manual checkpoint remains pending.

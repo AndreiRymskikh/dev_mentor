@@ -13,3 +13,5 @@ export { Credential } from "./entities/credentials/credential.entity";
 export { AuthSession } from "./entities/sessions/auth-session.entity";
 export { ActionToken } from "./entities/tokens/action-token.entity";
 export { RateLimitBucket } from "./entities/limits/rate-limit-bucket.entity";
+export { RegistrationRepository, type RegistrationRecord } from "./repositories/users/registration.repository";
+export { RateLimitRepository, type RateLimitRequest, type RateLimitResult } from "./repositories/limits/rate-limit.repository";

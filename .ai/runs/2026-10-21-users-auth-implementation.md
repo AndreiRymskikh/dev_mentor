@@ -3,6 +3,9 @@
 ## Goal
 Implement [spec](../specs/2026-10-16-users-auth-application-primitives.md) using a subagent and separate commit per task. Owner defers GitHub auth to a coming-soon button and requires a manual checkpoint after each phase.
 
+## Resume — issue #4
+Owner requested `implement issue #4` after phase 1. GitHub confirms the issue matches this spec and is open with no assignee, labels or comments; open PR search returned none. Continue phase 2 in the existing checkout/run rather than duplicate the already committed foundation. Existing explicit phased delivery instructions govern this continuation; no PR publishing or tracker comments are part of this checkpoint. Owner manual results remain unconfirmed. Phase 2 acceptance: rate-limited registration with baseline developer membership, strict password/email validation, expiring digest-only tokens and bounded SMTP delivery with generic 202 responses, real disposable database/mail tests, and full coverage. Pause for manual API testing after phase 2.
+
 ## Plan and acceptance
 See [tracker](../../track.md). Deliver database foundation, registration/email, credentials, UI, administration, final review in sequence. Preserve boundaries and lazy persistence. Require meaningful 100% unit coverage, lint/typecheck/audit/build and relevant disposable PostgreSQL/mail/browser checks. Never reset developer data. Pause after phase 1 for manual testing.
 
@@ -40,3 +43,17 @@ Changed files: packages/db entities/migration/config/exports/CLI config/package 
 Final CLI-inclusive `npm run test:integration` completed successfully: root db:migrate:down/db:migrate ran on Testcontainers DB, followed by browser home/admin-404 and installer preservation checks. All owned resources cleaned up. `git diff --check` passed.
 
 Parent review completed: migration locking/data guard, explicit relation mappings, entity/schema parity, parameterized integration SQL and documentation checked. P1.2 committed with this update. Phase 1 implementation is ready for owner manual testing; the full gate remains qualified by existing audit findings and default Turbopack execution limits. No phase 2 task begins until owner feedback.
+
+## P2.1 — Registration persistence, validation and rate limits
+
+Added narrow RegistrationRepository.create: atomic User/developer/Credential creation, UUID and timestamps generated server-side; unique collisions return null without linking or modifying existing data. P2.2 must extend this transaction with initial verification token insertion. Added strict registerSchema via pure `@devmentor/core/validators/users` export: normalized email, trimmed bounded display name, unmodified 12–72 UTF-8-byte password, rejection of extra identity/role keys. hashPassword validates again and uses bcryptjs exact 3.0.3 with random salt/cost12. Verified version against npm and primary [bcrypt documentation](https://github.com/dcodeIO/bcrypt.js/) describing its otherwise unchecked 72-byte truncation. No existing dependencies upgraded.
+
+RateLimitRepository consumes all sorted digest buckets within one transaction using PostgreSQL timestamp/hour and atomic upsert. Counters saturate at limit+1; rejected attempts commit rather than erase protection. RateLimitService registration10/hour/IP, email3/hour/address+20/hour/IP uses operation-separated HMAC-SHA256 with a separate injected >=32-byte secret. No raw identities reach persistence. Missing/throwing secret or storage failure maps to safe typed503; exceeded quota maps typed429 with 1–3600-second retry metadata. App must supply trusted direct IP or conservative shared identity in P2.3; no forwarded header interpretation was added. Fixed-hour windows chosen for simple shared database semantics.
+
+Tests cover strict inputs/UTF8 boundaries, real bcrypt salts/cost/comparison, explicit persistence writes/collision/error, sorted atomic consumption and failed-closed limits. Real disposable PostgreSQL tests prove 12 simultaneous duplicate registrations create exactly one user/credential/developer, duplicate attempts preserve name/hash/roles, invalid credential rolls back identity, 30 concurrent attempts across two independent runtime pools permit exactly10 and retain count11, denied address bucket still increments IP bucket.
+
+Validation: lint and typecheck passed. Elevated full coverage passed66 tests, 100% statements558/558, branches374/374, functions135/135, lines412/412. Sandbox coverage first failed existing local-port tests with EPERM, elevated rerun passed. Default build reproduced existing Turbopack worker-port EPERM; production Webpack alternate passed. Elevated npm audit completed with the same six existing high findings (no bcrypt advisory); install summary's four is superseded by full audit. Full disposable integration pending final completion below. No source thresholds/ignore rules changed; no routes or registration service added.
+
+P2.1 full `npm run test:integration` passed: disposable database race/rollback tests, home/admin404 browser flows, installer preservation and cleanup. No developer Compose data touched. Parent review/commit pending; P2.2 not started by this subagent.
+
+Parent reviewed P2.1 production code, unit assertions and disposable race checks; `git diff --check` passed. Task committed with this update. Proceed to P2.2; no manual phase result inferred.

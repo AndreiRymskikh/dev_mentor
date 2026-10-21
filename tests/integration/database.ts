@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { randomUUID } from "node:crypto";
-import { createDatabaseRuntime, databaseOptions, User, UserRole, Credential } from "../../packages/db/src";
+import { createDatabaseRuntime, databaseOptions, User, UserRole, Credential, RegistrationRepository, RateLimitRepository } from "../../packages/db/src";
 
 /** Only called with the runner-owned Testcontainers connection. */
 export async function testDatabase(clientUrl: string) {
@@ -63,6 +63,37 @@ export async function testDatabase(clientUrl: string) {
     await assert.rejects(sql.execute("insert into rate_limit_buckets (key_digest, window_start, attempt_count, expires_at) values (?, ?, ?, ?)", ["raw-email@example.test", now, 1, now]), /check constraint/i);
     await sql.execute("delete from auth_sessions");
     await sql.execute("delete from action_tokens");
+    await sql.execute("delete from credentials");
+    await sql.execute("delete from user_roles");
+    await sql.execute("delete from users");
+    const registrations = new RegistrationRepository(runtime);
+    const registration = { normalizedEmail: "race@example.test", displayName: "Race", passwordHash: "$2b$12$" + "a".repeat(53) };
+    const created = await Promise.all(Array.from({ length: 12 }, () => registrations.create(registration)));
+    assert.equal(created.filter((value) => value !== null).length, 1);
+    assert.equal(await registrations.create({ ...registration, displayName: "Attacker", passwordHash: "$2b$12$" + "z".repeat(53) }), null);
+    await runtime.withEntityManager(async (em) => {
+      assert.equal(await em.count(User), 1);
+      assert.equal(await em.count(UserRole, { role: "developer" }), 1);
+      assert.equal(await em.count(Credential), 1);
+      assert.equal((await em.findOneOrFail(User, { normalizedEmail: registration.normalizedEmail })).displayName, "Race");
+      assert.equal((await em.findOneOrFail(Credential, { userId: created.find((value) => value !== null)! })).passwordHash, registration.passwordHash);
+    });
+    await assert.rejects(registrations.create({ ...registration, normalizedEmail: "rollback-invalid@example.test", passwordHash: "invalid" }), /check constraint/i);
+    await runtime.withEntityManager(async (em) => assert.equal(await em.count(User), 1));
+    const limits = new RateLimitRepository(runtime);
+    const secondRuntime = createDatabaseRuntime(() => ({ ...databaseOptions(), clientUrl }));
+    let outcomes;
+    try {
+      const secondLimits = new RateLimitRepository(secondRuntime);
+      outcomes = await Promise.all(Array.from({ length: 30 }, (_, attempt) => (attempt % 2 ? limits : secondLimits).consume([{ keyDigest: "d".repeat(64), limit: 10 }])));
+    } finally { await secondRuntime.close(); }
+    assert.equal(outcomes.filter((value) => value.allowed).length, 10);
+    assert.ok(outcomes.every((value) => value.retryAfterSeconds >= 1 && value.retryAfterSeconds <= 3600));
+    const counts = await sql.execute<{ attempt_count: number }[]>("select attempt_count from rate_limit_buckets where key_digest = ?", ["d".repeat(64)]);
+    assert.equal(counts[0].attempt_count, 11);
+    for (let attempt = 0; attempt < 4; attempt++) await limits.consume([{ keyDigest: "e".repeat(64), limit: 3 }]);
+    assert.equal((await limits.consume([{ keyDigest: "e".repeat(64), limit: 3 }, { keyDigest: "f".repeat(64), limit: 20 }])).allowed, false);
+    assert.equal((await sql.execute<{ attempt_count: number }[]>("select attempt_count from rate_limit_buckets where key_digest = ?", ["f".repeat(64)]))[0].attempt_count, 1);
     await sql.execute("delete from credentials");
     await sql.execute("delete from user_roles");
     await sql.execute("delete from users");
