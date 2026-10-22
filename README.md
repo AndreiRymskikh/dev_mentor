@@ -36,6 +36,12 @@ npm run setup
 
 Setup installs missing or drifted dependencies, creates a private root `.env` only when absent, starts local PostgreSQL and verifies authenticated access, then starts the development server in the foreground. It uses Node builtins and works before `node_modules` exists. Browser installation and CI tests remain separate optional steps.
 
+Setup does not yet configure authentication secrets/SMTP or apply authentication
+migrations. Before testing registration, complete the [auth environment and
+migration prerequisites](#phase-2-registration-api-checkpoint), then follow the
+phase4 manual UI checkpoint below. A running app and healthy PostgreSQL alone are
+insufficient for registration.
+
 Rerunning validates current state and skips healthy dependencies, existing configuration and a healthy database. A setup-owned server with the same repository, dependency fingerprint, effective configuration and port is reused. Existing credentials and database data are preserved. Use `PORT=3001 npm run setup` on POSIX shells to choose another application port (PowerShell: `$env:PORT=3001; npm run setup`). `POSTGRES_PORT` and DATABASE_URL must describe the same database connection.
 
 Ctrl+C stops only the development server owned by this setup invocation; PostgreSQL data remains. If another setup is still preparing, retry after it reports ready. An occupied port belonging to an unverified process is reported rather than killed. After an abnormal termination, verify no installer/dev process is running before removing only `.devmentor/setup.lock` and retrying; never remove database volumes for routine recovery.
@@ -186,7 +192,26 @@ docker run --rm --name devmentor-mailpit -p127.0.0.1:1025:1025 -p127.0.0.1:8025:
 
 Open its [local mailbox](http://localhost:8025). This optional manual command was not executed during implementation; automated tests use their own SMTPServer fixture. For development only, this or an existing loopback SMTP sink can use `SMTP_LOCAL_SINK=true`, `SMTP_HOST=127.0.0.1`, its listening port, and `APP_ORIGIN=http://localhost:3000`. This intentionally rejects production mode. The automated integration suite provisions its own authenticated STARTTLS sink and disposable database; it needs Docker and OpenSSL and never resets the Compose database.
 
-Start `npm run dev`, then run:
+Before starting a manual auth test, apply migrations to the same database used by
+the app. A healthy PostgreSQL container and `/api/health` response do not confirm
+that authentication tables exist. On a POSIX shell, after configuring the ignored
+`packages/app/.env.local` with the matching `DATABASE_URL` and auth/mail settings:
+
+```sh
+set -a
+source packages/app/.env.local
+set +a
+npm run db:migrate
+npm run dev
+```
+
+Include independently generated `JWT_SECRET` and `RATE_LIMIT_SECRET` values of at
+least 32 UTF-8 bytes. Use `npm run dev` with the development-only local SMTP sink.
+Missing configuration or unapplied migrations intentionally returns a safe 503
+from registration. Keep environment files untracked and never reset the database
+to repair missing migrations.
+
+Then run:
 
 ```sh
 curl -i http://localhost:3000/api/auth/register \
