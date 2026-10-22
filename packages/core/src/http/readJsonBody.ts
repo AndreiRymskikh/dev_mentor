@@ -1,8 +1,13 @@
 import { ValidationError } from "./errors";
 
 /** Bound bytes actually read; Content-Length is untrusted and optional. */
-export async function readJsonBody(request: Request, maximumBytes = 4096): Promise<unknown> {
-  if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json" || !request.body) {
+export async function readJsonBody(request: Request, maximumBytes = 4096, allowEmpty = false): Promise<unknown> {
+  const isJson = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() === "application/json";
+  if (!request.body) {
+    if (allowEmpty) return {};
+    throw new ValidationError("Expected JSON body");
+  }
+  if (!allowEmpty && !isJson) {
     throw new ValidationError("Expected JSON body");
   }
   const reader = request.body.getReader();
@@ -19,6 +24,8 @@ export async function readJsonBody(request: Request, maximumBytes = 4096): Promi
       }
       chunks.push(value);
     }
+    if (allowEmpty && length === 0) return {};
+    if (!isJson) throw new ValidationError("Expected JSON body");
     const bytes = new Uint8Array(length);
     let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }

@@ -18,7 +18,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 
 ## Phase 3 — Verified credentials and sessions (current)
 - [x] P3.1 Verification request/confirm with serialized single-use token consumption and replay checks.
-- [ ] P3.2 JWT/session cookies, login/logout/session resolver, current role arrays and coordinated helper migration.
+- [x] P3.2 JWT/session cookies, login/logout/session resolver, current role arrays and coordinated helper migration (final parent integration/commit pending).
 - [ ] P3.3 Forgot/reset password, atomic credential replacement/session revocation and race tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
@@ -40,6 +40,8 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Owner final manual acceptance passed.
 
 ## Evidence
+P3.1 commit: `f43fb18`. P3.2 reviewed and committed with this update after the final production build and full disposable integration passed, including the bodyless-logout correction. Final unit count 93 at 100% all metrics; lint/typecheck pass. Current audit: six high and five moderate findings in existing tooling; default Turbopack environment restriction remains. P3.3 is next; owner phase 3 manual acceptance remains pending.
+
 Phase 3 resume: owner explicitly authorized phase 3 with a subagent and commit per task, followed by a manual phase checkpoint. Prior manual-result checkboxes remain unconfirmed. Execute P3.1 verification, P3.2 sessions/login/logout, then P3.3 recovery; no phase 4 UI or GitHub OAuth in this run.
 
 2026-10-21 resume: owner requested implementation of issue #4 after the phase 1 checkpoint. Continue phase 2 under the existing per-task subagent/commit and manual phase-gate workflow. This authorizes continuation; it does not establish that owner manual checks or the full phase 1 gate passed. Issue #4 remains open, unassigned and unclaimed by another actor; no open PR was found.
@@ -66,3 +68,16 @@ race-state assertions and same-account resend recovery after SMTP failure. Webpa
 passed; default Turbopack EPERM and six existing high audit findings remain. Scoped
 independent review found no concrete issue; whole-feature phase 6 review remains pending.
 Parent review/commit pending; phase 3 continues with P3.2/P3.3 before manual pause.
+
+P3.2 implemented by its task subagent on 2026-10-22: exact-pinned jose6.2.13,
+verified bcrypt credentials login, fixed24-hour JWT plus persisted sessions,
+current role arrays, app-owned cookies, strict login/logout/session APIs and
+shared PostgreSQL15-minute login quotas. Unit tests92 passed with100% lines,
+statements, branches and functions after strict/bodyless logout validation;
+lint/typecheck passed. Scoped independent source review found no concrete issue.
+Default Turbopack build retains worker-port EPERM; final-source Webpack build
+passed under parent verification. An earlier full integration passed; final-source
+full integration including explicit lock-blocking evidence is running under the
+parent and is not yet recorded as passed. Audit reports six high and five moderate
+existing-toolchain findings; jose is not affected. Parent final integration/commit
+and P3.3 remain before the phase3 owner manual checkpoint.

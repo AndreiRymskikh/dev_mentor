@@ -1,6 +1,7 @@
 import { ForbiddenError, UnauthorizedError, ServiceUnavailableError } from "./errors";
 
-export interface Session { userId: string; role?: string }
+export type Role = "developer" | "mentor" | "administrator";
+export interface Session { userId: string; roles: readonly Role[] }
 export type SessionResolver = (request: Request) => Promise<Session | null>;
 
 // A resolver must verify the session credential, not trust client-supplied IDs.
@@ -8,11 +9,11 @@ export async function requireSession(request: Request, resolve: SessionResolver)
   let session: Session | null;
   try { session = await resolve(request); }
   catch { throw new UnauthorizedError(); }
-  if (!session || typeof session.userId !== "string" || !session.userId) throw new UnauthorizedError();
+  if (!session || typeof session.userId !== "string" || !session.userId || !Array.isArray(session.roles) || !session.roles.every((role) => ["developer", "mentor", "administrator"].includes(role))) throw new UnauthorizedError();
   return session;
 }
-export function requireRole(session: Session, role: string): void {
-  if (session.role !== role) throw new ForbiddenError();
+export function requireRole(session: Session, role: Role): void {
+  if (!session.roles.includes(role)) throw new ForbiddenError();
 }
 export function assertOwnership(session: Session, ownerId: string | null | undefined): void {
   if (!ownerId || ownerId !== session.userId) throw new ForbiddenError();

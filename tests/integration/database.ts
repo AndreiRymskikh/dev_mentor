@@ -1,3 +1,4 @@
+import { testSessions } from "./sessions";
 import { testVerification } from "./verification";
 import { testRegistrationEmail } from "./registration-email";
 import assert from "node:assert/strict";
@@ -98,6 +99,7 @@ export async function testDatabase(clientUrl: string) {
     assert.equal((await sql.execute<{ attempt_count: number }[]>("select attempt_count from rate_limit_buckets where key_digest = ?", ["f".repeat(64)]))[0].attempt_count, 1);
     await testRegistrationEmail(runtime);
     await testVerification(runtime);
+    await testSessions(runtime);
     await sql.execute("delete from action_tokens");
     await sql.execute("delete from credentials");
     await sql.execute("delete from user_roles");

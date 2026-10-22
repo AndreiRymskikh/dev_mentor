@@ -56,7 +56,10 @@ test("atomic rate repository consumes every sorted bucket and retains denial res
   vi.spyOn(runtime, "transaction").mockImplementation(async (work) => work({ execute } as never));
   const repository = new RateLimitRepository(runtime);
   expect(await repository.consume([{ keyDigest: "b", limit: 20 }, { keyDigest: "a", limit: 3 }])).toEqual({ allowed: false, retryAfterSeconds: 90 });
-  expect(execute.mock.calls.map((call) => call[1])).toEqual([["a", 4], ["b", 21]]);
+  expect(execute.mock.calls.map((call) => call[1])).toEqual([["a", 3600, 3600, 3600, 3600, 4], ["b", 3600, 3600, 3600, 3600, 21]]);
+  execute.mockResolvedValueOnce([{ attempt_count: 1, retry_after: 900 }]);
+  expect(await repository.consume([{ keyDigest: "login", limit: 5, windowSeconds: 900 }])).toEqual({ allowed: true, retryAfterSeconds: 900 });
+  expect(execute.mock.calls.at(-1)?.[1]).toEqual(["login", 900, 900, 900, 900, 6]);
   execute.mockResolvedValueOnce([{ attempt_count: 1, retry_after: 1 }]);
   expect(await repository.consume([{ keyDigest: "a", limit: 3 }])).toEqual({ allowed: true, retryAfterSeconds: 1 });
 });

@@ -12,7 +12,7 @@ DevMentor is a private, unreleased npm-workspace application. These current cont
 | Local PostgreSQL | Compose uses PostgreSQL 18, a persistent postgres_data volume and localhost-only port binding. Environment template names POSTGRES_DB/USER/PASSWORD/PORT and DATABASE_URL are configuration contracts. | Never reset volumes as part of routine changes. Major upgrades require reviewed migration or backup/restore; keep real credentials ignored. |
 | AI metadata | agentic.config.json version 1, provider descriptors, spec/run naming, and lessons index conventions | Preserve custom settings and metadata; document schema/path changes and migrate consumers before removing old paths. |
 
-The additive `Migration202610210001` introduces `users`, `user_roles`, `credentials`, `auth_sessions`, `action_tokens` and `rate_limit_buckets`. UUID keys, normalized unique email, role/purpose checks, bcrypt cost >=12, digest formats, foreign keys and rate bucket composite keys are persistence contracts. Down locks all auth tables and refuses when user or operational data exists; production rollback retains schema/data. Entity mappings use explicit `user_id` fields and migrations are tested for schema drift. GitHub identity/attempt tables are deferred. No business events, payment webhooks or authentication cookies are implemented yet.
+The additive `Migration202610210001` introduces `users`, `user_roles`, `credentials`, `auth_sessions`, `action_tokens` and `rate_limit_buckets`. UUID keys, normalized unique email, role/purpose checks, bcrypt cost >=12, digest formats, foreign keys and rate bucket composite keys are persistence contracts. Down locks all auth tables and refuses when user or operational data exists; production rollback retains schema/data. Entity mappings use explicit `user_id` fields and migrations are tested for schema drift. GitHub identity/attempt tables are deferred. No business events or payment webhooks are implemented. Authentication cookies are introduced in phase3 below.
 
 Changes to shared contracts, auth, money, or schema migrations are high-risk and require the pipeline's second-person review and QA rules. Verification includes meaningful 100% production TypeScript unit coverage, typecheck, build and applicable browser/database integration checks.
 
@@ -23,3 +23,18 @@ Changes to shared contracts, auth, money, or schema migrations are high-risk and
 `apiHandler` retains its original one-argument behavior. An optional typed second argument supports no-store and per-result status (200/201/202), headers and multiple cookie strings. Metadata applies only on successful JSON responses; errors retain the safe JSON envelope and typed 429 Retry-After. Existing CRUD and health consumers retain their default 200 responses. No OAuth response mode or authentication-cookie behavior is implemented in this phase.
 
 `requireCsrf(request, trustedOrigin?)` preserves its original default and custom-header policy (Origin may be absent). Registration supplies server-configured `APP_ORIGIN`, normalized and validated as a bare HTTP(S) origin. This supports Next16.4 canonicalizing Request.url to localhost behind a public deployment origin without trusting Host or forwarding headers; malformed supplied configuration fails closed with503. SMTP independently requires HTTPS in production.
+
+## Verified credentials sessions (phase 3)
+
+`Session` replaces optional singular `role` with required readonly typed `roles`;
+all consumers and tests migrate together. `requireRole` checks membership and
+`requireSession` rejects malformed roles, retaining its existing401 exception contract.
+Login/session/logout routes use safe principal DTOs and no-store. Tokens exist only
+in app-owned cookies, signed HS256 through exact-pinned jose6.2.13; fixed issuer,
+audience, UUID subject/session ID and24-hour expiry are enforced. JWT_SECRET is lazy,
+requires>=32 UTF-8 bytes and rotation logs out existing cookies. No refresh/role claims.
+Session resolution requires current verified User and unrevoked/unexpired AuthSession,
+with current memberships; concrete lookup infrastructure failures return503.
+PostgreSQL rate buckets add narrow900-second login windows; existing registration/email
+windows retain3600-second defaults. Logout revokes persisted sessions and expires
+cookies with identical attributes. GitHub and admin UI remain deferred; /admin stays404.

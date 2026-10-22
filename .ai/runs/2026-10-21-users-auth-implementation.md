@@ -8,6 +8,8 @@ Owner explicitly requested continuation through phase 3, using a subagent and co
 
 Parent P3.1 review (resumed 2026-10-22): inspected transactional conditional token update, user locking, pure schema exports and actual full integration output; diff whitespace clean. Scoped independent review had no findings. P3.1 committed with this update; proceed to P3.2. Prior manual test outcomes remain unknown.
 
+Parent P3.2 completion (2026-10-22): final Webpack production build passed after the actual-empty-stream correction. Full integration against that final build passed (owned process session 65979): PostgreSQL migration/verification/session/rate races, authenticated SMTP, production HTTP verification/login/session/current-role/tamper/logout/strict-body/quota checks, browser home/admin404, installer preservation and complete fixture cleanup. Lint/typecheck and 93 tests with 100% statements/branches/functions/lines passed after the correction. Independent scoped review found no concrete session defect; the parent production probe identified bodyless logout400, now covered by nonnull-empty-stream and real HTTP regressions. Diff whitespace clean; P3.2 committed with this update. Default Turbopack worker-port EPERM remains; latest audit has six high and five moderate findings in existing tooling (jose not affected). No CI or overall auth security sign-off claimed. Proceed to P3.3 only; manual phase checkpoint follows it.
+
 ## Resume — issue #4
 Owner requested `implement issue #4` after phase 1. GitHub confirms the issue matches this spec and is open with no assignee, labels or comments; open PR search returned none. Continue phase 2 in the existing checkout/run rather than duplicate the already committed foundation. Existing explicit phased delivery instructions govern this continuation; no PR publishing or tracker comments are part of this checkpoint. Owner manual results remain unconfirmed. Phase 2 acceptance: rate-limited registration with baseline developer membership, strict password/email validation, expiring digest-only tokens and bounded SMTP delivery with generic 202 responses, real disposable database/mail tests, and full coverage. Pause for manual API testing after phase 2.
 
@@ -164,3 +166,65 @@ change or clean audit claim. Independent phase3_review scoped source/test review
 no concrete P3.1 findings; this is not phase 6 full-feature security/QA sign-off and it did
 not run validation gates. README supplies manual resend/confirm commands; owner phase 3
 checkpoint waits until P3.2/P3.3 are complete. Parent review and per-task commit pending.
+
+### P3.2 — Credentials login and sessions (2026-10-22)
+
+Task subagent implemented explicit SessionRepository/SessionService/SessionJwt,
+strict pure login/logout schemas, request-scoped DI, app-owned session-cookie
+transport and dynamic login/logout/session HTTP routes. Exact-pinned jose6.2.13
+was verified against npm and the primary panva/jose documentation; no existing
+dependency upgrades. HS256, issuer/audience, UUID subject/session ID, required
+iat/exp and absolute24-hour lifetime are pinned; roles never enter JWT claims.
+The public principal contains only id/displayName/roles. Unknown and credentialless
+accounts perform a fixed cost12 bcrypt comparison; unverified/wrong credentials
+return generic401. Login uses PostgreSQL operation-separated HMAC buckets for
+five attempts/email-IP pair and50/IP over900 seconds, retaining all counters;
+existing email/registration default3600-second windows remain. Forwarded IP
+headers are ignored in favor of the conservative shared peer bucket.
+
+Session creation locks User and rereads the current Credential/hash/verified flag
+before persisting AuthSession. P3.3 must take the same User write lock while
+replacing credentials and revoking all AuthSession rows atomically. Session reads
+verify signed JWT then current unrevoked/unexpired session, verified User and
+current memberships. No cross-request cache. Logout revokes and expires cookies,
+accepting bodyless POST or strict empty JSON only. Cookie deletion matches
+HttpOnly/SameSite=Lax/Path=/ and production Secure/__Host- naming, no Domain.
+Shared Session consumers migrated atomically from optional singular role to
+required readonly developer/mentor/administrator roles. Legacy requireSession
+retains401-on-resolver-error; concrete session lookup exposes safe503 outages.
+
+Changed areas: core session/credential auth service, JWT helper, pure validators,
+typed DI and HTTP authorization; db session repository and rate-window support;
+app login/logout/session routes and cookie helper; unit/integration tests;
+README, environment example, compatibility contract and this tracker/run.
+Health/build remain database/secret-independent, admin remains404, GitHub/UI and
+password recovery remain outside P3.2.
+
+Validation: lint/typecheck passed;92 unit tests passed with100% all four metrics
+(915 statements,559 branches,223 functions,696 lines) after strict logout fix.
+Unit evidence covers real cryptographic verification, malformed/oversized/tampered
+claims, algorithm/issuer/audience/UUID/time requirements, dummy bcrypt comparison,
+repository lock/hash checks, cookie transport, quotas, DI and role arrays. Earlier
+full disposable integration passed DB/session/SMTP/HTTP/browser/installer flows.
+Final-source Webpack build passed under parent; parent final full integration is
+pending and must verify the added pg_blocking_pids race proof,50/IP concurrent
+quota and production bodyless/strict logout scenarios before commit. Default
+Turbopack build failed with the known worker-port EPERM. npm audit reports six
+high and five moderate findings in existing tooling (moderate Vitest chain);
+jose is unaffected. No CI or clean audit claim. Independent scoped source review
+reported no concrete issue; phase6 whole-feature security/QA remains required.
+
+Outcome: P3.2 source complete; final parent integration and per-task commit pending.
+Continue with P3.3 only after that task boundary; pause after phase3 for manual tests.
+
+P3.2 final integration correction: production Next represented a bodyless logout
+POST as a nonnull empty stream, causing the strict content-type check to return400.
+The parent confirmed this with a focused no-cookie/no-database production probe.
+`readJsonBody` now has an explicit optional-empty mode used only by logout: read
+bounded actual bytes, accept zero bytes, and require JSON for nonempty bytes. Its
+default behavior stays strict, and Content-Length is never trusted. Unit regression
+covers nonnull empty streams, absent bodies, nonJSON/malformed/oversized content
+and forged zero lengths; HTTP assertions now name the logout behavior. Lint and
+typecheck passed;93 tests passed with100% all four metrics (924 statements,
+568 branches,223 functions,702 lines). The prior final integration failure is
+not a pass; parent will rebuild and rerun final production integration.

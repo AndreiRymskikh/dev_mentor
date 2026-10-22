@@ -1,3 +1,6 @@
+import { SessionRepository } from "@devmentor/db";
+import { SessionService } from "../services/users/session.service";
+import { SessionJwt } from "../services/sessions/jwt";
 import { VerificationRepository } from "@devmentor/db";
 import { VerificationService } from "../services/users/verification.service";
 import { RegistrationRepository, RateLimitRepository } from "@devmentor/db";
@@ -12,6 +15,9 @@ import type { Cradle } from "./cradle";
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
+    sessionRepository: asFunction(() => new SessionRepository()).scoped(),
+    sessionJwt: asFunction(() => new SessionJwt()).scoped(),
+    sessionService: asFunction(({ sessionRepository, rateLimitService, sessionJwt }: Cradle) => new SessionService(sessionRepository, rateLimitService, sessionJwt)).scoped(),
     logger: asValue(logger),
     verificationRepository: asFunction(() => new VerificationRepository()).scoped(),
     verificationService: asFunction(({ verificationRepository, rateLimitService, emailSender, logger }: Cradle) => new VerificationService(verificationRepository, rateLimitService, emailSender, { warn: (event) => logger.warn({ event }, "Email delivery event") })).scoped(),

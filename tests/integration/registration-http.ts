@@ -40,7 +40,7 @@ export async function registrationFixture() {
     const address = server.server.address();
     assert.ok(address && typeof address !== "string");
     return {
-      environment: { NODE_EXTRA_CA_CERTS: certificatePath, APP_ORIGIN: "https://fixture.example.test", EMAIL_FROM: "fixture@example.test", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(address.port), SMTP_USER: "fixture", SMTP_PASSWORD: password, SMTP_LOCAL_SINK: "false", RATE_LIMIT_SECRET: randomBytes(32).toString("hex") },
+      environment: { NODE_EXTRA_CA_CERTS: certificatePath, APP_ORIGIN: "https://fixture.example.test", EMAIL_FROM: "fixture@example.test", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(address.port), SMTP_USER: "fixture", SMTP_PASSWORD: password, SMTP_LOCAL_SINK: "false", JWT_SECRET: randomBytes(32).toString("hex"), RATE_LIMIT_SECRET: randomBytes(32).toString("hex") },
       async test(baseUrl: string, databaseUrl: string) {
         const client = new Client({ connectionString: databaseUrl });
         const input = { email: "http-registration@example.test", displayName: "HTTP Registration", password: "http fixture password" };
@@ -52,9 +52,11 @@ export async function registrationFixture() {
           const invalid = await post({ ...input, password: "short" });
           assert.equal(invalid.status, 400); assert.ok((await invalid.json()).error.fieldErrors.password);
           assert.equal((await post({ ...input, roles: ["administrator"] })).status, 400);
+          const authPost = (operation: string, body: unknown, extra: Record<string,string> = {}) => fetch(`${baseUrl}/api/auth/${operation}`, { method: "POST", headers: { "content-type":"application/json", "X-DevMentor-CSRF":"1", origin:"https://fixture.example.test", ...extra }, body:JSON.stringify(body), signal:AbortSignal.timeout(config.authRequestTimeoutMs) });
           const accepted = await post(input);
           assert.equal(accepted.status, 202); assert.equal(accepted.headers.get("cache-control"), "no-store"); assert.equal(accepted.headers.get("set-cookie"), null);
           const generic = await accepted.json();
+          assert.equal((await authPost("login", { email:input.email,password:input.password })).status,401);
           assert.equal(messages.length, 1);
           const token = /https:\/\/fixture.example.test\/verify-email#token=([A-Za-z0-9_-]{43})/.exec(messages[0])?.[1];
           assert.ok(token, "production app delivered over authenticated STARTTLS");
@@ -98,6 +100,21 @@ export async function registrationFixture() {
           const confirmed = await Promise.all([verificationPost("confirm", { token: resentToken }), verificationPost("confirm", { token: resentToken })]);
           assert.deepEqual(confirmed.map((response) => response.status).sort(), [200, 400]);
           const verified = await client.query("select email_verified_at from users where normalized_email=$1", [input.email]); assert.ok(verified.rows[0].email_verified_at);
+          const loggedIn = await authPost("login", { email:input.email,password:input.password }); assert.equal(loggedIn.status,200);
+          const cookie = loggedIn.headers.get("set-cookie")!; assert.match(cookie,/^__Host-devmentor-session=/); assert.match(cookie,/HttpOnly/); assert.match(cookie,/SameSite=Lax/); assert.match(cookie,/Secure/); assert.ok(!cookie.includes("Domain="));
+          const principal = (await loggedIn.json()).data; assert.deepEqual(Object.keys(principal).sort(),["displayName","id","roles"]); assert.deepEqual(principal.roles,["developer"]);
+          const cookieHeader = cookie.split(";")[0]; const getSession = (value = cookieHeader) => fetch(`${baseUrl}/api/auth/session`,{headers:{cookie:value}, signal:AbortSignal.timeout(config.authRequestTimeoutMs)});
+          assert.deepEqual((await (await getSession()).json()).data,principal);
+          await client.query("insert into user_roles(user_id,role) values($1,'mentor')",[principal.id]);
+          assert.deepEqual((await (await getSession()).json()).data.roles.sort(),["developer","mentor"]);
+          assert.equal((await getSession(cookieHeader.slice(0,-8)+"aaaaaaaa")).status,401);
+          assert.equal((await fetch(`${baseUrl}/api/auth/session`,{headers:{"X-User-Id":principal.id,"X-Role":"administrator"}})).status,401);
+          for(let i=0;i<2;i++){const out=await authPost("logout",{}, {cookie:cookieHeader});assert.equal(out.status,200,"strict empty JSON logout succeeds and is idempotent");assert.match(out.headers.get("set-cookie")!,/Max-Age=0/);assert.match(out.headers.get("set-cookie")!,/Secure/);}
+          assert.equal((await getSession()).status,401);
+          const bodylessLogout=await fetch(`${baseUrl}/api/auth/logout`,{method:"POST",headers:{"X-DevMentor-CSRF":"1",origin:"https://fixture.example.test"},signal:AbortSignal.timeout(config.authRequestTimeoutMs)});assert.equal(bodylessLogout.status,200,"production Next bodyless logout succeeds with no content type");
+          assert.equal((await authPost("logout",{userId:principal.id})).status,400,"logout rejects caller-supplied user identity");
+          for(let i=0;i<3;i++)assert.equal((await authPost("login",{email:input.email,password:"wrong"})).status,401);
+          const limitedLogin=await authPost("login",{email:input.email,password:input.password},{"x-forwarded-for":"198.51.100.1"});assert.equal(limitedLogin.status,429);assert.ok(Number(limitedLogin.headers.get("retry-after"))<=900);
           const beforeUnknown = messages.length;
           assert.deepEqual(await requestVerification("http-unknown@example.test"), resendGeneric); assert.equal(messages.length, beforeUnknown);
           // Distinct fixtures prove generic already-verified and credentialless requests without spending a fourth address allowance.

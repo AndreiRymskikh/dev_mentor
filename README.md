@@ -238,3 +238,37 @@ Resend after a delivery failure can recover the same account once SMTP works aga
 subject to the shared email limits. Do not clear or reset your Compose database to
 repeat tests; `npm run test:integration` provisions disposable PostgreSQL and mail.
 Login/session and password-recovery instructions follow after P3.2/P3.3.
+
+### Phase 3 login/session checkpoint
+
+After verifying a credentials account, configure `JWT_SECRET` with at least 32 random
+bytes independently of `RATE_LIMIT_SECRET`. Configuration and database connections
+remain lazy: home and build do not require either secret.
+
+```sh
+curl -i -c /tmp/devmentor-cookies -H 'Content-Type: application/json' \
+  -H 'X-DevMentor-CSRF: 1' -H 'Origin: http://localhost:3000' \
+  -d '{"email":"your-local-account@example.test","password":"your local password"}' \
+  http://localhost:3000/api/auth/login
+curl -i -b /tmp/devmentor-cookies http://localhost:3000/api/auth/session
+curl -i -b /tmp/devmentor-cookies -c /tmp/devmentor-cookies \
+  -H 'X-DevMentor-CSRF: 1' -H 'Origin: http://localhost:3000' \
+  -X POST http://localhost:3000/api/auth/logout
+```
+
+Use your local account only; avoid putting real production credentials in shell history.
+Login returns only `id`, `displayName`, and current `roles`; its JWT appears only in
+the HttpOnly cookie. Session lookup after logout returns401. Production cookies have
+`__Host-` names and Secure/HttpOnly/SameSite=Lax/Path=/; local HTTP development uses
+an unprefixed non-Secure cookie. Sessions expire absolutely after24 hours, have no
+refresh, and read current database roles on every request. Unknown, wrong-password
+and unverified credentials return the same401. Login retains all attempts: five per
+email/IP pair and50 per IP in fixed15-minute PostgreSQL windows; without an explicit
+trusted-proxy adapter, all callers share the conservative peer bucket and forwarding
+headers are ignored. JWT/storage failures deny access with safe503; invalid cookies
+return401. Logout is idempotent and clears the cookie even when already absent/invalid.
+
+Shared `Session` now requires `roles: readonly Role[]` with `developer`, `mentor`,
+`administrator`; `requireRole` checks membership. All existing consumers migrated
+atomically. The generic `requireSession` helper retains its existing401-on-resolver-error
+contract; concrete session HTTP lookup preserves infrastructure failures as503.
