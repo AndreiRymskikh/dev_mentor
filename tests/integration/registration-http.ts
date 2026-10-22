@@ -135,6 +135,68 @@ export async function registrationFixture() {
           assert.equal(limited.status, 429); assert.ok(Number(limited.headers.get("retry-after")) >= 1); assert.ok(Number(limited.headers.get("retry-after")) <= 3600);
           assert.equal(limited.headers.get("cache-control"), "no-store");
           console.log("Registration HTTP passed: secure SMTP, generic202, strict fields, CSRF, real bcrypt/digest/developer persistence, no session, delivery invalidation and spoof-resistant shared429.");
+          // This client is connected only to the runner-owned disposable database.
+          // Independent recovery scenarios get fresh quotas after earlier quota assertions.
+          await client.query("delete from rate_limit_buckets");
+          const recoveryPost = (operation: string, body: unknown, extra: Record<string, string> = {}) => authPost(`password/${operation}`, body, extra);
+          const requestRecovery = async (email: string) => {
+            const started = Date.now();
+            const response = await recoveryPost("forgot", { email });
+            assert.equal(response.status, 202);
+            assert.equal(response.headers.get("cache-control"), "no-store");
+            assert.equal(response.headers.get("set-cookie"), null);
+            assert.ok(Date.now() - started >= config.authResponseWindowMinimumMs);
+            return response.json();
+          };
+          assert.equal((await recoveryPost("forgot", { email: input.email }, { "X-DevMentor-CSRF": "0" })).status, 403);
+          assert.equal((await recoveryPost("reset", { token: resentToken, newPassword: "replacement password" }, { origin: "https://attacker.test" })).status, 403);
+          assert.equal((await recoveryPost("forgot", { email: input.email, role: "administrator" })).status, 400);
+          assert.equal((await recoveryPost("reset", { token: resentToken, newPassword: "replacement password", userId: principal.id })).status, 400);
+          assert.equal((await recoveryPost("reset", { token: resentToken, newPassword: "short" })).status, 400);
+          assert.equal((await recoveryPost("reset", { token: resentToken, newPassword: "replacement password" })).status, 400, "verification tokens cannot reset passwords");
+          assert.equal((await fetch(`${baseUrl}/api/auth/password/reset?token=${resentToken}`)).status, 405);
+          const beforeRecovery = messages.length;
+          rejectDelivery = true;
+          const [unknownRecovery, credentiallessRecovery, failedRecovery] = await Promise.all([
+            requestRecovery("http-recovery-unknown@example.test"),
+            requestRecovery("http-credentialless@example.test"),
+            requestRecovery(input.email),
+          ]);
+          assert.deepEqual(unknownRecovery, failedRecovery);
+          assert.deepEqual(credentiallessRecovery, failedRecovery);
+          assert.equal(messages.length, beforeRecovery);
+          const failedReset = await client.query("select t.consumed_at from action_tokens t join users u on u.id=t.user_id where u.normalized_email=$1 and t.purpose='reset-password'", [input.email]);
+          assert.equal(failedReset.rowCount, 1);
+          assert.ok(failedReset.rows[0].consumed_at);
+          assert.equal((await client.query("select t.id from action_tokens t join users u on u.id=t.user_id where u.normalized_email=any($1) and t.purpose='reset-password'", [["http-recovery-unknown@example.test", "http-credentialless@example.test"]])).rowCount, 0);
+          rejectDelivery = false;
+          assert.deepEqual(await requestRecovery(input.email), failedRecovery);
+          assert.equal(messages.length, beforeRecovery + 1);
+          const resetToken = /https:\/\/fixture.example.test\/reset-password#token=([A-Za-z0-9_-]{43})/.exec(messages.at(-1)!)?.[1];
+          assert.ok(resetToken, "fixed-origin fragment reset link delivered over authenticated STARTTLS");
+          const resetRows = await client.query("select t.digest,t.expires_at from action_tokens t join users u on u.id=t.user_id where u.normalized_email=$1 and t.purpose='reset-password' and t.consumed_at is null", [input.email]);
+          assert.equal(resetRows.rowCount, 1);
+          assert.equal(resetRows.rows[0].digest, createHash("sha256").update(resetToken).digest("hex"));
+          assert.ok(resetRows.rows[0].expires_at.getTime() - Date.now() <= 1800000);
+          assert.ok(resetRows.rows[0].expires_at.getTime() - Date.now() > 1700000);
+          const oldLogin = await authPost("login", { email: input.email, password: input.password });
+          assert.equal(oldLogin.status, 200);
+          const oldCookie = oldLogin.headers.get("set-cookie")!.split(";")[0];
+          const sessionCount = (await client.query("select count(*)::int as count from auth_sessions where user_id=$1", [principal.id])).rows[0].count;
+          const resetResponse = await recoveryPost("reset", { token: resetToken, newPassword: "replacement password" });
+          assert.equal(resetResponse.status, 200);
+          assert.equal(resetResponse.headers.get("set-cookie"), null);
+          assert.equal(resetResponse.headers.get("cache-control"), "no-store");
+          assert.equal((await client.query("select count(*)::int as count from auth_sessions where user_id=$1", [principal.id])).rows[0].count, sessionCount, "reset must not log in");
+          assert.equal((await getSession(oldCookie)).status, 401);
+          assert.equal((await authPost("login", { email: input.email, password: input.password })).status, 401);
+          assert.equal((await authPost("login", { email: input.email, password: "replacement password" })).status, 200);
+          assert.equal((await recoveryPost("reset", { token: resetToken, newPassword: "different replacement" })).status, 400);
+          const expiredReset = randomBytes(32).toString("base64url");
+          await client.query("insert into action_tokens (id,user_id,purpose,digest,expires_at) values(gen_random_uuid(),$1,'reset-password',$2,$3)", [principal.id, createHash("sha256").update(expiredReset).digest("hex"), new Date(Date.now() - 1000)]);
+          assert.equal((await recoveryPost("reset", { token: expiredReset, newPassword: "replacement password" })).status, 400);
+          console.log("Recovery HTTP passed: generic timed unknown/credentialless/SMTP failure, same-account retry, TLS fragment/digest/TTL, strict CSRF fields, credential replacement, old-password/session denial, no auto-login, replay and expiry/purpose.");
+
         } finally { await client.end(); }
       },
       async close() { await new Promise<void>((resolve) => server!.close(resolve)); await rm(directory, { recursive: true, force: true }); },

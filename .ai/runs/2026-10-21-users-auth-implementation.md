@@ -6,9 +6,9 @@ Implement [spec](../specs/2026-10-16-users-auth-application-primitives.md) using
 ## Phase 3 resume
 Owner explicitly requested continuation through phase 3, using a subagent and commit for each task, then pausing for manual testing. Preserve earlier unknown manual results. Plan: P3.1 verification request/confirm and race/replay safety; P3.2 verified bcrypt login, pinned JWT/session cookies, current multi-role principal and coordinated helper migration, logout/session endpoints; P3.3 recovery and atomic reset/session revocation. Acceptance includes strict bounded/CSRF/no-store HTTP contracts, failed-closed configuration/storage, disposable PostgreSQL/SMTP/production HTTP concurrency evidence, meaningful 100% coverage and required checks. UI and admin remain future phases. Existing audit advisories/default Turbopack environment restriction must be reported if still present. Each task gets parent review before its commit; independent scoped review before the phase checkpoint supplements later full-feature review.
 
-Parent P3.1 review (resumed 2026-10-22): inspected transactional conditional token update, user locking, pure schema exports and actual full integration output; diff whitespace clean. Scoped independent review had no findings. P3.1 committed with this update; proceed to P3.2. Prior manual test outcomes remain unknown.
+Parent P3.1 review (resumed 2026-10-22): inspected transactional conditional token update, user locking, pure schema exports and actual full integration output; diff whitespace clean. Scoped independent review had no findings. P3.1 committed as `f43fb18`; proceed to P3.2. Prior manual test outcomes remain unknown.
 
-Parent P3.2 completion (2026-10-22): final Webpack production build passed after the actual-empty-stream correction. Full integration against that final build passed (owned process session 65979): PostgreSQL migration/verification/session/rate races, authenticated SMTP, production HTTP verification/login/session/current-role/tamper/logout/strict-body/quota checks, browser home/admin404, installer preservation and complete fixture cleanup. Lint/typecheck and 93 tests with 100% statements/branches/functions/lines passed after the correction. Independent scoped review found no concrete session defect; the parent production probe identified bodyless logout400, now covered by nonnull-empty-stream and real HTTP regressions. Diff whitespace clean; P3.2 committed with this update. Default Turbopack worker-port EPERM remains; latest audit has six high and five moderate findings in existing tooling (jose not affected). No CI or overall auth security sign-off claimed. Proceed to P3.3 only; manual phase checkpoint follows it.
+Parent P3.2 completion (2026-10-22): final Webpack production build passed after the actual-empty-stream correction. Full integration against that final build passed (owned process session 65979): PostgreSQL migration/verification/session/rate races, authenticated SMTP, production HTTP verification/login/session/current-role/tamper/logout/strict-body/quota checks, browser home/admin404, installer preservation and complete fixture cleanup. Lint/typecheck and 93 tests with 100% statements/branches/functions/lines passed after the correction. Independent scoped review found no concrete session defect; the parent production probe identified bodyless logout400, now covered by nonnull-empty-stream and real HTTP regressions. Diff whitespace clean; P3.2 committed as `2c716d4`. Default Turbopack worker-port EPERM remains; latest audit has six high and five moderate findings in existing tooling (jose not affected). No CI or overall auth security sign-off claimed. Proceed to P3.3 only; manual phase checkpoint follows it.
 
 ## Resume — issue #4
 Owner requested `implement issue #4` after phase 1. GitHub confirms the issue matches this spec and is open with no assignee, labels or comments; open PR search returned none. Continue phase 2 in the existing checkout/run rather than duplicate the already committed foundation. Existing explicit phased delivery instructions govern this continuation; no PR publishing or tracker comments are part of this checkpoint. Owner manual results remain unconfirmed. Phase 2 acceptance: rate-limited registration with baseline developer membership, strict password/email validation, expiring digest-only tokens and bounded SMTP delivery with generic 202 responses, real disposable database/mail tests, and full coverage. Pause for manual API testing after phase 2.
@@ -165,7 +165,7 @@ production Webpack build passed again after the pure validator export follow-up.
 change or clean audit claim. Independent phase3_review scoped source/test review reported
 no concrete P3.1 findings; this is not phase 6 full-feature security/QA sign-off and it did
 not run validation gates. README supplies manual resend/confirm commands; owner phase 3
-checkpoint waits until P3.2/P3.3 are complete. Parent review and per-task commit pending.
+checkpoint waits until P3.2/P3.3 are complete. Parent review completed; P3.1 committed as `f43fb18`.
 
 ### P3.2 — Credentials login and sessions (2026-10-22)
 
@@ -200,22 +200,22 @@ README, environment example, compatibility contract and this tracker/run.
 Health/build remain database/secret-independent, admin remains404, GitHub/UI and
 password recovery remain outside P3.2.
 
-Validation: lint/typecheck passed;92 unit tests passed with100% all four metrics
-(915 statements,559 branches,223 functions,696 lines) after strict logout fix.
+Validation: lint/typecheck passed; final93 unit tests passed with100% all four metrics
+(924 statements,568 branches,223 functions,702 lines) after the actual-empty-stream correction.
 Unit evidence covers real cryptographic verification, malformed/oversized/tampered
 claims, algorithm/issuer/audience/UUID/time requirements, dummy bcrypt comparison,
 repository lock/hash checks, cookie transport, quotas, DI and role arrays. Earlier
 full disposable integration passed DB/session/SMTP/HTTP/browser/installer flows.
-Final-source Webpack build passed under parent; parent final full integration is
-pending and must verify the added pg_blocking_pids race proof,50/IP concurrent
-quota and production bodyless/strict logout scenarios before commit. Default
+Final-source Webpack build and parent final full integration passed, including
+the added pg_blocking_pids race proof,50/IP concurrent quota and production
+bodyless/strict logout scenarios. Default
 Turbopack build failed with the known worker-port EPERM. npm audit reports six
 high and five moderate findings in existing tooling (moderate Vitest chain);
 jose is unaffected. No CI or clean audit claim. Independent scoped source review
 reported no concrete issue; phase6 whole-feature security/QA remains required.
 
-Outcome: P3.2 source complete; final parent integration and per-task commit pending.
-Continue with P3.3 only after that task boundary; pause after phase3 for manual tests.
+Outcome: P3.2 complete and parent-reviewed, committed as `2c716d4`.
+Continue with P3.3; pause after phase3 for manual tests.
 
 P3.2 final integration correction: production Next represented a bodyless logout
 POST as a nonnull empty stream, causing the strict content-type check to return400.
@@ -226,5 +226,79 @@ default behavior stays strict, and Content-Length is never trusted. Unit regress
 covers nonnull empty streams, absent bodies, nonJSON/malformed/oversized content
 and forged zero lengths; HTTP assertions now name the logout behavior. Lint and
 typecheck passed;93 tests passed with100% all four metrics (924 statements,
-568 branches,223 functions,702 lines). The prior final integration failure is
-not a pass; parent will rebuild and rerun final production integration.
+568 branches,223 functions,702 lines). The initial production failure was corrected;
+parent rebuilt and the final production integration rerun passed before commit `2c716d4`.
+
+
+### P3.3 — Password recovery (2026-10-22)
+
+Resumed the original run for phase 3 only. Goal: generic forgot-password delivery,
+existing-credential-only reset, atomic token consumption/password replacement and
+all-session revocation, with observed reset/login race coverage. Acceptance follows
+[the auth spec](../specs/2026-10-16-users-auth-application-primitives.md); phase 4
+screens, GitHub and administration remain pending.
+
+Plan executed: read repository lessons/spec/installed Next route documentation;
+add narrow PasswordRecoveryRepository and PasswordRecoveryService, strict pure
+schemas, explicit scoped DI and force-dynamic CSRF/no-store API routes; prove
+meaningful unit behavior and add disposable database/SMTP/production HTTP tests;
+document the complete manual API checkpoint; hand final build/integration to the
+parent before the per-task commit and phase pause.
+
+Forgot normalizes a strict email input, consumes the shared HMAC email quotas
+before lookup, requires configured SMTP/fixed app origin and emits a generic202
+in the same15-second delivery window for unknown, credentialless, delivered and
+SMTP-failure outcomes. A random32-byte token has a30-minute expiry; persistence
+contains only SHA-256 digest. User-locked issuance replaces older reset tokens.
+Bounded SMTP failure cleanup locks User with one-second statement/lock limits and
+invalidates only the issued digest. Fixed logs contain no address/token/raw error.
+Storage failures deny with503; infrastructure outage timing is not concealed.
+
+Reset prechecks a persisted active reset token and existing credential before
+bcrypt; it reuses the cost12/UTF8 policy helper. Its transaction locks the same User
+as session creation, requires the existing credential, conditionally consumes the
+current unexpired token and updates Credential/passwordChangedAt, User/updatedAt
+and all unrevoked AuthSessions atomically. Email verification remains unchanged;
+no credential creation or auto-login/cookie. Parallel replay has at most one effect.
+
+Changed files: core recovery service and pure validator/barrel; typed container;
+db recovery repository/barrel; two app password routes; recovery unit tests;
+disposable recovery DB tests/database runner; authenticated STARTTLS HTTP fixture;
+README, tracker and this run. Parent early review requested shared hash helper and
+allowlisted field feedback; both were applied before final checks. Scoped independent
+phase3_review source review reported no concrete findings; it did not execute gates
+and does not replace phase6 whole-feature security review/QA.
+
+Final validation: lint and typecheck pass;99 unit tests pass with100% statements
+(1021), branches(595), functions(247) and lines(784). Initial sandbox coverage run
+failed only when setup tests bound localhost; escalated plain-command rerun passed.
+No coverage exclusions/ignore directives/threshold changes. Disposable DB tests
+include replacement/replay/expiry/purpose, credential removal, unverified reset,
+all-session revocation and both actual reset/login repository race orders. Each
+race asserts pg_blocking_pids before releasing User lock, then checks new credential
+and no usable/unrevoked old-password session. HTTP scenarios include timed generic
+unknown/credentialless/SMTP failure, same-account retry, fixed-origin TLS fragment,
+digest/TTL, strict fields/CSRF, reset, denied old cookie/password, successful new
+password, no auto-login, replay and expiry/purpose. These new integration assertions
+passed in the parent final full integration run (exit0). Existing
+registration/browser/admin404/installer assertions remain. Only runner-owned test
+rate buckets are cleared between independent scenarios; developer Compose data
+is untouched. Final parent Webpack production build passed (exit0), followed by full
+`npm run test:integration` (exit0): actual PostgreSQL reset/login races, secure
+SMTP/recovery HTTP, browser/home/admin404, installer preservation and owned fixture
+cleanup. Default `npm run build` still fails with Turbopack worker-port EPERM.
+`npm audit --json` reports six high and five moderate existing-toolchain findings.
+No CI/clean audit or overall gate claim. Parent review completed; per-task commit
+is next. No phase4 source was added.
+
+README now gives the whole phase3 register/mailtoken/confirm/login-cookie/session/
+forgot/reset/old-cookie+password-denial/new-login/replay sequence. Owner manual
+checkpoint remains unconfirmed. Stop before phase4 after parent commit/manual handoff.
+
+
+Final parent handoff: removed one consecutive duplicate test-only AuthSession cleanup
+statement identified during final diff review; retained the required final cleanup
+before User deletion. Typecheck and diff whitespace check passed afterward. The full
+integration pass above preceded this redundant-statement removal; no production code
+changed and the full suite was not repeated for this cleanup. P3.3 tracker is complete;
+parent commit follows. Manual/full audit gates remain unchecked and phase4 is untouched.

@@ -1,3 +1,4 @@
+import { testPasswordRecovery } from "./password-recovery";
 import { testSessions } from "./sessions";
 import { testVerification } from "./verification";
 import { testRegistrationEmail } from "./registration-email";
@@ -100,6 +101,8 @@ export async function testDatabase(clientUrl: string) {
     await testRegistrationEmail(runtime);
     await testVerification(runtime);
     await testSessions(runtime);
+    await testPasswordRecovery(runtime);
+    await sql.execute("delete from auth_sessions");
     await sql.execute("delete from action_tokens");
     await sql.execute("delete from credentials");
     await sql.execute("delete from user_roles");

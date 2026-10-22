@@ -237,7 +237,7 @@ using an expired/invalid token returns the same safe 400 error. Tokens expire af
 Resend after a delivery failure can recover the same account once SMTP works again,
 subject to the shared email limits. Do not clear or reset your Compose database to
 repeat tests; `npm run test:integration` provisions disposable PostgreSQL and mail.
-Login/session and password-recovery instructions follow after P3.2/P3.3.
+Continue with the login/session and recovery checkpoint below.
 
 ### Phase 3 login/session checkpoint
 
@@ -272,3 +272,49 @@ Shared `Session` now requires `roles: readonly Role[]` with `developer`, `mentor
 `administrator`; `requireRole` checks membership. All existing consumers migrated
 atomically. The generic `requireSession` helper retains its existing401-on-resolver-error
 contract; concrete session HTTP lookup preserves infrastructure failures as503.
+
+### Phase 3 complete manual API sequence
+
+Owner manual acceptance remains pending. Phase 4 pages are not implemented; copy
+email fragment tokens into these APIs. First follow the registration example above,
+open the local mailbox, and confirm its verification token with the verification
+POST. Use the same email and password throughout. Login with the cookie-jar command
+above and verify `/api/auth/session` returns your principal. If you tested logout,
+login again before continuing so the jar holds an active session.
+
+Request recovery using your registered local email:
+
+```sh
+curl -i http://localhost:3000/api/auth/password/forgot \
+  -H 'Content-Type: application/json' -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"email":"your-local-account@example.test"}'
+```
+
+Expect generic 202 after the same 15-second public window for eligible, unknown,
+credentialless and SMTP-failure cases. Registration, verification resend and forgot
+share three requests/hour/address and twenty/hour/shared peer; retry after the
+reported cooldown. The reset link uses the configured `APP_ORIGIN` and a fragment.
+Copy its 43-character token from the mailbox; GET cannot consume it. Tokens expire
+after 30 minutes and a newer request invalidates older reset tokens.
+
+```sh
+curl -i http://localhost:3000/api/auth/password/reset \
+  -H 'Content-Type: application/json' -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"token":"PASTE_THE_FRAGMENT_TOKEN_HERE","newPassword":"your replacement password"}'
+curl -i -b /tmp/devmentor-cookies http://localhost:3000/api/auth/session
+```
+
+Expect reset 200 without a session cookie and the old cookie to return 401. Login
+with the old password must return 401; login with the replacement password and
+`-c /tmp/devmentor-cookies` must return 200, then session lookup returns the same
+account. Repeating the reset POST returns 400. Reset does not automatically verify
+an unverified account or add credentials to a credentialless account. No automatic
+login occurs. Passwords must contain 12–72 UTF-8 bytes. Missing CSRF or a mismatched
+Origin returns 403; extra identity/role fields return 400. For automatic disposable
+SMTP failure, retry, expiry, replay and reset/login concurrency evidence, run
+`npm run test:integration`; do not clear the developer database or rate counters.
+
+The phase ends here for owner manual testing; authentication screens, GitHub auth
+and administration are still pending. No manual checkpoint is marked passed.

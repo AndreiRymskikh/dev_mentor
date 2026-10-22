@@ -1,3 +1,5 @@
+import { PasswordRecoveryRepository } from "@devmentor/db";
+import { PasswordRecoveryService } from "../services/users/password-recovery.service";
 import { SessionRepository } from "@devmentor/db";
 import { SessionService } from "../services/users/session.service";
 import { SessionJwt } from "../services/sessions/jwt";
@@ -15,6 +17,9 @@ import type { Cradle } from "./cradle";
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
+    passwordRecoveryRepository: asFunction(() => new PasswordRecoveryRepository()).scoped(),
+    passwordRecoveryService: asFunction(({ passwordRecoveryRepository, rateLimitService, emailSender, logger }: Cradle) =>
+      new PasswordRecoveryService(passwordRecoveryRepository, rateLimitService, emailSender, { warn: (event) => logger.warn({ event }, "Email delivery event") })).scoped(),
     sessionRepository: asFunction(() => new SessionRepository()).scoped(),
     sessionJwt: asFunction(() => new SessionJwt()).scoped(),
     sessionService: asFunction(({ sessionRepository, rateLimitService, sessionJwt }: Cradle) => new SessionService(sessionRepository, rateLimitService, sessionJwt)).scoped(),

@@ -9,6 +9,7 @@ Status: implementation in progress; phase/task completion and outstanding manual
 ## Confirmed decisions
 
 - Implementation started 2026-10-21; progress and manual phase gates live in [track.md](../../track.md). Owner override: defer GitHub authentication and deliver a button explaining it will be implemented soon. OAuth endpoints, ExternalIdentity/OAuthAttempt persistence, provider configuration and live-provider acceptance are outside this implementation. Remaining GitHub descriptions below are retained as deferred design. Completion is assessed against this reduced scope.
+- Phase3 API implementation verified 2026-10-22: verification, credential sessions and password recovery/reset are complete, with99 unit tests at100% coverage, Webpack production build and full disposable PostgreSQL/SMTP/HTTP/browser integration passing. Owner manual checkpoint, existing audit advisories, authentication screens, roles/admin and phase6 whole-feature review remain open. See [tracker](../../track.md) and [run evidence](../runs/2026-10-21-users-auth-implementation.md).
 
 - One user can hold developer, mentor and administrator roles simultaneously. Registration grants developer; users can add mentor themselves. Only administrators grant administrator, except the first-admin operator bootstrap.
 - Email verification and password recovery are included. Account linking/unlinking is deferred: credentials and GitHub collisions are rejected without merging identities or attaching new credentials.
