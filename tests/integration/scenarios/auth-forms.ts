@@ -36,7 +36,25 @@ export async function testAuthForms({ baseUrl, artifacts, browser }: Integration
     await click("Continue with GitHub"); await waitText("GitHub sign-in will be implemented soon.");
     assert.equal(messages.length, before);
     await click("Create account");
-    await waitText("If this address can be registered");
+    await waitText("Request accepted");
+    await waitText("Verify your email using the link, then sign in.");
+    const acceptedVisible = `(() => {
+      const heading = document.querySelector('h1');
+      const next = document.querySelector('nav[aria-label="Registration next steps"]');
+      if (!heading || !next || document.querySelector('form') || document.querySelector('input[type="password"]')) return false;
+      const links = [...next.querySelectorAll('a')];
+      return document.activeElement === heading && heading.textContent === 'Request accepted' && links.length === 2 && links.every(link => {
+        const box = link.getBoundingClientRect();
+        return box.top >= 0 && box.bottom <= window.innerHeight && box.left >= 0 && box.right <= window.innerWidth;
+      }) && next.querySelector('a[href="/login"]')?.textContent === 'Sign in' && next.querySelector('a[href="/verify-email"]')?.textContent === 'Request another verification email' && document.querySelectorAll('[role="status"]').length === 1;
+    })()`;
+    await browser("wait", "--fn", acceptedVisible);
+    await browser("screenshot", path.join(artifacts, "auth-register-accepted-desktop.png"));
+    await browser("set", "viewport", "320", "900");
+    await browser("wait", "--fn", acceptedVisible);
+    await browser("wait", "--fn", "document.documentElement.scrollWidth <= window.innerWidth");
+    await browser("screenshot", path.join(artifacts, "auth-register-accepted-mobile.png"));
+    await browser("set", "viewport", "1280", "1000");
     assert.equal(messages.length, before + 1);
     const registered = await client.query("select u.id,u.email_verified_at,r.role from users u join user_roles r on r.user_id=u.id where u.normalized_email=$1", [email]);
     assert.equal(registered.rowCount, 1); assert.equal(registered.rows[0].email_verified_at, null); assert.equal(registered.rows[0].role, "developer");

@@ -25,6 +25,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 ## Phase 4 — Authentication screens (current)
 - [x] P4.1 Accessible registration/login/recovery forms using existing UI; GitHub coming-soon button.
 - [x] P4.2 Fragment-token verification/reset pages, safe history/referrer handling, account page and logout.
+- [x] P4 manual-feedback correction: prominent registration acceptance, verification-before-sign-in next steps, focused heading and visible desktop/mobile links.
 - [ ] Validation, browser evidence and owner manual UI checkpoint passed.
 
 ## Phase 5 — Roles and administration
@@ -128,3 +129,17 @@ visual findings or token echo. Lint/typecheck and112 unit tests passed100% all f
 coverage metrics. Audit remains six high/five moderate existing-toolchain findings;
 CI and clean audit are not claimed. Owner manual UI acceptance and combined gates
 remain unchecked. Stop here for owner testing; phase5 is untouched.
+
+
+Phase4 manual-feedback correction2026-10-22: registration202 now replaces the
+submitted form with a focused “Request accepted” heading, generic check-email
+instructions and visible sign-in/resend links. Password controls are removed;
+verification is still required before login. Initial registration/login retain
+GitHub coming-soon. Task subagent implemented and parent reviewed the correction.
+Lint/typecheck,112 tests at100% all four metrics, default production build and
+full disposable PostgreSQL/SMTP/HTTP/HTTPS browser/installer integration passed.
+Desktop and320px accepted-screen assertions and parent screenshot review confirm
+focus, single status, no retained form and both next-step links within viewport.
+Audit remains six high/five moderate existing findings; owner manual acceptance
+and combined phase4 checkpoint remain unchecked. Phase5 is unstarted. See
+[correction run](.ai/runs/2026-10-22-registration-acceptance-feedback.md).

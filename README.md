@@ -356,7 +356,11 @@ verification message and does not sign in. The verification email/retry link ope
 For manual testing, submit empty/invalid fields, correct them using the keyboard,
 check password-manager autocomplete, and submit valid registration/recovery forms.
 While the request is pending (the public delivery window is about 15 seconds),
-controls prevent duplicate submissions. Check your SMTP inbox and spam folder.
+controls prevent duplicate submissions. After registration is accepted, the form is
+replaced by a focused **Request accepted** heading, email instructions, and visible
+**Sign in** / **Request another verification email** links. Verify your email using
+the inbox link before signing in; acceptance does not guarantee account creation
+or email delivery. Check your SMTP inbox and spam folder.
 GitHub's button displays “GitHub sign-in will be implemented soon.” without starting
 OAuth. Wrong/unverified login, unavailable services and rate limits display safe
 feedback. Successful login goes only to `/account`.

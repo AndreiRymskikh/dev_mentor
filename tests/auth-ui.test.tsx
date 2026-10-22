@@ -33,7 +33,7 @@ test("auth pages compose a labelled native form in the auth frame", () => {
     assert.match(html, /<main/); assert.match(html, /<h1/); assert.match(html, /Email address/); assert.match(html, /autocomplete="email"/i); assert.match(html, /required=""/);
   }
 });
-test("registration validates and focuses fields, prevents duplicate submissions, gives generic success and clears stale success", async () => {
+test("registration validates, prevents duplicate submissions and focuses a terminal accepted state with verification and sign-in guidance", async () => {
   let finish: ((value: Response) => void) | undefined;
   const fetcher = vi.fn(() => new Promise<Response>((resolve) => { finish = resolve; }));
   vi.stubGlobal("fetch", fetcher);
@@ -42,6 +42,7 @@ test("registration validates and focuses fields, prevents duplicate submissions,
     await view.submit(); assert.equal(fetcher.mock.calls.length, 0);
     assert.equal(view.dom.window.document.activeElement?.getAttribute("name"), "displayName");
     assert.ok(view.host.querySelector('[name="displayName"]')?.getAttribute("aria-describedby"));
+    assert.equal(view.host.querySelector('[name="password"]')?.getAttribute("autocomplete"), "new-password");
     view.fill("displayName", "Alice"); view.fill("email", " Alice@Example.test "); view.fill("password", "safe password value");
     await view.key("x"); await view.key("Enter");
     await view.key("Enter", { ctrlKey: true }); await view.submit();
@@ -49,14 +50,18 @@ test("registration validates and focuses fields, prevents duplicate submissions,
     assert.equal(view.host.querySelector("form")!.getAttribute("aria-busy"), "true");
     await act(async () => { finish!(response({ ok: true, data: { message: "generic" } }, 202)); });
     assert.match(view.host.textContent!, /If this address can be registered/);
-    assert.equal(view.host.querySelector('a[href="/verify-email"]')?.textContent, "Need another verification email?");
-    view.fill("password", "short"); await view.submit();
-    assert.doesNotMatch(view.host.textContent!, /If this address can be registered/);
-    assert.equal(view.dom.window.document.activeElement?.getAttribute("name"), "password");
+    assert.equal(view.host.querySelector('a[href="/verify-email"]')?.textContent, "Request another verification email");
+    assert.equal(view.host.querySelector('a[href="/login"]')?.textContent, "Sign in");
+    assert.match(view.host.textContent!, /Verify your email using the link, then sign in/);
+    assert.equal(view.host.querySelector("form"), null);
+    assert.equal(view.host.querySelector('input[type="password"]'), null);
+    assert.equal(view.host.querySelectorAll('[role="status"]').length, 1);
+    assert.equal(view.dom.window.document.activeElement, view.host.querySelector("h1"));
+    assert.equal(view.host.querySelector("h1")?.textContent, "Request accepted");
     const [url, options] = fetcher.mock.calls[0] as unknown as [string, RequestInit];
     assert.equal(url, "/api/auth/register"); assert.deepEqual(JSON.parse(String(options.body)), { displayName: "Alice", email: "alice@example.test", password: "safe password value" });
     assert.equal(new Headers(options.headers).get("X-DevMentor-CSRF"), "1");
-    assert.equal(view.host.querySelector('[name="password"]')?.getAttribute("autocomplete"), "new-password");
+
   } finally { await view.close(); }
 });
 test("login shows safe server field/root/rate/network failures, GitHub feedback and fixed successful destination", async () => {
@@ -89,6 +94,10 @@ test("forgot form has only an email field and generic success", async () => {
     assert.equal(view.host.querySelectorAll("input").length, 1); view.fill("email", "unknown@example.test"); await view.submit();
     assert.match(view.host.textContent!, /If this address has an eligible account/);
     assert.equal(fetcher.mock.calls[0][0], "/api/auth/password/forgot");
+    view.fill("email", "invalid"); await view.submit();
+    assert.doesNotMatch(view.host.textContent!, /If this address has an eligible account/);
+    assert.equal(view.dom.window.document.activeElement?.getAttribute("name"), "email");
+    assert.equal(fetcher.mock.calls.length, 1);
     assert.doesNotMatch(view.host.textContent!, /Continue with GitHub/);
   } finally { await view.close(); }
 });
