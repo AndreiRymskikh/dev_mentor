@@ -301,4 +301,101 @@ statement identified during final diff review; retained the required final clean
 before User deletion. Typecheck and diff whitespace check passed afterward. The full
 integration pass above preceded this redundant-statement removal; no production code
 changed and the full suite was not repeated for this cleanup. P3.3 tracker is complete;
-parent commit follows. Manual/full audit gates remain unchecked and phase4 is untouched.
+committed as `0e13a07`. Manual/full audit gates remain unchecked; phase4 follows below.
+
+## P4.1 — Authentication entry forms (2026-10-22)
+
+Owner authorized phase 4 with a subagent and commit per task, followed by a manual
+UI checkpoint. GitHub remains an enabled coming-soon feedback button; no OAuth,
+admin or role mutations are introduced. Read AGENTS, lessons, both active specs,
+existing forms/integration harness and installed Next client/router documentation.
+
+Plan: extract only CrudForm's reusable validation/pending/errors lifecycle into
+`ui/backend/forms/useFormState`, preserving existing CRUD controls and shortcuts;
+compose app-local registration/login/recovery with existing FormField/Input/Button/
+Link and pure core schemas; verify interactions/100% coverage and actual disposable
+SMTP/database/browser submissions; hand parent final build/integration before commit.
+
+Added auth route group frame and scoped presentation using existing token/control
+styles. Home source and assets remain intact. Inputs have visible linked labels,
+password-manager autocomplete, required indicators, safe field feedback and first
+invalid field focus. Duplicate submits share a synchronous in-flight guard; keyboard
+Cmd/Ctrl+Enter works. Generic registration/recovery messages clear before validation
+on each attempt, and registration/login offer verification retry navigation. Login
+maps generic denial to email/password/verification guidance and uses fixed `/account`
+navigation. GitHub only announces that sign-in will be implemented soon. Server/rate/
+network errors remain visible; no arbitrary return URL or browser credential storage.
+
+Unit assertions cover schema normalization/field failures/focus, actual CSRF helper,
+pending duplicate prevention, generic success/stale feedback, all page composition,
+GitHub no-request feedback, server/root/rate/network errors and fixed navigation.
+Existing CRUD number/checkbox/root-validation/keyboard/error tests exercise the
+extracted hook without changing their API. Full elevated coverage initially passed
+103 tests with100% statements1059/branches633/functions263/lines810, before the final
+small generic unauthorized feedback mapping; final revalidation follows below.
+Lint/typecheck passed on initial source. Parent owns final build/audit/integration;
+these checks and owner manual acceptance are not claimed as passed here.
+
+Integration adds one owned HTTPS reverse proxy using the existing SMTP fixture's
+short-lived IP-SAN certificate, passing bytes/cookies/headers to the same production
+app. APP_ORIGIN is the actual HTTPS public address; browser certificate bypass is
+fixture-only. Raw HTTP API assertions use this fixed configured origin and assert
+matching mail link origins. Native browser requests exercise genuine CSRF Origin
+and Secure cookies; production policy is unchanged. Browser cases cover generic
+registration, SMTP/developer/unverified persistence, denied unverified login,
+fixture verification then real login and authenticated session response, generic
+recovery mail and quota feedback. Only runner-owned quotas are reset. Screenshot
+failure capture and browser/app/proxy/SMTP/container cleanup remain explicit.
+
+P4.1 final task-subagent checks: lint and typecheck passed;103 unit tests pass at
+100% statements1061/1061, branches637/637, functions263/263 and lines812/812 after
+frontend generic-denial mapping. No thresholds/exclusions changed. The initial
+non-elevated run hit existing localhost EPERM tests and one SSR attribute-case
+assertion; the corrected elevated full suite passed. Pinned CLI help confirms
+standard wait operations use AGENT_BROWSER_DEFAULT_TIMEOUT, set from centralized
+integration config (download-only --timeout flag is not used for text/URL waits).
+Parent build/integration and task commit are still pending.
+
+P4.1 production rendering correction: the first parent Webpack build/full integration
+passed behavioral assertions, but visual screenshot review showed uncompiled Tailwind
+utilities: an unbounded card and missing field spacing. That fallback pipeline had
+emitted literal @utility/@apply because only a Turbopack-specific loader was configured.
+Following installed Next16.4 CSS documentation, added exact @tailwindcss/postcss4.3.3
+matching existing Tailwind4.3.3, one app-local PostCSS configuration, and removed the
+manual Turbopack transform to avoid dual compilation. No existing dependency upgrade;
+installation reports the unchanged six high/five moderate findings. The default
+Turbopack build now passes in the parent run after this correction; the earlier EPERM
+history is not the current build status. Parent is checking Webpack and full rendered
+integration again before acceptance.
+
+A meaningful pipeline unit regression compiles actual global/auth styles with the
+configured plugin and asserts generated grid/card bounds and visible control focus,
+with no remaining @apply/@utility. Final coverage passes104 tests with100% all four
+metrics (1061 statements,637 branches,263 functions,812 lines). Browser assertions
+now inspect desktop card bounds/grid/gaps, native Tab focus outline and320px absence
+of horizontal overflow, saving desktop/mobile screenshots for parent inspection.
+Lint/typecheck are being rerun; parent final integration and per-task commit pending.
+
+P4.1 final follow-up: parent verified both default Turbopack and Webpack production
+builds pass and inspected emitted CSS for actual grid/card bounds and expanded focus,
+with no @apply/@utility. Final full integration is running against that Webpack
+artifact. Renamed the data-identical PostCSS default literal to a named config export
+to clear the lint warning; final lint is warning-free and the focused actual CSS
+pipeline regression passes afterward. The full104-test coverage result above precedes
+this export-style-only change; no TypeScript behavior changed. Parent integration
+and manual desktop/mobile screenshot inspection remain pending at this point.
+
+
+P4.1 final outcome: parent final full integration exited0 with actual PostgreSQL,
+SMTP, production HTTP, native HTTPS browser and installer preservation/cleanup.
+Computed desktop bounds/grid/gaps and native keyboard focus assertions passed,
+as did320px no-overflow checks. Parent visually inspected desktop/mobile screenshots
+and confirmed usable card width, spacing, wrapping and visible focus. Both default
+Turbopack and Webpack production builds pass after the shared PostCSS correction;
+audit remains six high/five moderate existing-toolchain findings. Final warning-free
+lint, typecheck and104-test100%coverage evidence are recorded above. The export-only
+config naming follow-up had its focused CSS regression and lint rerun; integration
+used semantically identical configuration. No CI, clean audit or owner manual
+acceptance is claimed. Parent reviewed P4.1; committed with this update. P4.2 remains
+pending and follows on its own subagent/task commit; pause after phase4 for the
+owner's manual UI checkpoint. Prior P3.3 commit is `0e13a07`.

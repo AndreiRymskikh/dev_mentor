@@ -16,14 +16,14 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [x] P2.3 Scoped composition and registration API; CSRF, generic 202 response metadata and disposable database/mail tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
-## Phase 3 — Verified credentials and sessions (current)
+## Phase 3 — Verified credentials and sessions
 - [x] P3.1 Verification request/confirm with serialized single-use token consumption and replay checks.
 - [x] P3.2 JWT/session cookies, login/logout/session resolver, current role arrays and coordinated helper migration.
 - [x] P3.3 Forgot/reset password, atomic credential replacement/session revocation and race tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
-## Phase 4 — Authentication screens
-- [ ] P4.1 Accessible registration/login/recovery forms using existing UI; GitHub coming-soon button.
+## Phase 4 — Authentication screens (current)
+- [x] P4.1 Accessible registration/login/recovery forms using existing UI; GitHub coming-soon button.
 - [ ] P4.2 Fragment-token verification/reset pages, safe history/referrer handling, account page and logout.
 - [ ] Validation, browser evidence and owner manual UI checkpoint passed.
 
@@ -40,7 +40,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Owner final manual acceptance passed.
 
 ## Evidence
-P3.1 commit: `f43fb18`; P3.2 commit: `2c716d4`. P3.3 implementation and parent validation are complete; its per-task commit is next. Phase 3 final evidence: lint/typecheck,99 unit tests at100% all four metrics, production Webpack build and full disposable PostgreSQL/SMTP/production HTTP/browser/installer integration passed. Default Turbopack build retains worker-port EPERM; audit reports six high and five moderate existing-toolchain findings. Owner manual acceptance and the complete audit gate remain open. Pause before phase4.
+P3.1 commit: `f43fb18`; P3.2 commit: `2c716d4`. P3.3 commit: `0e13a07`. Phase 3 final evidence: lint/typecheck,99 unit tests at100% all four metrics, production Webpack build and full disposable PostgreSQL/SMTP/production HTTP/browser/installer integration passed. Default Turbopack build retains worker-port EPERM; audit reports six high and five moderate existing-toolchain findings. Owner manual acceptance and the complete audit gate remain open. These were the historical phase3 results; the corrected phase4 pipeline now passes both build engines.
 
 Phase 3 resume: owner explicitly authorized phase 3 with a subagent and commit per task, followed by a manual phase checkpoint. Prior manual-result checkboxes remain unconfirmed. Execute P3.1 verification, P3.2 sessions/login/logout, then P3.3 recovery; no phase 4 UI or GitHub OAuth in this run.
 
@@ -91,6 +91,12 @@ including both actual reset/login repository race orders with observed lock bloc
 SMTP failure/retry, recovery HTTP, old-cookie/password denial, browser/admin404,
 installer preservation and owned-resource cleanup. Default Turbopack worker-port
 EPERM and six high/five moderate existing tooling audit findings remain. Parent
-review completed; per-task commit is next. README contains the whole phase3 manual
+review completed; committed as `0e13a07`. README contains the whole phase3 manual
 sequence. Owner manual acceptance, overall audit gate and phase6 independent
 whole-feature review remain open. Stop before phase4.
+
+2026-10-22 phase4 resume: owner authorized P4.1 and P4.2, subagent and local commit per task, then manual UI testing. P4.1 implementation and parent verification are complete and committed with this update. P4.2 starts after that task commit. GitHub remains coming-soon only; previous manual checkboxes stay unconfirmed.
+
+P4.1 rendering gate correction: first behavioral integration passed but parent screenshot review found uncompiled Tailwind under Webpack. A shared exact-version PostCSS pipeline now replaces the Turbopack-only CSS transform; parent default build now passes.104 unit tests pass100% all four metrics, including actual CSS compilation. Desktop/mobile computed layout/focus checks and screenshots are added; both final parent builds and full disposable integration passed; desktop/mobile screenshots were inspected. P4.1 is committed with this update. Historical default-build EPERM notes above no longer describe the corrected pipeline.
+
+P4.1 final evidence: warning-free lint, typecheck,104 unit tests with100% all four metrics, actual CSS compilation regression, default Turbopack and Webpack production builds, full disposable PostgreSQL/SMTP/HTTP/native HTTPS browser/installer integration and cleanup passed. Parent inspected desktop and320px screenshots and computed focus/layout checks. Audit remains six high/five moderate existing-toolchain findings; no CI or manual acceptance is claimed. Continue P4.2, then pause for owner manual testing.

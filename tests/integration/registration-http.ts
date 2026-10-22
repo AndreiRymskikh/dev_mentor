@@ -40,11 +40,13 @@ export async function registrationFixture() {
     const address = server.server.address();
     assert.ok(address && typeof address !== "string");
     return {
+      tls: { key: await readFile(keyPath), cert: await readFile(certificatePath) },
+      messages,
       environment: { NODE_EXTRA_CA_CERTS: certificatePath, APP_ORIGIN: "https://fixture.example.test", EMAIL_FROM: "fixture@example.test", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(address.port), SMTP_USER: "fixture", SMTP_PASSWORD: password, SMTP_LOCAL_SINK: "false", JWT_SECRET: randomBytes(32).toString("hex"), RATE_LIMIT_SECRET: randomBytes(32).toString("hex") },
       async test(baseUrl: string, databaseUrl: string) {
         const client = new Client({ connectionString: databaseUrl });
         const input = { email: "http-registration@example.test", displayName: "HTTP Registration", password: "http fixture password" };
-        const post = (body: unknown, extra: Record<string, string> = {}) => fetch(`${baseUrl}/api/auth/register`, { method: "POST", headers: { "content-type": "application/json", "X-DevMentor-CSRF": "1", origin: "https://fixture.example.test", ...extra }, body: JSON.stringify(body), signal: AbortSignal.timeout(config.authRequestTimeoutMs) });
+        const post = (body: unknown, extra: Record<string, string> = {}) => fetch(`${baseUrl}/api/auth/register`, { method: "POST", headers: { "content-type": "application/json", "X-DevMentor-CSRF": "1", origin: this.environment.APP_ORIGIN, ...extra }, body: JSON.stringify(body), signal: AbortSignal.timeout(config.authRequestTimeoutMs) });
         try {
           await client.connect();
           assert.equal((await post(input, { "X-DevMentor-CSRF": "0" })).status, 403);
@@ -52,13 +54,14 @@ export async function registrationFixture() {
           const invalid = await post({ ...input, password: "short" });
           assert.equal(invalid.status, 400); assert.ok((await invalid.json()).error.fieldErrors.password);
           assert.equal((await post({ ...input, roles: ["administrator"] })).status, 400);
-          const authPost = (operation: string, body: unknown, extra: Record<string,string> = {}) => fetch(`${baseUrl}/api/auth/${operation}`, { method: "POST", headers: { "content-type":"application/json", "X-DevMentor-CSRF":"1", origin:"https://fixture.example.test", ...extra }, body:JSON.stringify(body), signal:AbortSignal.timeout(config.authRequestTimeoutMs) });
+          const authPost = (operation: string, body: unknown, extra: Record<string,string> = {}) => fetch(`${baseUrl}/api/auth/${operation}`, { method: "POST", headers: { "content-type":"application/json", "X-DevMentor-CSRF":"1", origin:this.environment.APP_ORIGIN, ...extra }, body:JSON.stringify(body), signal:AbortSignal.timeout(config.authRequestTimeoutMs) });
           const accepted = await post(input);
           assert.equal(accepted.status, 202); assert.equal(accepted.headers.get("cache-control"), "no-store"); assert.equal(accepted.headers.get("set-cookie"), null);
           const generic = await accepted.json();
           assert.equal((await authPost("login", { email:input.email,password:input.password })).status,401);
           assert.equal(messages.length, 1);
-          const token = /https:\/\/fixture.example.test\/verify-email#token=([A-Za-z0-9_-]{43})/.exec(messages[0])?.[1];
+          const token = /verify-email#token=([A-Za-z0-9_-]{43})/.exec(messages[0])?.[1];
+          assert.ok(messages[0].includes(`${this.environment.APP_ORIGIN}/verify-email#token=`));
           assert.ok(token, "production app delivered over authenticated STARTTLS");
           const rows = await client.query<{ password_hash: string; digest: string; role: string; email_verified_at: null }>("select c.password_hash,t.digest,r.role,u.email_verified_at from users u join credentials c on c.user_id=u.id join action_tokens t on t.user_id=u.id join user_roles r on r.user_id=u.id where u.normalized_email=$1", [input.email]);
           assert.equal(rows.rows.length, 1); const row = rows.rows[0];
@@ -71,7 +74,7 @@ export async function registrationFixture() {
           assert.deepEqual(await (await post({ ...input, email: failedEmail })).json(), generic);
           const failed = await client.query("select t.consumed_at from action_tokens t join users u on u.id=t.user_id where u.normalized_email=$1", [failedEmail]);
           assert.ok(failed.rows[0].consumed_at);
-          const verificationPost = (operation: string, body: unknown, extra: Record<string, string> = {}) => fetch(`${baseUrl}/api/auth/verification/${operation}`, { method: "POST", headers: { "content-type": "application/json", "X-DevMentor-CSRF": "1", origin: "https://fixture.example.test", ...extra }, body: JSON.stringify(body), signal: AbortSignal.timeout(config.authRequestTimeoutMs) });
+          const verificationPost = (operation: string, body: unknown, extra: Record<string, string> = {}) => fetch(`${baseUrl}/api/auth/verification/${operation}`, { method: "POST", headers: { "content-type": "application/json", "X-DevMentor-CSRF": "1", origin: this.environment.APP_ORIGIN, ...extra }, body: JSON.stringify(body), signal: AbortSignal.timeout(config.authRequestTimeoutMs) });
           const requestVerification = async (email: string) => {
             const started = Date.now(); const response = await verificationPost("request", { email });
             assert.equal(response.status, 202); assert.equal(response.headers.get("cache-control"), "no-store"); assert.equal(response.headers.get("set-cookie"), null);
@@ -111,7 +114,7 @@ export async function registrationFixture() {
           assert.equal((await fetch(`${baseUrl}/api/auth/session`,{headers:{"X-User-Id":principal.id,"X-Role":"administrator"}})).status,401);
           for(let i=0;i<2;i++){const out=await authPost("logout",{}, {cookie:cookieHeader});assert.equal(out.status,200,"strict empty JSON logout succeeds and is idempotent");assert.match(out.headers.get("set-cookie")!,/Max-Age=0/);assert.match(out.headers.get("set-cookie")!,/Secure/);}
           assert.equal((await getSession()).status,401);
-          const bodylessLogout=await fetch(`${baseUrl}/api/auth/logout`,{method:"POST",headers:{"X-DevMentor-CSRF":"1",origin:"https://fixture.example.test"},signal:AbortSignal.timeout(config.authRequestTimeoutMs)});assert.equal(bodylessLogout.status,200,"production Next bodyless logout succeeds with no content type");
+          const bodylessLogout=await fetch(`${baseUrl}/api/auth/logout`,{method:"POST",headers:{"X-DevMentor-CSRF":"1",origin:this.environment.APP_ORIGIN},signal:AbortSignal.timeout(config.authRequestTimeoutMs)});assert.equal(bodylessLogout.status,200,"production Next bodyless logout succeeds with no content type");
           assert.equal((await authPost("logout",{userId:principal.id})).status,400,"logout rejects caller-supplied user identity");
           for(let i=0;i<3;i++)assert.equal((await authPost("login",{email:input.email,password:"wrong"})).status,401);
           const limitedLogin=await authPost("login",{email:input.email,password:input.password},{"x-forwarded-for":"198.51.100.1"});assert.equal(limitedLogin.status,429);assert.ok(Number(limitedLogin.headers.get("retry-after"))<=900);
@@ -172,7 +175,8 @@ export async function registrationFixture() {
           rejectDelivery = false;
           assert.deepEqual(await requestRecovery(input.email), failedRecovery);
           assert.equal(messages.length, beforeRecovery + 1);
-          const resetToken = /https:\/\/fixture.example.test\/reset-password#token=([A-Za-z0-9_-]{43})/.exec(messages.at(-1)!)?.[1];
+          const resetToken = /reset-password#token=([A-Za-z0-9_-]{43})/.exec(messages.at(-1)!)?.[1];
+          assert.ok(messages.at(-1)!.includes(`${this.environment.APP_ORIGIN}/reset-password#token=`));
           assert.ok(resetToken, "fixed-origin fragment reset link delivered over authenticated STARTTLS");
           const resetRows = await client.query("select t.digest,t.expires_at from action_tokens t join users u on u.id=t.user_id where u.normalized_email=$1 and t.purpose='reset-password' and t.consumed_at is null", [input.email]);
           assert.equal(resetRows.rowCount, 1);

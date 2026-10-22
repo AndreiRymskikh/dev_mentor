@@ -10,6 +10,8 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testconta
 import { Client } from "pg";
 import { integrationConfig as config } from "./config";
 import type { BrowserResult } from "./context";
+import { httpsProxy } from "./https-proxy";
+import { testAuthForms } from "./scenarios/auth-forms";
 import { testHome } from "./scenarios/home";
 import { testAdmin } from "./scenarios/admin";
 import { testDatabase } from "./database";
@@ -22,6 +24,7 @@ const session = `devmentor-${randomUUID()}`;
 const artifacts = path.resolve(config.artifacts);
 const browserCli = path.resolve("node_modules/agent-browser/bin/agent-browser.js");
 let mail: Awaited<ReturnType<typeof registrationFixture>> | undefined;
+let proxy: Awaited<ReturnType<typeof httpsProxy>> | undefined;
 let database: StartedPostgreSqlContainer | undefined;
 let app: ChildProcess | undefined;
 let appExited = false;
@@ -30,7 +33,7 @@ let browserUsed = false;
 
 async function browser(...args: string[]) {
   browserUsed = true;
-  const { stdout } = await exec(process.execPath, [browserCli, "--session", session, "--json", ...args], { timeout: config.browserCommandTimeoutMs, maxBuffer: 4 * 1024 * 1024 });
+  const { stdout } = await exec(process.execPath, [browserCli, "--session", session, "--ignore-https-errors", "--json", ...args], { env: { ...process.env, AGENT_BROWSER_DEFAULT_TIMEOUT: String(config.authBrowserWaitMs) }, timeout: config.browserCommandTimeoutMs, maxBuffer: 4 * 1024 * 1024 });
   const result = JSON.parse(stdout) as BrowserResult;
   assert.equal(result.success, true, result.error ?? "agent-browser command failed");
   return result;
@@ -55,6 +58,7 @@ async function shutdown() {
     await Promise.race([exited, delay(5000)]);
     if (!appExited) { app.kill("SIGKILL"); await exited; }
   }
+  if (proxy) await proxy.close();
   if (mail) await mail.close();
   if (database) await database.stop();
 }
@@ -80,6 +84,8 @@ async function main() {
   mail = await registrationFixture();
   const port = await freePort();
   const baseUrl = `http://127.0.0.1:${port}`;
+  proxy = await httpsProxy(baseUrl, mail.tls);
+  mail.environment.APP_ORIGIN = proxy.origin;
   app = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "packages/app", "--hostname", "127.0.0.1", "--port", String(port)], {
     env: { ...process.env, NODE_ENV: "production", ...mail.environment, DATABASE_URL: database.getConnectionUri() },
     stdio: ["ignore", "pipe", "pipe"],
@@ -100,6 +106,7 @@ async function main() {
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
   await mail.test(baseUrl, database.getConnectionUri());
+  await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
   await testHome(context);
   await testAdmin(context);
   await testInstaller();

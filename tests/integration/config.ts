@@ -1,4 +1,5 @@
 export const integrationConfig = {
+  authBrowserWaitMs: 25_000,
   sessionLockTimeoutMs: 5000,
   certificateTimeoutMs: 15_000,
   smtpCloseTimeoutMs: 1000,

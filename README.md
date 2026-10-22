@@ -316,5 +316,29 @@ Origin returns 403; extra identity/role fields return 400. For automatic disposa
 SMTP failure, retry, expiry, replay and reset/login concurrency evidence, run
 `npm run test:integration`; do not clear the developer database or rate counters.
 
-The phase ends here for owner manual testing; authentication screens, GitHub auth
-and administration are still pending. No manual checkpoint is marked passed.
+That phase3 API checkpoint remains available for manual testing. Phase4 screen
+implementation is in progress below; GitHub remains coming-soon and administration
+is still pending. No owner manual checkpoint is marked passed.
+
+### Authentication screens (phase 4)
+
+With the existing database, migrations and auth/SMTP environment configured, open
+`/register`, `/login` or `/forgot-password` directly. Registration sends a generic
+verification message and does not sign in. The verification email/retry link opens
+`/verify-email`; password recovery links open `/reset-password`. Those token pages
+and `/account` are completed in task P4.2 before the phase's manual checkpoint.
+
+For manual testing, submit empty/invalid fields, correct them using the keyboard,
+check password-manager autocomplete, and submit valid registration/recovery forms.
+While the request is pending (the public delivery window is about 15 seconds),
+controls prevent duplicate submissions. Check your SMTP inbox and spam folder.
+GitHub's button displays “GitHub sign-in will be implemented soon.” without starting
+OAuth. Wrong/unverified login, unavailable services and rate limits display safe
+feedback. Successful login goes only to `/account`.
+
+Phase4 P4.1 automated verification includes actual HTTPS browser registration,
+unverified login denial, verified fixture login with an accepted Secure session
+cookie, recovery mail, rate-limit feedback and GitHub no-request feedback. Desktop
+and320px screenshots and computed field spacing/focus/no-overflow checks passed.
+Both default and Webpack builds now compile Tailwind through the same PostCSS
+pipeline. P4.2 and the owner's complete phase4 manual checkpoint remain pending.
