@@ -3,6 +3,11 @@
 ## Goal
 Implement [spec](../specs/2026-10-16-users-auth-application-primitives.md) using a subagent and separate commit per task. Owner defers GitHub auth to a coming-soon button and requires a manual checkpoint after each phase.
 
+## Phase 3 resume
+Owner explicitly requested continuation through phase 3, using a subagent and commit for each task, then pausing for manual testing. Preserve earlier unknown manual results. Plan: P3.1 verification request/confirm and race/replay safety; P3.2 verified bcrypt login, pinned JWT/session cookies, current multi-role principal and coordinated helper migration, logout/session endpoints; P3.3 recovery and atomic reset/session revocation. Acceptance includes strict bounded/CSRF/no-store HTTP contracts, failed-closed configuration/storage, disposable PostgreSQL/SMTP/production HTTP concurrency evidence, meaningful 100% coverage and required checks. UI and admin remain future phases. Existing audit advisories/default Turbopack environment restriction must be reported if still present. Each task gets parent review before its commit; independent scoped review before the phase checkpoint supplements later full-feature review.
+
+Parent P3.1 review (resumed 2026-10-22): inspected transactional conditional token update, user locking, pure schema exports and actual full integration output; diff whitespace clean. Scoped independent review had no findings. P3.1 committed with this update; proceed to P3.2. Prior manual test outcomes remain unknown.
+
 ## Resume — issue #4
 Owner requested `implement issue #4` after phase 1. GitHub confirms the issue matches this spec and is open with no assignee, labels or comments; open PR search returned none. Continue phase 2 in the existing checkout/run rather than duplicate the already committed foundation. Existing explicit phased delivery instructions govern this continuation; no PR publishing or tracker comments are part of this checkpoint. Owner manual results remain unconfirmed. Phase 2 acceptance: rate-limited registration with baseline developer membership, strict password/email validation, expiring digest-only tokens and bounded SMTP delivery with generic 202 responses, real disposable database/mail tests, and full coverage. Pause for manual API testing after phase 2.
 
@@ -122,3 +127,40 @@ Production integration first exposed Next16.4 canonicalizing Request.url to loca
 P2.3 final validation: full disposable integration passed after the configured-origin correction: real production HTTP202, duplicate/delivery-failure generic results, strict fields/forged roles, CSRF, bcrypt12/digest/developer persistence, no session, invalidated failed-delivery token and forwarding-spoof-resistant429; authenticated STARTTLS used a child-only trusted temporary certificate. Existing database/migration races, SMTP deadline, browser home/admin404 and installer data-preservation checks all passed, and fixture cleanup completed. Final lint/typecheck/82-test100%coverage/Webpack build passed; six existing high audit findings and default TurbopackEPERM are the documented limits. No GitHub CI result is claimed. Missingconfiguration503 and typed storage-failure behavior are covered by unit/service tests; the production HTTP fixture uses functioning storage/mail rather than claiming a real database-outage test. Parent review/commit remains required; owner manual phase2 checkpoint remains pending. Stop before phase3.
 
 Parent review completed: production changes, test assertions, configured-origin compatibility, scoped review corrections and actual final integration output inspected; diff whitespace clean. P2.3 committed with this update. Phase 2 implementation pauses for owner manual API testing using README instructions. Issue #4 remains in progress; verification consumption/login/recovery, UI, administration and full-feature review remain unfinished. No owner acceptance or clean audit/default-build gate is inferred.
+
+
+## P3.1 — Verification request and confirmation (resumed 2026-10-22)
+
+Implemented by the task subagent after reading the auth spec, engineering standards,
+lessons and installed Next route-handler documentation. Added narrow verification
+repository operations, strict pure request/confirm schemas exposed through the existing
+users validator package export, explicit scoped DI and CSRF-protected no-store POST
+routes. Resends share the existing email HMAC quotas and 15-second public completion
+window; no account existence is disclosed by the success body. Configuration/storage
+failures deny safely. Tokens persist as SHA-256 digests, expire after 24 hours and never
+supply identity data. User locks serialize replacement, conditional delivery cleanup
+and conditional atomic consumption/email verification; no session is issued here.
+
+Changed files: verification repository/db export; users verification service/schemas
+and pure validator barrel/package export; cradle/container; request and confirm routes;
+verification unit tests; disposable verification database tests, existing authenticated
+SMTP/production HTTP fixture and centralized timing assertion setting; README and tracker.
+
+Evidence: lint, typecheck and 87 unit tests passed. Final coverage is 100% statements
+791/791, branches 478/478, functions 184/184 and lines 602/602. Full disposable integration
+passed: token replacement, eight-way replay, six issuer/consumer races with persisted
+state assertions, wrong purpose/expiry, conditional stale delivery cleanup; production
+HTTP proved same-account failed-email resend recovery, no token for unknown/verified/
+credentialless users, generic responses and timing, CSRF, POST-only consumption and
+concurrent replay. Existing registration, PostgreSQL migrations, SMTP, browser home/admin
+404 and installer preservation scenarios passed; owned fixtures were cleaned up. Initial
+sandbox port restrictions required rerunning coverage and integration with escalation.
+No developer Compose data was reset. Export-only follow-up reran lint/typecheck/coverage
+and Webpack build; integration was not repeated for the pure re-export change.
+
+Default Turbopack build still fails with the known worker-port EPERM restriction;
+production Webpack build passed again after the pure validator export follow-up. Registry audit reports the same six existing high findings; no dependency
+change or clean audit claim. Independent phase3_review scoped source/test review reported
+no concrete P3.1 findings; this is not phase 6 full-feature security/QA sign-off and it did
+not run validation gates. README supplies manual resend/confirm commands; owner phase 3
+checkpoint waits until P3.2/P3.3 are complete. Parent review and per-task commit pending.

@@ -15,3 +15,4 @@ export { ActionToken } from "./entities/tokens/action-token.entity";
 export { RateLimitBucket } from "./entities/limits/rate-limit-bucket.entity";
 export { RegistrationRepository, type RegistrationRecord } from "./repositories/users/registration.repository";
 export { RateLimitRepository, type RateLimitRequest, type RateLimitResult } from "./repositories/limits/rate-limit.repository";
+export { VerificationRepository } from "./repositories/users/verification.repository";

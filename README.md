@@ -171,12 +171,12 @@ Initial registration atomically persists a 24-hour verification token digest bef
 awaiting delivery. Delivery failure keeps the public response generic and invalidates
 only that issued token. If the database is also unavailable, revocation cannot be
 guaranteed; the service records a fixed event without sensitive diagnostics. Same-account
-verification resend is a phase 3 feature; phase 2 integration proves recovery through a
-subsequent successful registration after a simulated SMTP failure. The registration API is now exposed through task P2.3; use the checkpoint below.
+verification resend is available through the phase 3 API; integration proves recovery
+by resending to the same account after simulated SMTP failure. The registration API is now exposed through task P2.3; use the checkpoint below.
 
 ### Phase 2 registration API checkpoint
 
-Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links are delivered now, but their pages and token consumption arrive in phase 3/4.
+Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links are delivered now; consume them through the phase 3 API below until the phase 4 pages are available.
 
 For development, optionally start [Mailpit](https://github.com/axllent/mailpit) pinned to [v1.31.5](https://github.com/axllent/mailpit/releases/tag/v1.31.5):
 
@@ -199,3 +199,42 @@ curl -i http://localhost:3000/api/auth/register \
 Expect a generic JSON 202, `Cache-Control: no-store`, and no session cookie. A duplicate or delivery failure returns the same response. Admitted registrations intentionally take at least 15 seconds, including duplicates: the response window covers the 10-second SMTP deadline and cleanup budget to reduce account-existence timing disclosure. Severe database/network outages can exceed that window; this is not a constant-time guarantee under outages. Invalid fields or forged `roles` return 400, removing the CSRF header returns 403, and missing server configuration or unavailable persistence returns safe 503.
 
 Next's request does not expose a trusted peer address. Registration therefore uses one conservative shared bucket across clients (10 registrations/hour), ignoring `X-Forwarded-For` and `X-Real-IP`. There is no trusted-proxy configuration yet. Email limits also apply; 429 includes bounded `Retry-After`. This conservative limit is intentional until a verified proxy integration is introduced. Restarting the app does not clear database-backed limits. `/api/health` remains independent of database and mail configuration; `/admin` remains 404.
+
+
+### Phase 3 verification API checkpoint
+
+Use the same database, app origin, mail sink and rate-limit configuration as above.
+Request a replacement verification email (this invalidates prior verification tokens):
+
+```sh
+curl -i http://localhost:3000/api/auth/verification/request \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"email":"your-test-mailbox@example.com"}'
+```
+
+Expect generic 202 after the same 15-second window for unverified, unknown,
+already-verified and credentialless accounts, or failed delivery. Only an eligible
+unverified credentials account receives mail. Registration and resend share the
+3 emails/hour/address and 20 emails/hour/shared-peer limits; 429 includes Retry-After.
+
+Copy the 43-character `token` value from the email link's `#token=` fragment into
+the local JSON body below. Keep real tokens out of shared terminal logs and screenshots.
+The link's page is implemented in phase 4; visiting a GET URL cannot consume a token.
+
+```sh
+curl -i http://localhost:3000/api/auth/verification/confirm \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"token":"PASTE_THE_FRAGMENT_TOKEN_HERE"}'
+```
+
+Expect 200 and no session cookie. Repeating the POST, using a replaced token, or
+using an expired/invalid token returns the same safe 400 error. Tokens expire after
+24 hours. Missing CSRF returns 403; GET returns 405 and leaves the token unchanged.
+Resend after a delivery failure can recover the same account once SMTP works again,
+subject to the shared email limits. Do not clear or reset your Compose database to
+repeat tests; `npm run test:integration` provisions disposable PostgreSQL and mail.
+Login/session and password-recovery instructions follow after P3.2/P3.3.

@@ -10,14 +10,14 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Phase gate: lint, typecheck, 100% coverage, audit, build and disposable database verification; provide manual instructions.
 - [ ] Owner manual checkpoint passed.
 
-## Phase 2 — Registration and email (current)
+## Phase 2 — Registration and email
 - [x] P2.1 Explicit repositories, strict registration validation, bcrypt and atomic database rate limits.
 - [x] P2.2 Email port/SMTP adapter, token issuance/invalidation and registration service; delivery failure/retry checks.
 - [x] P2.3 Scoped composition and registration API; CSRF, generic 202 response metadata and disposable database/mail tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
-## Phase 3 — Verified credentials and sessions
-- [ ] P3.1 Verification request/confirm with serialized single-use token consumption and replay checks.
+## Phase 3 — Verified credentials and sessions (current)
+- [x] P3.1 Verification request/confirm with serialized single-use token consumption and replay checks.
 - [ ] P3.2 JWT/session cookies, login/logout/session resolver, current role arrays and coordinated helper migration.
 - [ ] P3.3 Forgot/reset password, atomic credential replacement/session revocation and race tests.
 - [ ] Validation and owner manual API checkpoint passed.
@@ -40,6 +40,8 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Owner final manual acceptance passed.
 
 ## Evidence
+Phase 3 resume: owner explicitly authorized phase 3 with a subagent and commit per task, followed by a manual phase checkpoint. Prior manual-result checkboxes remain unconfirmed. Execute P3.1 verification, P3.2 sessions/login/logout, then P3.3 recovery; no phase 4 UI or GitHub OAuth in this run.
+
 2026-10-21 resume: owner requested implementation of issue #4 after the phase 1 checkpoint. Continue phase 2 under the existing per-task subagent/commit and manual phase-gate workflow. This authorizes continuation; it does not establish that owner manual checks or the full phase 1 gate passed. Issue #4 remains open, unassigned and unclaimed by another actor; no open PR was found.
 
 P1.1 reviewed and committed with this tracker update. Exact MikroORM 7.2.5 pins; lazy shared runtime and isolated request/transaction managers. Lint, typecheck and full unit coverage passed (60 tests; 100% all four metrics). Audit reports six existing high-severity dependency findings outside the new ORM tree. Default build fails with Turbopack worker port EPERM even with escalation; parent successfully verified `npm run build --workspace @devmentor/app -- --webpack`. Real ORM initialization without a connection passed; disposable PostgreSQL verification belongs to P1.2.
@@ -53,3 +55,14 @@ P2.2 reviewed and committed with this update: atomic initial verification digest
 P2.3 implemented: explicit lazy scoped DI, bounded streaming JSON registration route, CSRF against validated configured public origin, generic202/no-store, safe429 Retry-After and compatible typed success metadata/cookies. Scoped independent review corrected SMTP timing enumeration with a15-second shared public completion window (documented outage limits). Lint/typecheck,82 tests100% all metrics, production Webpack build and full disposable PostgreSQL/authenticatedSTARTTLS/productionHTTP/browser/installer integration passed. Default Turbopack remains blocked by worker-portEPERM; audit retains six existing high findings. README includes local Mailpit/manual curl instructions. Phase2 owner manual checkpoint is pending; stop before phase3.
 
 P2.2 commit: `4d3a667`. P2.3 parent-reviewed and committed with this tracker update. Phase 2 implementation is ready for manual testing; remaining acceptance/full-gate checkboxes stay open. Issue #4 is not complete.
+
+
+P3.1 implemented by its task subagent (resumed 2026-10-22): strict verification resend/
+confirm APIs, shared email quotas and generic 15-second window, serialized token
+replacement/conditional cleanup/single-use confirmation; pure validators exported for
+later UI. Lint/typecheck and 87 unit tests passed at 100% all four metrics. Full disposable
+PostgreSQL/SMTP/production HTTP/browser/installer integration passed, including committed
+race-state assertions and same-account resend recovery after SMTP failure. Webpack build
+passed; default Turbopack EPERM and six existing high audit findings remain. Scoped
+independent review found no concrete issue; whole-feature phase 6 review remains pending.
+Parent review/commit pending; phase 3 continues with P3.2/P3.3 before manual pause.

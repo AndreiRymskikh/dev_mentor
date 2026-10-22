@@ -1,3 +1,5 @@
+import { VerificationRepository } from "@devmentor/db";
+import { VerificationService } from "../services/users/verification.service";
 import { RegistrationRepository, RateLimitRepository } from "@devmentor/db";
 import { RegistrationService } from "../services/users/registration.service";
 import { RateLimitService } from "../services/limits/rate-limit.service";
@@ -11,6 +13,8 @@ export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
     logger: asValue(logger),
+    verificationRepository: asFunction(() => new VerificationRepository()).scoped(),
+    verificationService: asFunction(({ verificationRepository, rateLimitService, emailSender, logger }: Cradle) => new VerificationService(verificationRepository, rateLimitService, emailSender, { warn: (event) => logger.warn({ event }, "Email delivery event") })).scoped(),
     requestId: asFunction(() => randomUUID()).scoped(),
     registrationRepository: asFunction(() => new RegistrationRepository()).scoped(),
     rateLimitRepository: asFunction(() => new RateLimitRepository()).scoped(),

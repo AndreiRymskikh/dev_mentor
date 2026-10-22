@@ -1,6 +1,7 @@
 export const integrationConfig = {
   certificateTimeoutMs: 15_000,
   smtpCloseTimeoutMs: 1000,
+  authResponseWindowMinimumMs: 14_500,
   authRequestTimeoutMs: 20_000,
   smtpDeadlineAssertionMs: 12_000,
   postgresImage: "postgres:18-alpine",

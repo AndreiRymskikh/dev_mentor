@@ -69,7 +69,49 @@ export async function registrationFixture() {
           assert.deepEqual(await (await post({ ...input, email: failedEmail })).json(), generic);
           const failed = await client.query("select t.consumed_at from action_tokens t join users u on u.id=t.user_id where u.normalized_email=$1", [failedEmail]);
           assert.ok(failed.rows[0].consumed_at);
+          const verificationPost = (operation: string, body: unknown, extra: Record<string, string> = {}) => fetch(`${baseUrl}/api/auth/verification/${operation}`, { method: "POST", headers: { "content-type": "application/json", "X-DevMentor-CSRF": "1", origin: "https://fixture.example.test", ...extra }, body: JSON.stringify(body), signal: AbortSignal.timeout(config.authRequestTimeoutMs) });
+          const requestVerification = async (email: string) => {
+            const started = Date.now(); const response = await verificationPost("request", { email });
+            assert.equal(response.status, 202); assert.equal(response.headers.get("cache-control"), "no-store"); assert.equal(response.headers.get("set-cookie"), null);
+            assert.ok(Date.now() - started >= config.authResponseWindowMinimumMs); return response.json();
+          };
+          assert.equal((await verificationPost("request", { email: input.email }, { "X-DevMentor-CSRF": "0" })).status, 403);
+          assert.equal((await verificationPost("confirm", { token }, { origin: "https://attacker.test" })).status, 403);
+          assert.equal((await verificationPost("request", { email: "invalid", role: "administrator" })).status, 400);
+          const beforeFailure = messages.length;
+          const resendGeneric = await requestVerification(failedEmail);
+          assert.equal(messages.length, beforeFailure);
+          const failedTokens = await client.query("select t.consumed_at from action_tokens t join users u on u.id=t.user_id where u.normalized_email=$1", [failedEmail]);
+          assert.equal(failedTokens.rows.length, 2); assert.ok(failedTokens.rows.every((row) => row.consumed_at));
           rejectDelivery = false;
+          const beforeRetry = messages.length;
+          assert.deepEqual(await requestVerification(failedEmail), resendGeneric);
+          assert.equal(messages.length, beforeRetry + 1);
+          const recoveredToken = /verify-email#token=([A-Za-z0-9_-]{43})/.exec(messages.at(-1)!)?.[1]; assert.ok(recoveredToken);
+          const recover = await verificationPost("confirm", { token: recoveredToken }); assert.equal(recover.status, 200); assert.equal(recover.headers.get("cache-control"), "no-store");
+          assert.equal((await verificationPost("confirm", { token: recoveredToken })).status, 400);
+          const beforeReplacement = messages.length;
+          assert.deepEqual(await requestVerification(input.email), resendGeneric); assert.equal(messages.length, beforeReplacement + 1);
+          const resentToken = /verify-email#token=([A-Za-z0-9_-]{43})/.exec(messages.at(-1)!)?.[1]; assert.ok(resentToken);
+          assert.equal((await verificationPost("confirm", { token })).status, 400);
+          assert.equal((await fetch(`${baseUrl}/api/auth/verification/confirm?token=${resentToken}`)).status, 405);
+          const confirmed = await Promise.all([verificationPost("confirm", { token: resentToken }), verificationPost("confirm", { token: resentToken })]);
+          assert.deepEqual(confirmed.map((response) => response.status).sort(), [200, 400]);
+          const verified = await client.query("select email_verified_at from users where normalized_email=$1", [input.email]); assert.ok(verified.rows[0].email_verified_at);
+          const beforeUnknown = messages.length;
+          assert.deepEqual(await requestVerification("http-unknown@example.test"), resendGeneric); assert.equal(messages.length, beforeUnknown);
+          // Distinct fixtures prove generic already-verified and credentialless requests without spending a fourth address allowance.
+          await client.query("insert into users (id,normalized_email,display_name,email_verified_at,created_at,updated_at) values (gen_random_uuid(),$1,$2,now(),now(),now()),(gen_random_uuid(),$3,$2,null,now(),now())", ["http-verified@example.test", "HTTP fixture", "http-credentialless@example.test"]);
+          assert.deepEqual(await requestVerification("http-verified@example.test"), resendGeneric);
+          assert.deepEqual(await requestVerification("http-credentialless@example.test"), resendGeneric);
+          assert.equal(messages.length, beforeUnknown);
+          assert.equal((await client.query("select t.id from action_tokens t join users u on u.id=t.user_id where u.normalized_email=any($1)", [["http-unknown@example.test", "http-verified@example.test", "http-credentialless@example.test"]])).rowCount, 0);
+          for (const purpose of ["verify-email", "reset-password"]) {
+            const invalidToken = randomBytes(32).toString("base64url");
+            await client.query("insert into action_tokens (id,user_id,purpose,digest,expires_at) select gen_random_uuid(),id,$1,$2,$3 from users where normalized_email=$4", [purpose, createHash("sha256").update(invalidToken).digest("hex"), purpose === "verify-email" ? new Date(Date.now() - 1000) : new Date(Date.now() + 86400000), failedEmail]);
+            assert.equal((await verificationPost("confirm", { token: invalidToken })).status, 400);
+          }
+          console.log("Verification HTTP passed: same-account failed-email resend recovery, replacement, generic outcomes, CSRF POST-only, single-use replay, expiry and purpose.");
           const remaining = await Promise.all(Array.from({ length: 7 }, (_, index) => post({ ...input, email: `http-${index}@example.test` }, { "x-forwarded-for": `10.0.0.${index}` })));
           assert.ok(remaining.every((response) => response.status === 202));
           const limited = await post({ ...input, email: "over-limit@example.test" }, { "x-forwarded-for": "9.8.7.6", "x-real-ip": "8.8.8.8" });
