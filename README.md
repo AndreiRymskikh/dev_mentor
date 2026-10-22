@@ -24,7 +24,7 @@ Dependencies follow `app → core → db`, with standalone `ui` consumed by `app
 
 Database access and the Awilix container stay on the server. Request-specific services use request scopes. MikroORM uses a lazy shared pool with fresh request managers and transaction-bound managers; explicit migrations live under `packages/db/src/migrations`.
 
-The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages expose shared contracts and a lazy persistence runtime; PostgreSQL is provisioned locally and Awilix scopes are configured. The auth database foundation is implemented; authentication services/routes and shadcn/ui administration remain pending. See [implementation status](track.md).
+The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages expose shared contracts and a lazy persistence runtime; PostgreSQL is provisioned locally and Awilix scopes are configured. The auth database, credential services/routes and authentication screens are implemented; role management and shadcn/ui administration remain pending. See [implementation status](track.md).
 
 ## Getting started
 
@@ -176,7 +176,7 @@ by resending to the same account after simulated SMTP failure. The registration 
 
 ### Phase 2 registration API checkpoint
 
-Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links are delivered now; consume them through the phase 3 API below until the phase 4 pages are available.
+Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links open the implemented `/verify-email` page; use the phase4 UI checkpoint below or the optional API-only sequence.
 
 For development, optionally start [Mailpit](https://github.com/axllent/mailpit) pinned to [v1.31.5](https://github.com/axllent/mailpit/releases/tag/v1.31.5):
 
@@ -275,8 +275,9 @@ contract; concrete session HTTP lookup preserves infrastructure failures as503.
 
 ### Phase 3 complete manual API sequence
 
-Owner manual acceptance remains pending. Phase 4 pages are not implemented; copy
-email fragment tokens into these APIs. First follow the registration example above,
+Owner manual acceptance remains pending. This optional API-only sequence copies
+email fragment tokens into the POST bodies; the phase4 UI checkpoint below instead
+opens actual email links in the browser. First follow the registration example above,
 open the local mailbox, and confirm its verification token with the verification
 POST. Use the same email and password throughout. Login with the cookie-jar command
 above and verify `/api/auth/session` returns your principal. If you tested logout,
@@ -317,7 +318,7 @@ SMTP failure, retry, expiry, replay and reset/login concurrency evidence, run
 `npm run test:integration`; do not clear the developer database or rate counters.
 
 That phase3 API checkpoint remains available for manual testing. Phase4 screen
-implementation is in progress below; GitHub remains coming-soon and administration
+implementation is complete below; GitHub remains coming-soon and administration
 is still pending. No owner manual checkpoint is marked passed.
 
 ### Authentication screens (phase 4)
@@ -325,8 +326,7 @@ is still pending. No owner manual checkpoint is marked passed.
 With the existing database, migrations and auth/SMTP environment configured, open
 `/register`, `/login` or `/forgot-password` directly. Registration sends a generic
 verification message and does not sign in. The verification email/retry link opens
-`/verify-email`; password recovery links open `/reset-password`. Those token pages
-and `/account` are completed in task P4.2 before the phase's manual checkpoint.
+`/verify-email`; password recovery links open `/reset-password`. Verification/reset and `/account` are implemented in task P4.2.
 
 For manual testing, submit empty/invalid fields, correct them using the keyboard,
 check password-manager autocomplete, and submit valid registration/recovery forms.
@@ -341,4 +341,34 @@ unverified login denial, verified fixture login with an accepted Secure session
 cookie, recovery mail, rate-limit feedback and GitHub no-request feedback. Desktop
 and320px screenshots and computed field spacing/focus/no-overflow checks passed.
 Both default and Webpack builds now compile Tailwind through the same PostCSS
-pipeline. P4.2 and the owner's complete phase4 manual checkpoint remain pending.
+pipeline. The owner's complete phase4 manual checkpoint remains pending.
+
+
+Phase4 manual UI checkpoint (owner acceptance remains unchecked):
+
+1. Configure the database/migrations and server auth/SMTP environment described
+   above, start the app, and register a fresh address. Open the actual verification
+   mail link. The browser removes its query/fragment immediately. Press **Verify
+   email** explicitly; merely opening the page must not consume the token. Then
+   sign in; registration and verification never sign in automatically.
+2. Open `/verify-email` without a link and request another email. Unknown and known
+   eligible addresses receive the same generic feedback. Missing, expired and used
+   links provide a retry path. Tokens remain only in the open page's memory: after
+   reloading or navigating away, reopen the original email link or request a new
+   one. Do not copy tokens into issue reports or screenshots.
+3. Check `/account` shows your display name and every current role. Sign out, then
+   revisit `/account`; it should return to `/login`. Mentor enrollment and admin
+   controls belong to phase5 and are not available yet.
+4. Sign in again, request recovery at `/forgot-password`, open the actual reset
+   email, enter a replacement password and press **Change password**. Opening the
+   link alone must do nothing. Success asks you to sign in; all old sessions and
+   the old password must stop working. Sign in with the replacement password.
+   Reusing the reset link should show safe retry guidance.
+5. Repeat with keyboard navigation and a narrow mobile viewport. Labels, focused
+   invalid fields, pending controls and errors should remain usable. Verify that
+   the GitHub button only says it will be implemented soon.
+
+P4.2 local lint, typecheck and112 unit tests with100% line/statement/function/branch
+coverage passed. The final default production build passed. Full disposable PostgreSQL/SMTP/production HTTP/native HTTPS browser and installer
+integration passed. Parent reviewed verification, reset and account screenshots at
+desktop and320px widths without visual issues or token disclosure. No owner manual acceptance, CI or clean audit is implied.

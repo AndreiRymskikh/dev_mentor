@@ -6,6 +6,8 @@ For each lesson, record the problem, root cause or supporting evidence, recommen
 
 ## Lesson index
 
+- **Read raw cookies when duplicate rejection matters.** Installed Next's cookie store collapses duplicate names to the last value, so `cookies().getAll(name)` cannot reproduce the API's fail-closed duplicate handling. Server account authorization awaits raw `headers()` and reuses the same `readSessionCookie` parser as the API; test actual duplicate header text. See [phase4 run](runs/2026-10-21-users-auth-implementation.md).
+
 - **Read actual bytes when an HTTP endpoint permits an empty body.** Production Next exposed a nonnull empty request stream, unlike the constructed unit Request, so logout rejected a real bodyless POST. Use bounded optional-empty parsing, require JSON for nonempty content, and never infer emptiness from Content-Length. Cover both an empty stream and production HTTP; see [phase3 run](runs/2026-10-21-users-auth-implementation.md).
 
 - **Validate architectural assumptions against the actual tree.** The engineering spec assumed entities and admin screens that were absent. Apply the owner-approved dependency direction, then adapt moves to existing files; defer domain scaffolding until a real feature needs it. See [engineering adaptation](specs/2026-09-01-engineering-standards.md).

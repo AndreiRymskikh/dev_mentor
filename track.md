@@ -24,7 +24,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 
 ## Phase 4 — Authentication screens (current)
 - [x] P4.1 Accessible registration/login/recovery forms using existing UI; GitHub coming-soon button.
-- [ ] P4.2 Fragment-token verification/reset pages, safe history/referrer handling, account page and logout.
+- [x] P4.2 Fragment-token verification/reset pages, safe history/referrer handling, account page and logout.
 - [ ] Validation, browser evidence and owner manual UI checkpoint passed.
 
 ## Phase 5 — Roles and administration
@@ -100,3 +100,31 @@ whole-feature review remain open. Stop before phase4.
 P4.1 rendering gate correction: first behavioral integration passed but parent screenshot review found uncompiled Tailwind under Webpack. A shared exact-version PostCSS pipeline now replaces the Turbopack-only CSS transform; parent default build now passes.104 unit tests pass100% all four metrics, including actual CSS compilation. Desktop/mobile computed layout/focus checks and screenshots are added; both final parent builds and full disposable integration passed; desktop/mobile screenshots were inspected. P4.1 is committed with this update. Historical default-build EPERM notes above no longer describe the corrected pipeline.
 
 P4.1 final evidence: warning-free lint, typecheck,104 unit tests with100% all four metrics, actual CSS compilation regression, default Turbopack and Webpack production builds, full disposable PostgreSQL/SMTP/HTTP/native HTTPS browser/installer integration and cleanup passed. Parent inspected desktop and320px screenshots and computed focus/layout checks. Audit remains six high/five moderate existing-toolchain findings; no CI or manual acceptance is claimed. Continue P4.2, then pause for owner manual testing.
+
+
+P4.2 implemented by its task subagent on2026-10-22: explicit fragment-token
+verification/reset screens with immediate canonical URL/history removal, memory-only
+client token storage, no-referrer/noindex metadata, generic verification resend,
+server-authorized account/all-role display and revoking logout. Account reads raw
+async headers through the shared duplicate-rejecting cookie parser, since installed
+Next cookie stores collapse duplicates. Local lint/typecheck and112 unit tests pass
+at100% all metrics (1134 statements/683 branches/288 functions/864 lines).
+Production and integration test source is frozen for parent validation; build,
+audit and disposable HTTPS browser results are pending. Owner manual acceptance
+remains unchecked; no phase5 work is started.
+
+P4.2 parent default production build passed; scoped independent source review
+found no concrete issue. Audit retains six high/five moderate existing-toolchain
+findings. Full disposable integration and screenshot inspection remain pending.
+
+
+Phase4 implementation is complete with this task commit. P4.1 is committed as
+`862c189`; P4.2 is parent-reviewed and ready for its per-task commit. Final default
+production build and full disposable PostgreSQL/SMTP/production HTTP/native HTTPS
+browser/installer integration passed, including verification/reset privacy, real
+account roles and session revocation. Parent visually reviewed all six desktop/
+320px verification, reset and account screenshots: usable layout/wrapping, no
+visual findings or token echo. Lint/typecheck and112 unit tests passed100% all four
+coverage metrics. Audit remains six high/five moderate existing-toolchain findings;
+CI and clean audit are not claimed. Owner manual UI acceptance and combined gates
+remain unchecked. Stop here for owner testing; phase5 is untouched.

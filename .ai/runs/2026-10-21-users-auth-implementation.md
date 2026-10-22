@@ -399,3 +399,77 @@ used semantically identical configuration. No CI, clean audit or owner manual
 acceptance is claimed. Parent reviewed P4.1; committed with this update. P4.2 remains
 pending and follows on its own subagent/task commit; pause after phase4 for the
 owner's manual UI checkpoint. Prior P3.3 commit is `0e13a07`.
+
+
+## P4.2 — Fragment actions and protected account screens (2026-10-22)
+
+Goal: complete the phase4 UI using the phase3 auth APIs, without GitHub OAuth or
+phase5 role/admin actions. Implemented app-local verification/reset pages and a
+memory-only token hook: capture fragment once, strip query/hash synchronously to a
+fixed canonical path while preserving Next history state, reject duplicate/extra/
+malformed/missing fragment fields, and fail closed if history removal fails.
+Validated token publication uses one microtask after browser synchronization to
+respect installed React lint rules; StrictMode effect replay does not lose it.
+No token is rendered in hidden fields, errors or DOM, or stored in browser storage.
+Verification requires an explicit button POST; reset requires explicit new-password
+submission through the pure shared schema. Missing/used links expose retry paths,
+verification resend remains generic, and neither success issues an automatic login.
+
+Account uses installed Next async `headers()` with the existing raw cookie parser,
+then exactly one `withScope`/`SessionService.resolve` call per page request; current
+roles and display name render server-side. Duplicate cookie names are rejected:
+parent found that installed Next `RequestCookies.getAll(name)` already collapses
+raw duplicates, so the initial async-cookie approach was corrected before testing.
+A storage failure displays safe same-path retry; absent/invalid sessions redirect
+to fixed login outside the catch. Logout uses the shared pure logout schema and
+API helper, blocks duplicate submissions, permits error retry and performs fixed
+full navigation to login after server revocation. Sensitive pages are force-dynamic
+with noindex metadata; token pages also set no-referrer. Existing self-hosted Next
+fonts are retained, with no new third-party runtime resources.
+
+Changed files: app routegroup action form/token hook/verification/reset/account/
+logout pages, shared session-cookie input type, unit auth-action tests, disposable
+browser action scenario and runner wiring/safe diagnostics, README, tracker,
+specification and lessons. Browser tests use runner-owned HTTPS/DB/mail, actual
+registration and emitted mail fragments, explicit verification/reset, no GET
+consumption, token-free URL/history/DOM/storage before screenshots, no external
+resources, desktop and320px no-overflow screenshots, generic resend, current roles,
+reset old-session/password denial, replay/missing links, new login/account/logout.
+Fixture SQL uses the real composite user_roles key. No raw action URL is retained
+in browser command failure diagnostics.
+
+Validation: lint warning-free; typecheck passed; full112-test coverage passed100%
+all metrics (1134 statements,683 branches,288 functions,864 lines). Initial sandbox
+coverage run failed only the existing localhost-bound setup tests; escalating the
+same full command passed. Parent owns final production builds, audit and full
+integration; these remain pending at this handoff. Source/test freeze declared to
+parent; only metadata updated afterward. README contains the full phase4 manual UI
+checkpoint, still unchecked. Spec remains in progress and unmoved. No CI, owner
+manual acceptance or whole-feature security sign-off is claimed.
+
+
+P4.2 parent checkpoint: default production Turbopack build passed with all three
+new sensitive pages rendered dynamically. Scoped independent source review found
+no concrete issue; this is not the phase6 whole-feature review. Audit remains six
+high and five moderate existing-toolchain findings. Parent full disposable
+integration is running against the final Turbopack artifact; its result and manual
+screenshot inspection are pending. No source changes after freeze.
+
+
+P4.2 final parent validation: full integration exited0 against the final default
+Turbopack production artifact. Disposable PostgreSQL, authenticated SMTP, production
+HTTP, both phases' native HTTPS browser flows, installer preservation, home/admin404
+and owned-resource cleanup passed. Verification/reset tests proved canonical URL/
+history/token privacy, no GET consumption, explicit action/replay/missing-link paths,
+generic resend, current role display, old-password/session denial, new login and
+logout. Parent inspected all six verification/reset/account desktop and320px
+screenshots: clean layout, usable wrapping, no visual issues or token echo.
+Final audit remains six high/five moderate existing-toolchain findings. Lint,
+typecheck,112-test100% coverage and default production build results above are final.
+Scoped independent review found no concrete issue; phase6 whole-feature security
+review and GitHub CI have not run. P4.1 is `862c189`; P4.2 is reviewed and ready for
+its own task commit. Phase4 implementation is complete with this commit; README
+contains the manual UI checkpoint. Owner manual acceptance and the combined audit/
+manual gates remain unchecked. Implementation pauses before phase5, with no role/
+admin actions or GitHub OAuth added. Source/test freeze was preserved throughout
+parent validation; final updates are metadata/documentation only.
