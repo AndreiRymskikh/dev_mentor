@@ -201,3 +201,33 @@ P5.2 API implementation is complete: final production build and120-test100%
 coverage passed, as did actual application database/admin HTTP/auth browser stages.
 The complete integration run ended exit1 on installer reuse expectation with cleanup
 passed; no full-gate pass is claimed. Final phase validation follows P5.3 and S1.
+
+
+P5.3 source and tests prepared on 2026-10-23: protected per-page administrator
+authorization with raw duplicate-rejecting cookies and direct scoped service reads;
+account mentor enrollment/current-role navigation; bounded search/pagination and
+explicit role controls using existing UI. Client requests abort superseded queries
+and reject stale responses; access changes invalidate pending requests and clear
+private DOM, including delayed-list/self-demotion races. GitHub remains coming-soon.
+128 unit tests passed at100% statements/branches/functions/lines. Parent build,
+HTTPS browser/disposable PostgreSQL integration and screenshot review are pending;
+owner acceptance remains unchecked. Dependencies are unchanged; owner-approved S1
+Next security patch is a separate task after this commit. No phase6 completion.
+
+
+P5.3 completed by its task subagent and parent-reviewed on 2026-10-23. Final
+lint/typecheck passed;128 unit tests passed at100% all four coverage metrics
+(1412 statements/830 branches/360 functions/1041 lines). Parent default production
+build39975 and targeted disposable PostgreSQL/HTTPS/admin-browser run61794 passed
+(exit0), including permissions, real role changes, search/paging, last-admin
+protection, self-demotion, revoked sessions and owned-resource cleanup. Parent
+inspected final desktop/320px screenshots: readable columns, contained horizontal
+table scrolling and no document overflow. Bounded independent source review found
+no additional concrete issue; this is not phase6 whole-feature/security signoff.
+
+The full integration gate remains pending for the separately approved S1 Next
+security patch. Earlier full run59176 stopped on the corrected visible-content
+assertion; earlier41196 stopped on installer reuse, whose cause remains unresolved.
+Targeted success does not replace the full suite. Dependencies remain unchanged
+in P5.3. GitHub remains a coming-soon button. Owner manual checkpoint remains
+unchecked and follows S1; no issue completion, clean audit or CI pass is claimed.

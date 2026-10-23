@@ -31,7 +31,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 ## Phase 5 — Roles and administration (current)
 - [x] P5.1 Self-enrollment, serialized admin role changes, last-admin protection and operator bootstrap.
 - [x] P5.2 Bounded users query/DTO and protected admin API.
-- [ ] P5.3 Admin navigation/list/role controls; replace admin 404 tests with authorization scenarios.
+- [x] P5.3 Admin navigation/list/role controls; replace admin 404 tests with authorization scenarios.
 - [ ] Validation, race/browser evidence and owner manual checkpoint passed.
 
 ## Approved security follow-up
@@ -192,3 +192,42 @@ assumed homepage-fetch hang; its cause is not established. P5.2 API work is done
 and ready for separate parent commit. Whole-phase full gate remains pending after
 P5.3/S1, with a dedicated fix if installer reuse still fails. Owner acceptance,
 CI and clean audit remain unclaimed. No unrelated installer edit was made.
+
+
+P5.3 source and tests prepared on 2026-10-23: protected per-page administrator
+authorization with raw duplicate-rejecting cookies and direct scoped service reads;
+account mentor enrollment/current-role navigation; bounded search/pagination and
+explicit role controls using existing UI. Client requests abort superseded queries
+and reject stale responses; access changes invalidate pending requests and clear
+private DOM, including delayed-list/self-demotion races. GitHub remains coming-soon.
+128 unit tests passed at100% statements/branches/functions/lines. Parent build,
+HTTPS browser/disposable PostgreSQL integration and screenshot review are pending;
+owner acceptance remains unchecked. Dependencies are unchanged; owner-approved S1
+Next security patch is a separate task after this commit. No phase6 completion.
+
+P5.3 parent browser validation found and corrected a narrow-screen table defect:
+columns now retain readable minimum widths inside horizontal table scrolling;
+computed checks require document no-overflow and actual table-wrapper scrolling.
+Targeted admin run70444 reached self-demotion denial but initially failed because
+body.textContent included already-delivered framework hydration scripts. The
+assertion now checks visible innerText plus table removal; application authorization
+and delayed-response invalidation remain unchanged. Targeted and full reruns are
+pending; no validation pass or owner acceptance is inferred from the failure.
+
+
+P5.3 completed by its task subagent and parent-reviewed on 2026-10-23. Final
+lint/typecheck passed;128 unit tests passed at100% all four coverage metrics
+(1412 statements/830 branches/360 functions/1041 lines). Parent default production
+build39975 and targeted disposable PostgreSQL/HTTPS/admin-browser run61794 passed
+(exit0), including permissions, real role changes, search/paging, last-admin
+protection, self-demotion, revoked sessions and owned-resource cleanup. Parent
+inspected final desktop/320px screenshots: readable columns, contained horizontal
+table scrolling and no document overflow. Bounded independent source review found
+no additional concrete issue; this is not phase6 whole-feature/security signoff.
+
+The full integration gate remains pending for the separately approved S1 Next
+security patch. Earlier full run59176 stopped on the corrected visible-content
+assertion; earlier41196 stopped on installer reuse, whose cause remains unresolved.
+Targeted success does not replace the full suite. Dependencies remain unchanged
+in P5.3. GitHub remains a coming-soon button. Owner manual checkpoint remains
+unchecked and follows S1; no issue completion, clean audit or CI pass is claimed.

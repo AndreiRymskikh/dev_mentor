@@ -150,7 +150,7 @@ npm run test:integration         # Requires a running Docker engine
 
 Vitest/V8 enforces 100% lines, statements, functions and branches per production TypeScript/TSX file, including Next configuration. It does not exclude untested production files. Generated declarations, assets, dependencies and test/operational tooling are outside that metric. Reports are in `coverage/`; CI uploads them even when coverage fails.
 
-Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and the `/admin` not-found page, while HTTP checks verify 200/404 statuses. `/admin` remains intentionally unimplemented. The runner verifies the real ORM and migrations before starting the app; public app routes remain independent of persistence. Developer Compose data is untouched.
+Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and protected `/admin`/`/admin/users` navigation, role controls and responsive users tables. HTTP checks verify authentication redirects, denied access, bounded admin queries and role mutations. The runner verifies the real ORM and migrations before starting the app; public app routes remain independent of persistence. Developer Compose data is untouched.
 
 The browser session, app process and test container are closed in cleanup. Snapshots, screenshots and app logs are retained in ignored `test-results/integration/` and uploaded by CI. Timeouts are centralized in `tests/integration/config.ts`. The integration script fails when no production build exists; it never silently skips tests when Docker or Chromium is missing.
 
@@ -223,7 +223,7 @@ curl -i http://localhost:3000/api/auth/register \
 
 Expect a generic JSON 202, `Cache-Control: no-store`, and no session cookie. A duplicate or delivery failure returns the same response. Admitted registrations intentionally take at least 15 seconds, including duplicates: the response window covers the 10-second SMTP deadline and cleanup budget to reduce account-existence timing disclosure. Severe database/network outages can exceed that window; this is not a constant-time guarantee under outages. Invalid fields or forged `roles` return 400, removing the CSRF header returns 403, and missing server configuration or unavailable persistence returns safe 503.
 
-Next's request does not expose a trusted peer address. Registration therefore uses one conservative shared bucket across clients (10 registrations/hour), ignoring `X-Forwarded-For` and `X-Real-IP`. There is no trusted-proxy configuration yet. Email limits also apply; 429 includes bounded `Retry-After`. This conservative limit is intentional until a verified proxy integration is introduced. Restarting the app does not clear database-backed limits. `/api/health` remains independent of database and mail configuration; `/admin` remains 404.
+Next's request does not expose a trusted peer address. Registration therefore uses one conservative shared bucket across clients (10 registrations/hour), ignoring `X-Forwarded-For` and `X-Real-IP`. There is no trusted-proxy configuration yet. Email limits also apply; 429 includes bounded `Retry-After`. This conservative limit is intentional until a verified proxy integration is introduced. Restarting the app does not clear database-backed limits. `/api/health` remains independent of database and mail configuration; protected administration is available in phase 5.
 
 
 ### Phase 3 verification API checkpoint
@@ -344,7 +344,7 @@ SMTP failure, retry, expiry, replay and reset/login concurrency evidence, run
 
 That phase3 API checkpoint remains available for manual testing. Phase4 screen
 implementation is complete below; GitHub remains coming-soon and administration
-is still pending. No owner manual checkpoint is marked passed.
+is available in phase5 below. No owner manual checkpoint is marked passed.
 
 ### Authentication screens (phase 4)
 
@@ -387,7 +387,7 @@ Phase4 manual UI checkpoint (owner acceptance remains unchecked):
    one. Do not copy tokens into issue reports or screenshots.
 3. Check `/account` shows your display name and every current role. Sign out, then
    revisit `/account`; it should return to `/login`. Mentor enrollment and admin
-   controls belong to phase5 and are not available yet.
+   controls are covered by the phase5 checkpoint below.
 4. Sign in again, request recovery at `/forgot-password`, open the actual reset
    email, enter a replacement password and press **Change password**. Opening the
    link alone must do nothing. Success asks you to sign in; all old sessions and
@@ -446,4 +446,41 @@ It returns current roles; developer is preserved. The last verified administrato
 cannot be removed (409). Existing cookies observe grants/revocations immediately.
 The service rechecks persisted administrator membership inside its transaction;
 client identity/role fields cannot authorize an operation. Both endpoints use
-`Cache-Control: no-store`. The admin UI/manual browser checklist follows in P5.3.
+`Cache-Control: no-store`. The admin browser checklist follows below.
+
+### Phase 5 manual browser checkpoint
+
+1. Run the existing local database, Mailpit and development app as described above.
+   Register and verify two accounts; sign in to each. Registration requires email
+   verification before login. Keep GitHub as its coming-soon button.
+2. On `/account`, choose **Become a mentor**. The refreshed role list should include
+   mentor and the enrollment button should disappear. Sign out and back in to check
+   persistence. A developer or mentor opening `/admin` or `/admin/users` sees
+   **Access denied**; a signed-out visitor goes to `/login`.
+3. To bootstrap the first administrator, sign in as your verified operator account.
+   Open `/api/auth/session` in the same browser and copy `data.id`. In the configured
+   terminal run `npm run auth:bootstrap-admin -- YOUR_EXISTING_VERIFIED_USER_UUID`.
+   This changes only that existing account; the implementation never runs it for you.
+   If an administrator already exists, use its authenticated role controls instead.
+4. Refresh `/account`, choose **Manage users**, and confirm `/admin` redirects to
+   `/admin/users`. Search by email or display name, try an empty result, and use
+   Previous/Next when more than 20 accounts exist. Verify the table can scroll
+   horizontally on a narrow screen without making the whole page overflow.
+5. Grant and revoke mentor/administrator on your second account using **Save roles**.
+   Developer remains enabled. Sign in as that account and confirm its current
+   memberships control administration access immediately. Test invalid/outage
+   feedback only against accounts and infrastructure you own.
+6. With only one verified administrator remaining, try removing its administrator
+   checkbox and save: the last-administrator error should appear and access remains.
+   Grant the second verified account administrator, then demote the current account:
+   the private table disappears and subsequent admin visits are denied. Keep the
+   second administrator available so you can restore the intended operator roles.
+
+The owner manual checkpoint is pending. Phase 6 final security review is separate;
+these instructions do not claim CI, a clean dependency audit or final acceptance.
+
+For a focused disposable administration regression after a production build, run
+`npm run test:integration -- --scenario=admin`. It retains the owned database,
+migrations, application and HTTPS/browser setup and cleanup, and skips unrelated
+authentication SMTP/browser and installer scenarios. It does not replace the full
+`npm run test:integration` validation gate. Unknown options are rejected.
