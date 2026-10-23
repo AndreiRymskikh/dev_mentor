@@ -44,6 +44,8 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 ## Phase 6 — Final validation and independent review (current)
 - [x] P6.1 Complete database/mail/browser security/outage scenarios and deployment/operator docs.
 - [ ] P6.2 Independent security review and QA through subagents; track and commit fixes separately.
+  - [x] Independent browser QA: dedicated real/synthetic scenario, responsive evidence inspection and successful owned focused run; report in `.ai/qa/2026-10-23-users-auth-qa.md`.
+  - [ ] Independent whole-feature security review and final gates.
 - [ ] P6.3 Full validation gate, actual evidence, spec acceptance updates; move spec only after required work is complete.
 - [ ] Owner final manual acceptance passed.
 

@@ -16,14 +16,16 @@ import { testAuthActions } from "./scenarios/auth-actions";
 import { testAuthForms } from "./scenarios/auth-forms";
 import { testHome } from "./scenarios/home";
 import { testAdmin } from "./scenarios/admin";
+import { testIndependentAuthQa } from "./scenarios/independent-auth-qa";
 import { testDatabase } from "./database";
 import { testInstaller } from "./setup.mts";
 
 import { registrationFixture } from "./registration-http";
 
 const argumentsList = process.argv.slice(2);
-if (argumentsList.length > 1 || (argumentsList.length === 1 && argumentsList[0] !== "--scenario=admin")) throw new Error("Supported option: --scenario=admin; omit for the full suite.");
+if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=admin", "--scenario=qa"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=admin or --scenario=qa; omit for the full suite.");
 const adminOnly = argumentsList[0] === "--scenario=admin";
+const qaOnly = argumentsList[0] === "--scenario=qa";
 const exec = promisify(execFile);
 const session = `devmentor-${randomUUID()}`;
 const artifacts = path.resolve(config.artifacts);
@@ -112,18 +114,19 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
-  if (!adminOnly) {
+  if (!adminOnly && !qaOnly) {
   await mail.test(baseUrl, database.getConnectionUri());
   await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
   await testAuthActions({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, baseUrl);
   await testHome(context);
   }
-  await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
-  if (!adminOnly) {
+  if (!qaOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
+  if (!adminOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
+  if (!adminOnly && !qaOnly) {
     await testAuthOutage({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
     await testInstaller();
   }
-  console.log(adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
+  console.log(adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : qaOnly ? "Independent QA integration passed with owned PostgreSQL/SMTP/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
 }
 try { await main(); }
 catch (error: unknown) {
