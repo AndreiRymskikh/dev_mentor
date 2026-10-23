@@ -11,6 +11,7 @@ import { Client } from "pg";
 import { integrationConfig as config } from "./config";
 import type { BrowserResult } from "./context";
 import { httpsProxy } from "./https-proxy";
+import { testAuthOutage } from "./scenarios/auth-outage";
 import { testAuthActions } from "./scenarios/auth-actions";
 import { testAuthForms } from "./scenarios/auth-forms";
 import { testHome } from "./scenarios/home";
@@ -118,7 +119,10 @@ async function main() {
   await testHome(context);
   }
   await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
-  if (!adminOnly) await testInstaller();
+  if (!adminOnly) {
+    await testAuthOutage({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
+    await testInstaller();
+  }
   console.log(adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
 }
 try { await main(); }

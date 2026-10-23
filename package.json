@@ -12,6 +12,7 @@
     "lint": "eslint packages scripts tests",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p tests/tsconfig.json",
     "smoke": "node scripts/smoke-app.mjs",
+    "auth:maintain": "tsx --tsconfig tsconfig.base.json scripts/maintain-auth.mts",
     "auth:bootstrap-admin": "tsx --tsconfig tsconfig.base.json scripts/bootstrap-admin.mts",
     "db:up": "docker compose up -d --wait postgres",
     "db:down": "docker compose down",

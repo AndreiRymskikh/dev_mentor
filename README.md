@@ -486,3 +486,90 @@ For a focused disposable administration regression after a production build, run
 migrations, application and HTTPS/browser setup and cleanup, and skips unrelated
 authentication SMTP/browser and installer scenarios. It does not replace the full
 `npm run test:integration` validation gate. Unknown options are rejected.
+
+### Authentication deployment and operator runbook
+
+Deploy the additive schema before enabling the authentication routes. Keep the
+previous application artifact and a tested database backup available; apply
+`npm run db:migrate` against the explicitly selected deployment `DATABASE_URL`.
+Do not run `db:migrate:down` on retained user data: its empty-data guard is
+intentional. Roll back application routes first while preserving schema, users,
+credentials, memberships and operational records. A destructive production rollback
+requires a separate approved backup/export and data-loss plan.
+
+Configure `DATABASE_URL`, a fixed public HTTPS `APP_ORIGIN`, independent random
+`JWT_SECRET` and `RATE_LIMIT_SECRET` values of at least 32 bytes, and the documented
+SMTP sender/host/port/authentication settings in the deployment secret manager.
+Never put secrets in CLI arguments, browser storage, screenshots or logs. The
+forwarded client IP is trusted only through explicitly configured proxy policy;
+otherwise rate limits deliberately share a conservative peer bucket. Use production
+HTTPS so the `__Host-devmentor-session` Secure/HttpOnly/SameSite=Lax cookie works.
+Public health and the home page remain independent of authentication configuration
+and database availability; health success alone does not establish auth readiness.
+
+Before activating registration, test real production SMTP credentials and delivery
+to a controlled inbox, then complete verification, login, reset and logout over
+HTTPS. Local disposable SMTP tests do not validate live credentials or deliverability.
+Register and verify the intended operator through the normal flow; obtain that
+account's UUID from its authenticated `/api/auth/session` response, then use
+`npm run auth:bootstrap-admin -- <existing-verified-user-uuid>` on the application
+host with the selected deployment database. No password is accepted on the CLI.
+The command only initializes the first administrator (or confirms that same existing
+administrator); later grants use the authenticated administration screen. Verify
+anonymous redirects, developer denial and current administrator access before
+announcing administration availability. GitHub remains a coming-soon button; no
+GitHub secrets, OAuth callbacks or provider activation are needed.
+
+JWT secret rotation deliberately invalidates existing cookies: deploy the new key
+consistently across application instances and ask users to sign in again. There is
+no fallback key ring or refresh-token flow. Rotate the rate-limit HMAC secret
+separately, consistently across instances; this changes bucket identities and
+resets effective quotas, so schedule it deliberately and monitor abuse. SMTP
+secret rotation requires a controlled verification/reset delivery check. Database
+credential rotation requires a connection/read/write check and replacement of old
+application pools. Never infer successful rotation from `/api/health` alone.
+
+### Bounded authentication maintenance
+
+Run `npm run auth:maintain` on the application host with the explicitly selected
+`DATABASE_URL` supplied through its secure environment (like the migration and
+bootstrap commands, it does not load the app's `.env.local`). The command accepts
+**no arguments**. Each invocation performs one transaction and removes at most
+**500 expired sessions, 500 expired action tokens and 500 expired rate-limit
+buckets: 1500 rows total**. It prints counts only and exits nonzero on failure.
+Expiration is compared against one PostgreSQL transaction timestamp. It skips
+locked rows rather than disturbing in-flight operations, and bounds individual
+statements to five seconds and lock waits to one second. Concurrent invocations
+are safe, but scheduling one operator invocation at a time is easiest to monitor.
+
+Run it regularly through your existing operations scheduler, and repeat a bounded
+invocation later if counts reach a per-table cap. There is no automatic unbounded
+loop or application queue. A zero count can mean rows were locked; it is not proof
+that every expired record is gone. The command never deletes users, credentials,
+role memberships, unexpired sessions/tokens/buckets, or merely revoked/consumed
+records before expiry. Expired operational records may contain forensic evidence;
+set backup/retention policy before scheduling cleanup. Do not use database-volume
+resets as maintenance or outage recovery.
+
+### Final authentication manual acceptance
+
+After restarting the application, repeat the [phase 5 browser checkpoint](#phase-5-manual-browser-checkpoint)
+and verification/reset sequences above with controlled test accounts. Check visible
+registration acceptance and verification-before-login guidance, real email delivery,
+fragment removal, replay/expiry denial, old-password/session denial after reset,
+mentor self-enrollment, current administrator grant/revocation and last-verified-admin
+protection. Confirm GitHub explains that sign-in is coming soon.
+
+On an isolated staging deployment, interrupt database access and confirm safe
+unavailable feedback without private account/admin content or new session cookies;
+restore access and verify authenticated recovery without bypassing limits. Test
+SMTP rejection and resend recovery using controlled addresses. Never interrupt or
+reset the developer's database just to reproduce an outage. The automated suite
+uses its own disposable database role to deny connections, restores it in `finally`,
+and proves real session/admin recovery. It also covers migration/rollback, mail
+rejection/retry, token/role races, malformed/forged inputs and native HTTPS cookies.
+
+Record the owner result explicitly in `track.md`; the AI's automated checks and
+independent review do not constitute owner manual acceptance. Outstanding audit
+advisories and any deployment-specific SMTP/backup/proxy checks must be reviewed
+before production activation; no clean audit or live-service verification is implied.

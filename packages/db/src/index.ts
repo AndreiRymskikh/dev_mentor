@@ -22,3 +22,5 @@ export { PasswordRecoveryRepository } from "./repositories/users/password-recove
 export { RolesRepository, ADMIN_MEMBERSHIP_LOCK, type RoleChangeResult, type DesiredRoles } from "./repositories/users/roles.repository";
 
 export { AdminUsersRepository, type AdminUserDto, type AdminUsersPage, type AdminListQuery } from "./repositories/users/admin-users.repository";
+
+export { AuthMaintenanceRepository, type AuthMaintenanceCounts } from "./repositories/maintenance/auth-maintenance.repository";

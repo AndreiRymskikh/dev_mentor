@@ -28,7 +28,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [x] P4 manual-feedback correction: prominent registration acceptance, verification-before-sign-in next steps, focused heading and visible desktop/mobile links.
 - [ ] Validation, browser evidence and owner manual UI checkpoint passed.
 
-## Phase 5 — Roles and administration (current)
+## Phase 5 — Roles and administration
 - [x] P5.1 Self-enrollment, serialized admin role changes, last-admin protection and operator bootstrap.
 - [x] P5.2 Bounded users query/DTO and protected admin API.
 - [x] P5.3 Admin navigation/list/role controls; replace admin 404 tests with authorization scenarios.
@@ -37,8 +37,11 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 ## Approved security follow-up
 - [x] S1 Upgrade Next.js to a compatible security patch after P5.3; separate subagent and commit before the manual handoff (owner approved2026-10-23).
 
-## Phase 6 — Final validation and independent review
-- [ ] P6.1 Complete database/mail/browser security/outage scenarios and deployment/operator docs.
+## Approved phase 6 security follow-up
+- [ ] S2 Upgrade Vitest and its V8 coverage package to compatible 5.0.5; separately committed after P6.1 and before final review/gates (owner approved2026-10-23).
+
+## Phase 6 — Final validation and independent review (current)
+- [x] P6.1 Complete database/mail/browser security/outage scenarios and deployment/operator docs.
 - [ ] P6.2 Independent security review and QA through subagents; track and commit fixes separately.
 - [ ] P6.3 Full validation gate, actual evidence, spec acceptance updates; move spec only after required work is complete.
 - [ ] Owner final manual acceptance passed.
@@ -242,3 +245,38 @@ S1 parent gates: production build82327 passed on Next16.4.2 without the prior se
 S1 final verification: full disposable integration23294 passed exit0, including PostgreSQL, SMTP/HTTP, authentication and administration HTTPS browser scenarios, installer fresh-start/reuse and owned-resource cleanup. The earlier installer failure did not recur; its cause was not established, and no causal claim about the patch is made. Parent production build82327 passed. Lint/typecheck and128 tests passed with100% statements/branches/functions/lines. Final audit exited1 with0 critical/6 high/5 moderate findings and no Next advisory; a clean audit and CI pass are not claimed.
 
 All phase5 implementation tasks are complete in separate commits: P5.1 ab3b3b1, P5.2 5d8a8a7, P5.3 09beae4. S1 is verified and completed with this separate commit. Stop for owner manual testing using the [README checkpoint](README.md#phase-5-manual-browser-checkpoint); restart npm run dev to load Next16.4.2. Owner acceptance remains unchecked, GitHub Auth remains coming-soon, and phase6 remains pending.
+
+
+2026-10-23 phase6 resume: owner authorized P6.1–P6.3, one subagent and local commit per task, then final manual testing. P6.1 plan: bounded expire-only auth maintenance command; disposable PostgreSQL/production HTTP/browser storage-outage checks; deployment, key rotation, maintenance and rollback documentation. Existing real SMTP failure/retry, role/token races and denied/forged-role checks are retained. Parent owns build/audit/full integration after source freeze. P6.2 independent security/QA and P6.3 final evidence follow. Earlier owner checkpoints remain unconfirmed; GitHub remains coming-soon only.
+
+
+P6.1 prepared: bounded expire-only auth maintenance and safe operator CLI; actual
+disposable database outage/recovery HTTP/browser scenarios; deployment/rotation/
+maintenance/rollback/final manual runbook. Local lint/typecheck and131 tests at100%
+all four coverage metrics passed (1435 statements/833 branches/364 functions/1059
+lines). Nonempty concurrent cleanup fixture is strengthened after that unit run
+(integration-only). Parent build/audit/full integration and task commit remain
+pending. Owner final acceptance is unchecked; no live SMTP or clean audit claimed.
+
+
+P6.1 parent verification in progress: default production build41936 passed. Full
+disposable integration83907 has passed maintenance bounds/nonempty concurrency/
+locked-row preservation/real CLI, all database and HTTP/auth/admin browser stages,
+and the new real database-outage scenario: safe503/no new cookie/no private UI,
+health/home independence and same-process authenticated recovery. Installer and
+final cleanup are still pending, so no full integration pass is claimed yet.
+Audit19648 reports0 critical/6 high/5 moderate; separately approved S2 follows
+P6.1. P6.1 completion and owner final acceptance remain unchecked.
+
+
+P6.1 completed and parent-verified2026-10-23; committed with this task update.
+Full disposable integration83907 finished exit0, including all maintenance, real
+database outage/recovery, PostgreSQL/SMTP/HTTP/native HTTPS auth/admin browser,
+installer fresh-start/reuse and owned-resource cleanup checks. Default production
+build41936 passed. Final lint86733/typecheck94738 and diff check passed; elevated
+coverage2709 passed131 tests at100% statements1435/1435, branches833/833,
+functions364/364 and lines1059/1059. Audit19648 remains0 critical/6 high/5
+moderate; no clean audit or CI result is claimed. S2 is separately approved
+and unchecked, followed by independent P6.2 review/QA and P6.3 final evidence.
+Owner final manual acceptance remains unchecked, the specification is not moved
+to implemented, and GitHub Auth remains a coming-soon button.
