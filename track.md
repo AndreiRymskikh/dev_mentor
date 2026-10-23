@@ -22,14 +22,14 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [x] P3.3 Forgot/reset password, atomic credential replacement/session revocation and race tests.
 - [ ] Validation and owner manual API checkpoint passed.
 
-## Phase 4 — Authentication screens (current)
+## Phase 4 — Authentication screens
 - [x] P4.1 Accessible registration/login/recovery forms using existing UI; GitHub coming-soon button.
 - [x] P4.2 Fragment-token verification/reset pages, safe history/referrer handling, account page and logout.
 - [x] P4 manual-feedback correction: prominent registration acceptance, verification-before-sign-in next steps, focused heading and visible desktop/mobile links.
 - [ ] Validation, browser evidence and owner manual UI checkpoint passed.
 
-## Phase 5 — Roles and administration
-- [ ] P5.1 Self-enrollment, serialized admin role changes, last-admin protection and operator bootstrap.
+## Phase 5 — Roles and administration (current)
+- [x] P5.1 Self-enrollment, serialized admin role changes, last-admin protection and operator bootstrap.
 - [ ] P5.2 Bounded users query/DTO and protected admin API.
 - [ ] P5.3 Admin navigation/list/role controls; replace admin 404 tests with authorization scenarios.
 - [ ] Validation, race/browser evidence and owner manual checkpoint passed.
@@ -143,3 +143,13 @@ focus, single status, no retained form and both next-step links within viewport.
 Audit remains six high/five moderate existing findings; owner manual acceptance
 and combined phase4 checkpoint remain unchecked. Phase5 is unstarted. See
 [correction run](.ai/runs/2026-10-22-registration-acceptance-feedback.md).
+
+P5.1 implementation is in parent validation: verified mentor self-enrollment,
+serialized role changes/last-verified-admin protection, first-admin operator command,
+117 tests at100% all four coverage metrics and lint/typecheck passed. Parent full
+build/integration/audit evidence and the task commit follow; owner manual checkpoint
+remains unconfirmed. Production/test source is frozen for that validation.
+
+Prior phase4 commits: P4.2 `3263a1d`; registration acceptance feedback `734c6e0`. Owner manual gates remain unconfirmed.
+
+P5.1 final parent validation: default production build and full disposable PostgreSQL/SMTP/HTTP/HTTPS browser/installer integration passed (exit0), including role/bootstrap races and real operator subprocess. Lint/typecheck and117 tests at100% all four coverage metrics passed. Audit remains six high/five moderate existing-tooling findings; CI and owner manual acceptance are not claimed. Parent task commit follows before P5.2.

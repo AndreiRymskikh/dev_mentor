@@ -1,3 +1,5 @@
+import { RolesRepository } from "@devmentor/db";
+import { RolesService } from "../services/users/roles.service";
 import { PasswordRecoveryRepository } from "@devmentor/db";
 import { PasswordRecoveryService } from "../services/users/password-recovery.service";
 import { SessionRepository } from "@devmentor/db";
@@ -17,6 +19,8 @@ import type { Cradle } from "./cradle";
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
+    rolesRepository: asFunction(() => new RolesRepository()).scoped(),
+    rolesService: asFunction(({ rolesRepository }: Cradle) => new RolesService(rolesRepository)).scoped(),
     passwordRecoveryRepository: asFunction(() => new PasswordRecoveryRepository()).scoped(),
     passwordRecoveryService: asFunction(({ passwordRecoveryRepository, rateLimitService, emailSender, logger }: Cradle) =>
       new PasswordRecoveryService(passwordRecoveryRepository, rateLimitService, emailSender, { warn: (event) => logger.warn({ event }, "Email delivery event") })).scoped(),

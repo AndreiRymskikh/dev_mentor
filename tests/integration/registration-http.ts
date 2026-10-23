@@ -108,7 +108,11 @@ export async function registrationFixture() {
           const principal = (await loggedIn.json()).data; assert.deepEqual(Object.keys(principal).sort(),["displayName","id","roles"]); assert.deepEqual(principal.roles,["developer"]);
           const cookieHeader = cookie.split(";")[0]; const getSession = (value = cookieHeader) => fetch(`${baseUrl}/api/auth/session`,{headers:{cookie:value}, signal:AbortSignal.timeout(config.authRequestTimeoutMs)});
           assert.deepEqual((await (await getSession()).json()).data,principal);
-          await client.query("insert into user_roles(user_id,role) values($1,'mentor')",[principal.id]);
+          const enrollMentor = (body:unknown,extra:Record<string,string>={}) => fetch(`${baseUrl}/api/users/me/mentor`,{method:"POST",headers:{"content-type":"application/json","X-DevMentor-CSRF":"1",origin:this.environment.APP_ORIGIN,cookie:cookieHeader,...extra},body:JSON.stringify(body),signal:AbortSignal.timeout(config.authRequestTimeoutMs)});
+          assert.equal((await enrollMentor({},{cookie:"", "X-User-Id":principal.id,"X-Role":"administrator"})).status,401);
+          assert.equal((await enrollMentor({},{"X-DevMentor-CSRF":"0"})).status,403);
+          assert.equal((await enrollMentor({userId:principal.id,role:"administrator"})).status,400);
+          for(let attempt=0;attempt<2;attempt++){const enrolled=await enrollMentor({});assert.equal(enrolled.status,200);assert.equal(enrolled.headers.get("cache-control"),"no-store");assert.equal(enrolled.headers.get("set-cookie"),null);assert.deepEqual((await enrolled.json()).data.roles.sort(),["developer","mentor"]);}
           assert.deepEqual((await (await getSession()).json()).data.roles.sort(),["developer","mentor"]);
           assert.equal((await getSession(cookieHeader.slice(0,-8)+"aaaaaaaa")).status,401);
           assert.equal((await fetch(`${baseUrl}/api/auth/session`,{headers:{"X-User-Id":principal.id,"X-Role":"administrator"}})).status,401);

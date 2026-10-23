@@ -18,3 +18,5 @@ export { RateLimitRepository, type RateLimitRequest, type RateLimitResult } from
 export { VerificationRepository } from "./repositories/users/verification.repository";
 export { SessionRepository, type Principal, type Role } from "./repositories/users/session.repository";
 export { PasswordRecoveryRepository } from "./repositories/users/password-recovery.repository";
+
+export { RolesRepository, ADMIN_MEMBERSHIP_LOCK, type RoleChangeResult, type DesiredRoles } from "./repositories/users/roles.repository";

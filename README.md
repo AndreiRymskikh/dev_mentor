@@ -401,3 +401,30 @@ P4.2 local lint, typecheck and112 unit tests with100% line/statement/function/br
 coverage passed. The final default production build passed. Full disposable PostgreSQL/SMTP/production HTTP/native HTTPS browser and installer
 integration passed. Parent reviewed verification, reset and account screenshots at
 desktop and320px widths without visual issues or token disclosure. No owner manual acceptance, CI or clean audit is implied.
+
+### Roles and first administrator (phase 5)
+
+Register and verify the operator's account first. After login, open `/api/auth/session` in the same browser and use its `data.id`
+UUID. The bootstrap command accepts
+only that existing verified user UUID; it never accepts a password or creates a user.
+From the repository root, load the same database setting used by the app, then run:
+
+```sh
+set -a
+source packages/app/.env.local
+set +a
+npm run auth:bootstrap-admin -- YOUR_EXISTING_VERIFIED_USER_UUID
+```
+
+Keep environment files private. Bootstrap grants administrator only while no other
+administrator exists. Repeating it for the same already-administrator user succeeds;
+a different user is refused. Later grants go through an authenticated administrator.
+No bootstrap was run against your development accounts automatically.
+
+`POST /api/users/me/mentor` with the session cookie, `X-DevMentor-CSRF: 1` and an empty
+JSON object enrolls a verified developer as mentor idempotently. It accepts no user
+ID or role input. Session reads show current memberships immediately; login again
+is unnecessary. Developer remains the baseline membership. Administrator changes
+serialize with bootstrap and protect the last **verified** administrator: granting
+administrator to an unverified user cannot remove the last administrator able to
+sign in. GitHub remains a coming-soon button. Admin screens follow in P5.3.

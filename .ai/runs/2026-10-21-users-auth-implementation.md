@@ -473,3 +473,66 @@ contains the manual UI checkpoint. Owner manual acceptance and the combined audi
 manual gates remain unchecked. Implementation pauses before phase5, with no role/
 admin actions or GitHub OAuth added. Source/test freeze was preserved throughout
 parent validation; final updates are metadata/documentation only.
+
+## P5.1 — Role mutations and first administrator (2026-10-22)
+
+Owner authorized phase5 only, a subagent and local commit per task, then a manual
+checkpoint. Read AGENTS, lessons, auth/engineering specs, original tracker/run and
+installed Next route docs before editing. Plan: narrow role persistence and pure
+strict schemas/service, scoped DI and authenticated mentor route, UUID-only operator
+bootstrap, meaningful unit coverage and disposable PostgreSQL/HTTP/CLI races.
+
+All admin writers acquire one constant parameterized PostgreSQL transaction advisory
+lock before locking actor/target User rows in UUID order. They reread verified actor
+and current administrator membership inside the transaction. Mentor self-enrollment
+locks its User and requires verified developer. Role changes preserve developer and
+fail closed on a missing baseline. Bootstrap needs an existing verified developer,
+is idempotent for that already-admin user and refuses another user once initialized.
+The parent approved preserving the last VERIFIED administrator as the usable-admin
+safety interpretation: unverified grants remain allowed, but cannot replace the last
+account able to sign in. The count uses a fixed parameterized SQL join, because
+installed MikroORM's mapToPk relation deliberately has scalar filter types.
+
+Parent review identified uppercase valid UUID comparison against canonical database
+UUIDs; the pure UUID schema normalizes lowercase and services pass parsed values.
+Distinct conflict feedback explains last-verified-admin versus already-initialized
+bootstrap. No arbitrary role management, UI/admin page, GitHub auth or dependency
+upgrade is included. No developer database/accounts/env files were mutated.
+
+Changed areas: db RolesRepository/export, core RolesService/pure schemas/scoped DI,
+mentor POST route, injected operator runner and executable root command, unit tests,
+disposable database/HTTP test harness, README/tracker/spec. Operator entry is explicitly
+included in production coverage and process-boundary unit tests; no exclusions or
+threshold changes. It always closes its pool and emits fixed safe cleanup feedback.
+
+Actual subagent verification: lint and typecheck passed;117 unit tests passed100%
+statements1248, branches751, functions315 and lines937. Initial sandbox full coverage
+failed only existing localhost setup tests; elevated rerun passed. Final test-only
+HTTP/config additions receive lint/typecheck rerun below. Parent owns final build,
+audit and complete integration, not yet claimed. Disposable tests written include
+real CLI success/idempotence/refusals, observed pg_blocking_pids bootstrap/actor
+revocation blocking, parallel self-demotions, unverified usable-admin edge, current
+session memberships and actual mentor HTTP auth/CSRF/strict/idempotence assertions.
+Source/tests frozen for parent validation; only documentation/metadata follows.
+Owner manual acceptance remains unconfirmed; phase6 remains open.
+
+P5.1 final source/test lint and typecheck reruns passed after HTTP/config additions;
+git diff whitespace check passed. Parent default production build passed with lazy
+new route compilation; audit remains six high/five moderate existing tooling
+findings. Parent disposable PostgreSQL stage passed the actual role/CLI/race tests,
+including the fixed SQL verified-admin count and observed bootstrap/revocation
+blocking. Full production HTTP/browser/installer suite is still running; no full
+integration pass is claimed yet. Prior P4.2 is `3263a1d`; manual registration
+acceptance feedback is `734c6e0`. No earlier owner gate was inferred passed.
+
+P5.1 final parent handoff (2026-10-23): full disposable integration completed exit0
+(session50873), including actual role PostgreSQL/CLI concurrency assertions, mentor
+HTTP authentication/CSRF/strict-input/idempotence, existing production HTTP/email,
+native HTTPS browser flows, installer preservation and owned-resource cleanup.
+Default production build56545 passed; audit41076 remains six high/five moderate
+existing-tooling findings. Lint/typecheck and117 tests at100% all four metrics
+are recorded above. No source/tests changed after freeze; final updates are
+metadata only. P5.1 is complete and checked in track.md, ready for the parent's
+separate task commit before P5.2. No CI, clean audit or owner manual acceptance
+is claimed; earlier manual gates remain unchecked. Phase5 still pauses only
+after P5.2/P5.3 and final phase checks; phase6 remains pending.

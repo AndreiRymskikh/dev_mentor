@@ -169,3 +169,15 @@ Each phase is tested and leaves the app working. Future domain examples prove a 
 ## Review status and completion criteria
 
 Independent scope review completed; its phase-dependency, GitHub verification and bootstrap-order findings were corrected. This is a completed proposed specification, not an implemented feature or security sign-off. Implementation completion requires all issue #4 outcomes plus evidence that each added primitive is exercised by its feature consumer; no application framework milestone independent of real behavior. No lint/build/unit/integration checks have been run for this documentation task.
+
+### Phase 5 implementation note (2026-10-22)
+
+P5.1 source is ready for parent validation: verified developer mentor enrollment,
+serialized administrator mutations, UUID-only first-admin operator command and
+current-session role visibility. Last-admin protection counts verified administrator
+memberships, so an unverified grant cannot strand administration without an account
+able to sign in. Admin grants to unverified accounts remain allowed. Unit coverage
+is100% all four metrics; parent default production build and full disposable
+PostgreSQL/SMTP/production HTTP/native HTTPS browser/installer integration passed.
+Audit remains six high/five moderate existing-tooling findings and owner manual
+acceptance is pending. No GitHub OAuth or phase6 completion is claimed.
