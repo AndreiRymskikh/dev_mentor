@@ -1,6 +1,7 @@
+import { testAdminUsers } from "./admin-users";
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, createHmac, randomBytes } from "node:crypto";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -120,8 +121,11 @@ export async function registrationFixture() {
           assert.equal((await getSession()).status,401);
           const bodylessLogout=await fetch(`${baseUrl}/api/auth/logout`,{method:"POST",headers:{"X-DevMentor-CSRF":"1",origin:this.environment.APP_ORIGIN},signal:AbortSignal.timeout(config.authRequestTimeoutMs)});assert.equal(bodylessLogout.status,200,"production Next bodyless logout succeeds with no content type");
           assert.equal((await authPost("logout",{userId:principal.id})).status,400,"logout rejects caller-supplied user identity");
-          for(let i=0;i<3;i++)assert.equal((await authPost("login",{email:input.email,password:"wrong"})).status,401);
-          const limitedLogin=await authPost("login",{email:input.email,password:input.password},{"x-forwarded-for":"198.51.100.1"});assert.equal(limitedLogin.status,429);assert.ok(Number(limitedLogin.headers.get("retry-after"))<=900);
+          // Seed five prior attempts for this owned fixture's pair in both adjacent
+          // windows: earlier slow email scenarios can span a fixed15-minute boundary.
+          const loginPairDigest=createHmac("sha256",this.environment.RATE_LIMIT_SECRET).update(JSON.stringify(["login:pair",JSON.stringify([input.email,"shared-untrusted-peer"])])).digest("hex");
+          await client.query("insert into rate_limit_buckets(key_digest,window_start,attempt_count,expires_at) select $1,to_timestamp((floor(extract(epoch from statement_timestamp())/900)+n)*900),5,to_timestamp((floor(extract(epoch from statement_timestamp())/900)+n+1)*900) from generate_series(0,1) n on conflict(key_digest,window_start) do update set attempt_count=5",[loginPairDigest]);
+          const limitedLogin=await authPost("login",{email:input.email,password:input.password},{"x-forwarded-for":"198.51.100.1"});assert.equal(limitedLogin.status,429,"sixth pair attempt is denied even with spoofed forwarded IP");assert.ok(Number(limitedLogin.headers.get("retry-after"))<=900);
           const beforeUnknown = messages.length;
           assert.deepEqual(await requestVerification("http-unknown@example.test"), resendGeneric); assert.equal(messages.length, beforeUnknown);
           // Distinct fixtures prove generic already-verified and credentialless requests without spending a fourth address allowance.
@@ -203,6 +207,7 @@ export async function registrationFixture() {
           const expiredReset = randomBytes(32).toString("base64url");
           await client.query("insert into action_tokens (id,user_id,purpose,digest,expires_at) values(gen_random_uuid(),$1,'reset-password',$2,$3)", [principal.id, createHash("sha256").update(expiredReset).digest("hex"), new Date(Date.now() - 1000)]);
           assert.equal((await recoveryPost("reset", { token: expiredReset, newPassword: "replacement password" })).status, 400);
+          await testAdminUsers(baseUrl, databaseUrl, this.environment.JWT_SECRET, this.environment.APP_ORIGIN);
           console.log("Recovery HTTP passed: generic timed unknown/credentialless/SMTP failure, same-account retry, TLS fragment/digest/TTL, strict CSRF fields, credential replacement, old-password/session denial, no auto-login, replay and expiry/purpose.");
 
         } finally { await client.end(); }

@@ -20,3 +20,5 @@ export { SessionRepository, type Principal, type Role } from "./repositories/use
 export { PasswordRecoveryRepository } from "./repositories/users/password-recovery.repository";
 
 export { RolesRepository, ADMIN_MEMBERSHIP_LOCK, type RoleChangeResult, type DesiredRoles } from "./repositories/users/roles.repository";
+
+export { AdminUsersRepository, type AdminUserDto, type AdminUsersPage, type AdminListQuery } from "./repositories/users/admin-users.repository";

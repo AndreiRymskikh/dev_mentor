@@ -1,3 +1,5 @@
+import type { AdminUsersRepository } from "@devmentor/db";
+import type { AdminUsersService } from "../services/users/admin-users.service";
 import type { RolesRepository } from "@devmentor/db";
 import type { RolesService } from "../services/users/roles.service";
 import type { PasswordRecoveryRepository } from "@devmentor/db";
@@ -13,6 +15,8 @@ import type { RegistrationService } from "../services/users/registration.service
 import type { RateLimitService } from "../services/limits/rate-limit.service";
 import type { EmailSender } from "../services/emails/email-sender.port";
 export interface Cradle {
+  adminUsersRepository: AdminUsersRepository;
+  adminUsersService: AdminUsersService;
   rolesRepository: RolesRepository;
   rolesService: RolesService;
   passwordRecoveryRepository: PasswordRecoveryRepository;

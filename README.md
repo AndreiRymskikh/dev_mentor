@@ -428,3 +428,22 @@ is unnecessary. Developer remains the baseline membership. Administrator changes
 serialize with bootstrap and protect the last **verified** administrator: granting
 administrator to an unverified user cannot remove the last administrator able to
 sign in. GitHub remains a coming-soon button. Admin screens follow in P5.3.
+
+
+Administrator API (P5.2): `GET /api/admin/users?page=1&pageSize=20&q=search`
+returns `{items,page,pageSize,total}` inside the standard `data` envelope. Page is
+1–10000; pageSize is 1–100 (default20). Search is trimmed, case-insensitive,
+limited to100 characters and matches literal email/display-name text, including
+literal `%` and `_`. Results use creation time then UUID ordering. Each item
+contains only id, displayName, email, emailVerifiedAt, roles and createdAt.
+Unknown or repeated query keys are rejected. Only current verified administrators
+may list users; other sessions return403 and anonymous requests return401.
+
+`PUT /api/admin/users/USER_UUID/roles` requires the session cookie and
+`X-DevMentor-CSRF: 1`, with exactly
+`{"mentor":true,"administrator":false}` (choose both desired boolean values).
+It returns current roles; developer is preserved. The last verified administrator
+cannot be removed (409). Existing cookies observe grants/revocations immediately.
+The service rechecks persisted administrator membership inside its transaction;
+client identity/role fields cannot authorize an operation. Both endpoints use
+`Cache-Control: no-store`. The admin UI/manual browser checklist follows in P5.3.

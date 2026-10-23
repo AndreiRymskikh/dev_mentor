@@ -536,3 +536,81 @@ metadata only. P5.1 is complete and checked in track.md, ready for the parent's
 separate task commit before P5.2. No CI, clean audit or owner manual acceptance
 is claimed; earlier manual gates remain unchecked. Phase5 still pauses only
 after P5.2/P5.3 and final phase checks; phase6 remains pending.
+
+
+### P5.2 bounded administration API (2026-10-23)
+
+Task subagent implemented strict pure page/pageSize/q validation, a narrow
+AdminUsersRepository and AdminUsersService, explicitly scoped DI and protected
+GET users/PUT desired roles routes. The listing transaction takes a shared actor
+User lock and rechecks verified administrator membership before querying. Fixed
+parameterized strpos expressions treat wildcard characters literally. Stable
+createdAt/id ordering and explicitly projected DTOs exclude credentials/tokens.
+DTO type-only exports through the pure validator entry do not introduce browser
+runtime persistence imports. Authentication/role checks precede query parsing,
+body parsing and async route parameter resolution; PUT also checks CSRF.
+
+Actual subagent lint/typecheck passed;120 unit tests passed100% statements1303,
+branches776, functions331 and lines977. Initial sandbox coverage failed only the
+existing localhost ownership/probe harness; elevated full rerun passed. Added real
+production HTTP/disposable PostgreSQL assertions cover literal search, tie-order
+pagination, empty/past-end results, strict query/body input, DTO exact keys,
+authentication ordering, existing-cookie grants/revocations, CSRF and last-admin
+409. The fixture deletes only its own seeded users/sessions/roles in finally.
+Full build/integration/audit remain parent-owned and unclaimed here. Source/tests
+are frozen for parent validation. P5.2 awaits parent review/commit; P5.3 and owner
+manual acceptance remain pending. P5.1 commit is `ab3b3b1`; phase6 remains open.
+
+
+P5.2 parent validation found an actual search defect: first full HTTP suite failed
+503 versus200. An owned PostgreSQL probe showed empty search worked while plain
+and literal search failed SyntaxErrorException SQLSTATE42601 near `=`. The raw
+predicate included `>0` and MikroORM appended equality. Corrected to numeric
+parameterized strpos with ORM `$gt:0`. Added actual repository checks to the early
+disposable database stage for stable ties, exact DTO keys, literal wildcards,
+email match, empty/past-end lists and persisted authorization. Parent build17048
+passed; suite91224 passed all database checks including the new regression, then
+failed an older login quota HTTP assertion (200 versus429). Earlier attempts were
+separated by slow mail flows and could cross a15-minute bucket. The fixture now
+seeds its own HMAC pair at5 in both current/next DB-time windows and asserts denied
+spoofed-IP request429; real count/concurrency limits remain independently tested.
+Temporary focused probe removed; no developer database accessed. Durable prevention
+lessons recorded. All production/integration source frozen again.
+
+Latest subagent lint12377 and typecheck53505 passed. Sandbox coverage13141 failed
+only existing localhost ownership/probe tests with EPERM; new source had full
+coverage. Earlier elevated120-test100% result preceded the numeric correction;
+parent owns final elevated coverage/build/full suite. No final integration pass
+is claimed yet. New audit is12 findings:1critical Next16.4.0,6high,5moderate; first
+build stopped for the new security notice, retry17048 passed with warning.
+Owner approved separate Next patch task S1 after P5.3 and before manual handoff;
+no dependency changes belong to P5.2. Earlier manual/CI/audit gates remain open.
+
+
+Parent elevated coverage56339 exposed a pre-existing JWT boundary test race:
+future iat was wall-clock now+1, which could become current during parallel coverage.
+The JWT claim validation test now freezes Date only at a fixed timestamp and restores
+real timers/environment in finally, keeping jose microtasks real. Production JWT
+rules are unchanged. Parent owns final coverage rerun; latest120-test pass is not
+claimed for that failed run. Integration41196 continues on frozen integration source.
+
+
+P5.2 final-source parent elevated coverage83211 passed120 tests at100% statements
+1303, branches776, functions331 and lines977 after the deterministic Date test fix.
+Lint/typecheck and whitespace checks passed. Parent integration41196 passed all
+owned database checks, the new admin production HTTP scenarios and auth browser
+flows; installer/cleanup are still running, so complete integration is not yet
+claimed. No source changes occurred during parent integration.
+
+
+P5.2 final parent handoff: integration41196 ended exit1 and cleaned owned resources.
+All application database, production admin HTTP and authentication browser stages
+passed. Actual remaining failure was installer reuse: rerun stdout did not match
+“Development: skipped; reusing”; it showed dependencies skipped, environment
+preserved, PostgreSQL healthy and a new “Development: ready at” server. The earlier
+homepage-fetch hang hypothesis was not proven. No installer source change is made;
+root cause remains pending final phase validation after owner-approved S1 patch.
+P5.2 relevant API checks, build17048, lint/typecheck and elevated coverage83211
+(120 tests100%1303/776/331/977) are complete. Task is marked done and ready for its
+separate parent commit; full phase gate is still open, with a dedicated installer
+fix if needed after S1. CI/clean audit/owner manual acceptance are not claimed.

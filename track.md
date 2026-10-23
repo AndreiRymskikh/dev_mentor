@@ -30,9 +30,12 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 
 ## Phase 5 — Roles and administration (current)
 - [x] P5.1 Self-enrollment, serialized admin role changes, last-admin protection and operator bootstrap.
-- [ ] P5.2 Bounded users query/DTO and protected admin API.
+- [x] P5.2 Bounded users query/DTO and protected admin API.
 - [ ] P5.3 Admin navigation/list/role controls; replace admin 404 tests with authorization scenarios.
 - [ ] Validation, race/browser evidence and owner manual checkpoint passed.
+
+## Approved security follow-up
+- [ ] S1 Upgrade Next.js to a compatible security patch after P5.3; separate subagent and commit before the manual handoff (owner approved2026-10-23).
 
 ## Phase 6 — Final validation and independent review
 - [ ] P6.1 Complete database/mail/browser security/outage scenarios and deployment/operator docs.
@@ -153,3 +156,39 @@ remains unconfirmed. Production/test source is frozen for that validation.
 Prior phase4 commits: P4.2 `3263a1d`; registration acceptance feedback `734c6e0`. Owner manual gates remain unconfirmed.
 
 P5.1 final parent validation: default production build and full disposable PostgreSQL/SMTP/HTTP/HTTPS browser/installer integration passed (exit0), including role/bootstrap races and real operator subprocess. Lint/typecheck and117 tests at100% all four coverage metrics passed. Audit remains six high/five moderate existing-tooling findings; CI and owner manual acceptance are not claimed. Parent task commit follows before P5.2.
+
+
+P5.2 source/tests are frozen for parent validation: bounded strict users query,
+allowlisted DTOs, persisted verified-admin recheck and protected no-store list/role
+APIs. Subagent lint/typecheck and120 tests at100% all four coverage metrics passed.
+Production HTTP/disposable PostgreSQL scenarios are written and wired, not yet
+claimed passed. Parent build/integration/audit and per-task commit follow; P5.3 and
+owner manual checkpoint remain pending. P5.1 is committed as `ab3b3b1`.
+
+P5.2 validation correction: first full suite failed search503; actual isolated
+PostgreSQL probe proved SQLSTATE42601 from a raw boolean predicate. Numeric strpos
+plus ORM $gt:0 corrected it. Parent production build17048 passed with the newly
+published Next security warning; subsequent full suite91224 passed all database
+checks including actual literal/plain/empty search, but exposed the old HTTP login
+quota fixture's fixed-window boundary assumption. HTTP denial fixture now seeds
+only its owned HMAC pair at5 in current/next windows and expects429. Final full
+suite and elevated unit rerun remain parent-owned/pending. Last lint/typecheck
+passed; latest sandbox coverage failed only existing localhostEPERM tests, so
+that failed run is not recorded as a pass. Earlier elevated120-test100% result
+predates the numeric search correction. Audit now1critical/6high/5moderate; Next
+security patch S1 is owner-approved separately after P5.3. Manual gates stay open.
+
+P5.2 final-source elevated coverage83211 passed120 tests at100% all four metrics;
+lint/typecheck passed. Integration41196 has passed DB/admin HTTP/auth browser
+stages; final installer/cleanup remain pending. P5.2 stays unchecked until final
+parent verification and task commit. No owner acceptance is inferred.
+
+P5.2 parent handoff: final coverage83211 passed120 tests100% all metrics; final
+production build17048 passed. Integration41196 completed exit1 with owned-resource
+cleanup: all application DB/admin HTTP/auth browser scenarios passed, but the
+installer rerun expected “Development: skipped; reusing” and instead reported a
+new “Development: ready at” server. This is an installer reuse failure, not an
+assumed homepage-fetch hang; its cause is not established. P5.2 API work is done
+and ready for separate parent commit. Whole-phase full gate remains pending after
+P5.3/S1, with a dedicated fix if installer reuse still fails. Owner acceptance,
+CI and clean audit remain unclaimed. No unrelated installer edit was made.

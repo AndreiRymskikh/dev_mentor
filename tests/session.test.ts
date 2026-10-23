@@ -14,6 +14,9 @@ import { GET as session, dynamic as sd } from "../packages/app/src/app/api/auth/
 import { sessionCookie, readSessionCookie } from "../packages/app/src/auth/session-cookie";
 const secret = "s".repeat(32); const uid = randomUUID(); const sid = randomUUID();
 test("JWT cryptographic validation pins every claim, key, algorithm and absolute expiry", async () => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-10-23T10:00:00.000Z"));
+  try {
   const jwt = new SessionJwt(() => secret); const now = Math.floor(Date.now()/1000);
   const token = await jwt.sign(uid,sid,now); expect(await jwt.verify(token)).toEqual({ userId: uid, sessionId: sid });
   const base = { sub: uid, sid, iss: "devmentor", aud: "devmentor-session", iat: now, exp: now + SESSION_SECONDS };
@@ -24,6 +27,7 @@ test("JWT cryptographic validation pins every claim, key, algorithm and absolute
   for (const value of ["bad", "a".repeat(2049), token.slice(0,-8)+"aaaaaaaa"]) expect(await jwt.verify(value)).toBeNull();
   for (const value of [undefined, "short"]) { const broken = new SessionJwt(() => value); await expect(broken.sign(uid,sid,now)).rejects.toMatchObject({ status:503 }); await expect(broken.verify(token)).rejects.toMatchObject({ status:503 }); }
   vi.stubEnv("JWT_SECRET",secret); expect(await new SessionJwt().verify(token)).toEqual({ userId:uid, sessionId:sid }); vi.unstubAllEnvs();
+  } finally { vi.useRealTimers(); vi.unstubAllEnvs(); }
 });
 test("login validates, compares even missing credentials, rechecks hash under lock, maps outages", async () => {
   const passwordHash = await hash("long-password",12); const principal = { id:uid, displayName:"Name",roles:["developer"] as const };

@@ -181,3 +181,23 @@ is100% all four metrics; parent default production build and full disposable
 PostgreSQL/SMTP/production HTTP/native HTTPS browser/installer integration passed.
 Audit remains six high/five moderate existing-tooling findings and owner manual
 acceptance is pending. No GitHub OAuth or phase6 completion is claimed.
+
+
+P5.2 implementation note (2026-10-23): bounded strict administrator users query,
+allowlisted stable-page DTO and protected listing/role APIs are implemented and
+unit-verified (120 tests,100% all metrics), with lint/typecheck passed. Real owned
+PostgreSQL/HTTP assertions are wired for parent validation; complete integration,
+build and audit are not yet claimed. P5.3 UI and owner manual checkpoint remain
+pending. GitHub authentication remains deferred to its coming-soon button.
+
+P5.2 validation correction: actual PostgreSQL search failure SQLSTATE42601 was
+fixed with numeric bound strpos and ORM comparison; early disposable regression
+now passes under parent verification. Full HTTP validation exposed and corrected
+a fixed-window login quota fixture assumption; final full suite remains pending.
+New Next security advisory is tracked as owner-approved separate S1 patch after
+P5.3. No clean audit, CI or owner manual acceptance is claimed.
+
+P5.2 API implementation is complete: final production build and120-test100%
+coverage passed, as did actual application database/admin HTTP/auth browser stages.
+The complete integration run ended exit1 on installer reuse expectation with cleanup
+passed; no full-gate pass is claimed. Final phase validation follows P5.3 and S1.
