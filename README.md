@@ -451,6 +451,8 @@ client identity/role fields cannot authorize an operation. Both endpoints use
 ### Phase 5 manual browser checkpoint
 
 1. Run the existing local database, Mailpit and development app as described above.
+   After installing the Next.js 16.4.2 security patch, restart `npm run dev` so the
+   running process uses the updated framework.
    Register and verify two accounts; sign in to each. Registration requires email
    verification before login. Keep GitHub as its coming-soon button.
 2. On `/account`, choose **Become a mentor**. The refreshed role list should include

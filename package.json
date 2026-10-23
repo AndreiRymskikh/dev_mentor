@@ -55,7 +55,7 @@
     "@vitest/coverage-v8": "^5.0.4",
     "agent-browser": "^0.39.1",
     "eslint": "^9",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.2",
     "jsdom": "^30.1.2",
     "pg": "^8.23.1",
     "smtp-server": "3.20.2",
