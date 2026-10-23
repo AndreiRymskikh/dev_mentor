@@ -35,6 +35,7 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Validation, race/browser evidence and owner manual checkpoint passed.
 
 ## Approved security follow-up
+- [x] S2 Patch the Vitest5 browser-test server to5.0.5 with aligned existing packages, separate subagent and commit (owner approved2026-10-23); lint/typecheck,131-test100% coverage,92 both-theme Storybook tests and build passed. Audit retains six high findings; final application integration follows under P6.2.
 - [x] S1 Upgrade Next.js to a compatible security patch after P5.3; separate subagent and commit before the manual handoff (owner approved2026-10-23).
 
 ## Approved phase 6 security follow-up

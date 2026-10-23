@@ -6,6 +6,8 @@ For each lesson, record the problem, root cause or supporting evidence, recommen
 
 ## Lesson index
 
+- **Verify installed runtime versions after security lock updates.** npm12.2.0 reported a successful install after a targeted Vitest lock refresh while actual package manifests still reported5.0.4. Verify actual installed manifests and runner version before claiming patch tests. Preserve unrelated dependencies, isolate stale package directories reversibly when necessary, and rerun checks on the installed patch. See [Vitest patch run](runs/2026-10-23-vitest-security-patch.md).
+
 - **Read raw cookies when duplicate rejection matters.** Installed Next's cookie store collapses duplicate names to the last value, so `cookies().getAll(name)` cannot reproduce the API's fail-closed duplicate handling. Server account authorization awaits raw `headers()` and reuses the same `readSessionCookie` parser as the API; test actual duplicate header text. See [phase4 run](runs/2026-10-21-users-auth-implementation.md).
 
 - **Read actual bytes when an HTTP endpoint permits an empty body.** Production Next exposed a nonnull empty request stream, unlike the constructed unit Request, so logout rejected a real bodyless POST. Use bounded optional-empty parsing, require JSON for nonempty content, and never infer emptiness from Content-Length. Cover both an empty stream and production HTTP; see [phase3 run](runs/2026-10-21-users-auth-implementation.md).
