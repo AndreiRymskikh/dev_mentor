@@ -38,14 +38,11 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [x] S2 Patch the Vitest5 browser-test server to5.0.5 with aligned existing packages, separate subagent and commit (owner approved2026-10-23); lint/typecheck,131-test100% coverage,92 both-theme Storybook tests and build passed. Audit retains six high findings; final application integration follows under P6.2.
 - [x] S1 Upgrade Next.js to a compatible security patch after P5.3; separate subagent and commit before the manual handoff (owner approved2026-10-23).
 
-## Approved phase 6 security follow-up
-- [ ] S2 Upgrade Vitest and its V8 coverage package to compatible 5.0.5; separately committed after P6.1 and before final review/gates (owner approved2026-10-23).
-
 ## Phase 6 — Final validation and independent review (current)
 - [x] P6.1 Complete database/mail/browser security/outage scenarios and deployment/operator docs.
-- [ ] P6.2 Independent security review and QA through subagents; track and commit fixes separately.
+- [x] P6.2 Independent security review and QA through subagents; review performed, with the audit blocker retained rather than approved.
   - [x] Independent browser QA: dedicated real/synthetic scenario, responsive evidence inspection and successful owned focused run; report in `.ai/qa/2026-10-23-users-auth-qa.md`.
-  - [ ] Independent whole-feature security review and final gates.
+  - [x] Independent whole-feature security review and all configured gate commands executed; verdict **request changes** because the mandatory audit fails. See `.ai/reviews/2026-10-23-users-auth-security.md`.
 - [ ] P6.3 Full validation gate, actual evidence, spec acceptance updates; move spec only after required work is complete.
 - [ ] Owner final manual acceptance passed.
 

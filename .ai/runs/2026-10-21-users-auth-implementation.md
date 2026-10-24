@@ -722,3 +722,22 @@ S2 final patch gates: lint48350/typecheck66912 passed; parent actual Vitest5.0.5
 
 
 P6.2 independent QA: dedicated test-only browser scenario and `--scenario=qa` runner hook added against production HEAD1b8245e; no production changes. Lint/typecheck passed. First focused run36870 completed behavioral assertions but failed its own fixture token/user cleanup; corrected narrow cleanup and final entire focused run31309 passed exit0, including owned DB/SMTP/HTTPS/browser cleanup. Real login/CSRF/current-role/reset/replay/session checks plus clearly labelled synthetic list/role503/delay/retry/duplicate-submission states and keyboard/long-content/desktop320 checks passed. QA subagent inspected all ten state screenshots without actionable visual findings. See [independent QA report](../qa/2026-10-23-users-auth-qa.md). Independent security review/final complete gate/owner acceptance remain pending; GitHub remains coming-soon. Source/test changes frozen for parent review and separate task commit.
+
+P6.2 independent whole-feature security review completed on frozen
+`804be590f0ee12ad408c916d3ccfc230e59d577e`, explicit range49b363c..804be59
+(unrelated discovery prototype excluded). The reviewer independently executed
+all six configured commands in order: lint68368/typecheck60107 passed;
+coverage90419 passed131 tests with100% statements1435/1435, branches833/833,
+functions364/364, lines1059/1059; default Next16.4.2 build28796 passed;
+full disposable integration80533 passed exit0, including native HTTPS auth/admin,
+independent QA, real DB outage/recovery, maintenance/concurrency, SMTP, installer
+fresh/reuse and final cleanup. Final audit76926 exited1 with six high transitive
+entries for unpatched braces GHSA-vfj7-8cjw-p6xm; zero critical/moderate remain.
+Registry/upstream research confirmed latest braces3.0.3 and no published patch.
+No additional concrete auth production defect was found; no forced downgrade,
+advisory suppression, source/test edit, remote approval or CI claim was made.
+The mechanical review verdict is **request changes**. See [security review](../reviews/2026-10-23-users-auth-security.md).
+P6.2 review/QA execution is done; P6.3 complete clean gate, spec acceptance and
+owner final manual testing remain open. GitHub stays coming-soon. The spec is not
+moved to implemented. The review update also removes the duplicate unchecked S2
+tracker row; the actual committed5.0.5 security task remains marked done once.
