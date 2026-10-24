@@ -24,7 +24,7 @@ Dependencies follow `app → core → db`, with standalone `ui` consumed by `app
 
 Database access and the Awilix container stay on the server. Request-specific services use request scopes. MikroORM uses a lazy shared pool with fresh request managers and transaction-bound managers; explicit migrations live under `packages/db/src/migrations`.
 
-The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages expose shared contracts and a lazy persistence runtime; PostgreSQL is provisioned locally and Awilix scopes are configured. The auth database foundation is implemented; authentication services/routes and shadcn/ui administration remain pending. See [implementation status](track.md).
+The npm workspace structure is implemented. Routes live in `packages/app/src/app/`, static assets in `packages/app/public/`, and reusable components in `packages/ui/src/`. Package source exports are compiled by Next.js. The `core` and `db` packages expose shared contracts and a lazy persistence runtime; PostgreSQL is provisioned locally and Awilix scopes are configured. The auth database, credential services/routes and authentication screens are implemented; role management and shadcn/ui administration remain pending. See [implementation status](track.md).
 
 ## Getting started
 
@@ -35,6 +35,12 @@ npm run setup
 ```
 
 Setup installs missing or drifted dependencies, creates a private root `.env` only when absent, starts local PostgreSQL and verifies authenticated access, then starts the development server in the foreground. It uses Node builtins and works before `node_modules` exists. Browser installation and CI tests remain separate optional steps.
+
+Setup does not yet configure authentication secrets/SMTP or apply authentication
+migrations. Before testing registration, complete the [auth environment and
+migration prerequisites](#phase-2-registration-api-checkpoint), then follow the
+phase4 manual UI checkpoint below. A running app and healthy PostgreSQL alone are
+insufficient for registration.
 
 Rerunning validates current state and skips healthy dependencies, existing configuration and a healthy database. A setup-owned server with the same repository, dependency fingerprint, effective configuration and port is reused. Existing credentials and database data are preserved. Use `PORT=3001 npm run setup` on POSIX shells to choose another application port (PowerShell: `$env:PORT=3001; npm run setup`). `POSTGRES_PORT` and DATABASE_URL must describe the same database connection.
 
@@ -144,7 +150,7 @@ npm run test:integration         # Requires a running Docker engine
 
 Vitest/V8 enforces 100% lines, statements, functions and branches per production TypeScript/TSX file, including Next configuration. It does not exclude untested production files. Generated declarations, assets, dependencies and test/operational tooling are outside that metric. Reports are in `coverage/`; CI uploads them even when coverage fails.
 
-Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and the `/admin` not-found page, while HTTP checks verify 200/404 statuses. `/admin` remains intentionally unimplemented. The runner verifies the real ORM and migrations before starting the app; public app routes remain independent of persistence. Developer Compose data is untouched.
+Integration runs start a PostgreSQL 18 Testcontainer with random credentials and a random mapped port, verify SQL access, and start the production app on a free localhost port with the ephemeral DATABASE_URL. Agent-browser checks home content and protected `/admin`/`/admin/users` navigation, role controls and responsive users tables. HTTP checks verify authentication redirects, denied access, bounded admin queries and role mutations. The runner verifies the real ORM and migrations before starting the app; public app routes remain independent of persistence. Developer Compose data is untouched.
 
 The browser session, app process and test container are closed in cleanup. Snapshots, screenshots and app logs are retained in ignored `test-results/integration/` and uploaded by CI. Timeouts are centralized in `tests/integration/config.ts`. The integration script fails when no production build exists; it never silently skips tests when Docker or Chromium is missing.
 
@@ -171,12 +177,12 @@ Initial registration atomically persists a 24-hour verification token digest bef
 awaiting delivery. Delivery failure keeps the public response generic and invalidates
 only that issued token. If the database is also unavailable, revocation cannot be
 guaranteed; the service records a fixed event without sensitive diagnostics. Same-account
-verification resend is a phase 3 feature; phase 2 integration proves recovery through a
-subsequent successful registration after a simulated SMTP failure. The registration API is now exposed through task P2.3; use the checkpoint below.
+verification resend is available through the phase 3 API; integration proves recovery
+by resending to the same account after simulated SMTP failure. The registration API is now exposed through task P2.3; use the checkpoint below.
 
 ### Phase 2 registration API checkpoint
 
-Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links are delivered now, but their pages and token consumption arrive in phase 3/4.
+Set `DATABASE_URL` and the mail/rate settings in `packages/app/.env.local` for Next development, or export them into the app process environment. The root migration CLI does not load the app’s `.env.local`: export the same `DATABASE_URL` in your shell before running `npm run db:migrate`. Set a random `RATE_LIMIT_SECRET` of at least 32 UTF-8 bytes, and configure `APP_ORIGIN`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` in your local environment. Production requires an HTTPS app origin and authenticated TLS SMTP with a trusted certificate. SMTP credentials and a functioning mailbox are operator prerequisites; delivery is not guaranteed. Verification links open the implemented `/verify-email` page; use the phase4 UI checkpoint below or the optional API-only sequence.
 
 For development, optionally start [Mailpit](https://github.com/axllent/mailpit) pinned to [v1.31.5](https://github.com/axllent/mailpit/releases/tag/v1.31.5):
 
@@ -186,7 +192,26 @@ docker run --rm --name devmentor-mailpit -p127.0.0.1:1025:1025 -p127.0.0.1:8025:
 
 Open its [local mailbox](http://localhost:8025). This optional manual command was not executed during implementation; automated tests use their own SMTPServer fixture. For development only, this or an existing loopback SMTP sink can use `SMTP_LOCAL_SINK=true`, `SMTP_HOST=127.0.0.1`, its listening port, and `APP_ORIGIN=http://localhost:3000`. This intentionally rejects production mode. The automated integration suite provisions its own authenticated STARTTLS sink and disposable database; it needs Docker and OpenSSL and never resets the Compose database.
 
-Start `npm run dev`, then run:
+Before starting a manual auth test, apply migrations to the same database used by
+the app. A healthy PostgreSQL container and `/api/health` response do not confirm
+that authentication tables exist. On a POSIX shell, after configuring the ignored
+`packages/app/.env.local` with the matching `DATABASE_URL` and auth/mail settings:
+
+```sh
+set -a
+source packages/app/.env.local
+set +a
+npm run db:migrate
+npm run dev
+```
+
+Include independently generated `JWT_SECRET` and `RATE_LIMIT_SECRET` values of at
+least 32 UTF-8 bytes. Use `npm run dev` with the development-only local SMTP sink.
+Missing configuration or unapplied migrations intentionally returns a safe 503
+from registration. Keep environment files untracked and never reset the database
+to repair missing migrations.
+
+Then run:
 
 ```sh
 curl -i http://localhost:3000/api/auth/register \
@@ -198,4 +223,383 @@ curl -i http://localhost:3000/api/auth/register \
 
 Expect a generic JSON 202, `Cache-Control: no-store`, and no session cookie. A duplicate or delivery failure returns the same response. Admitted registrations intentionally take at least 15 seconds, including duplicates: the response window covers the 10-second SMTP deadline and cleanup budget to reduce account-existence timing disclosure. Severe database/network outages can exceed that window; this is not a constant-time guarantee under outages. Invalid fields or forged `roles` return 400, removing the CSRF header returns 403, and missing server configuration or unavailable persistence returns safe 503.
 
-Next's request does not expose a trusted peer address. Registration therefore uses one conservative shared bucket across clients (10 registrations/hour), ignoring `X-Forwarded-For` and `X-Real-IP`. There is no trusted-proxy configuration yet. Email limits also apply; 429 includes bounded `Retry-After`. This conservative limit is intentional until a verified proxy integration is introduced. Restarting the app does not clear database-backed limits. `/api/health` remains independent of database and mail configuration; `/admin` remains 404.
+Next's request does not expose a trusted peer address. Registration therefore uses one conservative shared bucket across clients (10 registrations/hour), ignoring `X-Forwarded-For` and `X-Real-IP`. There is no trusted-proxy configuration yet. Email limits also apply; 429 includes bounded `Retry-After`. This conservative limit is intentional until a verified proxy integration is introduced. Restarting the app does not clear database-backed limits. `/api/health` remains independent of database and mail configuration; protected administration is available in phase 5.
+
+
+### Phase 3 verification API checkpoint
+
+Use the same database, app origin, mail sink and rate-limit configuration as above.
+Request a replacement verification email (this invalidates prior verification tokens):
+
+```sh
+curl -i http://localhost:3000/api/auth/verification/request \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"email":"your-test-mailbox@example.com"}'
+```
+
+Expect generic 202 after the same 15-second window for unverified, unknown,
+already-verified and credentialless accounts, or failed delivery. Only an eligible
+unverified credentials account receives mail. Registration and resend share the
+3 emails/hour/address and 20 emails/hour/shared-peer limits; 429 includes Retry-After.
+
+Copy the 43-character `token` value from the email link's `#token=` fragment into
+the local JSON body below. Keep real tokens out of shared terminal logs and screenshots.
+The link's page is implemented in phase 4; visiting a GET URL cannot consume a token.
+
+```sh
+curl -i http://localhost:3000/api/auth/verification/confirm \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"token":"PASTE_THE_FRAGMENT_TOKEN_HERE"}'
+```
+
+Expect 200 and no session cookie. Repeating the POST, using a replaced token, or
+using an expired/invalid token returns the same safe 400 error. Tokens expire after
+24 hours. Missing CSRF returns 403; GET returns 405 and leaves the token unchanged.
+Resend after a delivery failure can recover the same account once SMTP works again,
+subject to the shared email limits. Do not clear or reset your Compose database to
+repeat tests; `npm run test:integration` provisions disposable PostgreSQL and mail.
+Continue with the login/session and recovery checkpoint below.
+
+### Phase 3 login/session checkpoint
+
+After verifying a credentials account, configure `JWT_SECRET` with at least 32 random
+bytes independently of `RATE_LIMIT_SECRET`. Configuration and database connections
+remain lazy: home and build do not require either secret.
+
+```sh
+curl -i -c /tmp/devmentor-cookies -H 'Content-Type: application/json' \
+  -H 'X-DevMentor-CSRF: 1' -H 'Origin: http://localhost:3000' \
+  -d '{"email":"your-local-account@example.test","password":"your local password"}' \
+  http://localhost:3000/api/auth/login
+curl -i -b /tmp/devmentor-cookies http://localhost:3000/api/auth/session
+curl -i -b /tmp/devmentor-cookies -c /tmp/devmentor-cookies \
+  -H 'X-DevMentor-CSRF: 1' -H 'Origin: http://localhost:3000' \
+  -X POST http://localhost:3000/api/auth/logout
+```
+
+Use your local account only; avoid putting real production credentials in shell history.
+Login returns only `id`, `displayName`, and current `roles`; its JWT appears only in
+the HttpOnly cookie. Session lookup after logout returns401. Production cookies have
+`__Host-` names and Secure/HttpOnly/SameSite=Lax/Path=/; local HTTP development uses
+an unprefixed non-Secure cookie. Sessions expire absolutely after24 hours, have no
+refresh, and read current database roles on every request. Unknown, wrong-password
+and unverified credentials return the same401. Login retains all attempts: five per
+email/IP pair and50 per IP in fixed15-minute PostgreSQL windows; without an explicit
+trusted-proxy adapter, all callers share the conservative peer bucket and forwarding
+headers are ignored. JWT/storage failures deny access with safe503; invalid cookies
+return401. Logout is idempotent and clears the cookie even when already absent/invalid.
+
+Shared `Session` now requires `roles: readonly Role[]` with `developer`, `mentor`,
+`administrator`; `requireRole` checks membership. All existing consumers migrated
+atomically. The generic `requireSession` helper retains its existing401-on-resolver-error
+contract; concrete session HTTP lookup preserves infrastructure failures as503.
+
+### Phase 3 complete manual API sequence
+
+Owner manual acceptance remains pending. This optional API-only sequence copies
+email fragment tokens into the POST bodies; the phase4 UI checkpoint below instead
+opens actual email links in the browser. First follow the registration example above,
+open the local mailbox, and confirm its verification token with the verification
+POST. Use the same email and password throughout. Login with the cookie-jar command
+above and verify `/api/auth/session` returns your principal. If you tested logout,
+login again before continuing so the jar holds an active session.
+
+Request recovery using your registered local email:
+
+```sh
+curl -i http://localhost:3000/api/auth/password/forgot \
+  -H 'Content-Type: application/json' -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"email":"your-local-account@example.test"}'
+```
+
+Expect generic 202 after the same 15-second public window for eligible, unknown,
+credentialless and SMTP-failure cases. Registration, verification resend and forgot
+share three requests/hour/address and twenty/hour/shared peer; retry after the
+reported cooldown. The reset link uses the configured `APP_ORIGIN` and a fragment.
+Copy its 43-character token from the mailbox; GET cannot consume it. Tokens expire
+after 30 minutes and a newer request invalidates older reset tokens.
+
+```sh
+curl -i http://localhost:3000/api/auth/password/reset \
+  -H 'Content-Type: application/json' -H 'Origin: http://localhost:3000' \
+  -H 'X-DevMentor-CSRF: 1' \
+  --data '{"token":"PASTE_THE_FRAGMENT_TOKEN_HERE","newPassword":"your replacement password"}'
+curl -i -b /tmp/devmentor-cookies http://localhost:3000/api/auth/session
+```
+
+Expect reset 200 without a session cookie and the old cookie to return 401. Login
+with the old password must return 401; login with the replacement password and
+`-c /tmp/devmentor-cookies` must return 200, then session lookup returns the same
+account. Repeating the reset POST returns 400. Reset does not automatically verify
+an unverified account or add credentials to a credentialless account. No automatic
+login occurs. Passwords must contain 12–72 UTF-8 bytes. Missing CSRF or a mismatched
+Origin returns 403; extra identity/role fields return 400. For automatic disposable
+SMTP failure, retry, expiry, replay and reset/login concurrency evidence, run
+`npm run test:integration`; do not clear the developer database or rate counters.
+
+That phase3 API checkpoint remains available for manual testing. Phase4 screen
+implementation is complete below; GitHub remains coming-soon and administration
+is available in phase5 below. No owner manual checkpoint is marked passed.
+
+### Authentication screens (phase 4)
+
+With the existing database, migrations and auth/SMTP environment configured, open
+`/register`, `/login` or `/forgot-password` directly. Registration sends a generic
+verification message and does not sign in. The verification email/retry link opens
+`/verify-email`; password recovery links open `/reset-password`. Verification/reset and `/account` are implemented in task P4.2.
+
+For manual testing, submit empty/invalid fields, correct them using the keyboard,
+check password-manager autocomplete, and submit valid registration/recovery forms.
+While the request is pending (the public delivery window is about 15 seconds),
+controls prevent duplicate submissions. After registration is accepted, the form is
+replaced by a focused **Request accepted** heading, email instructions, and visible
+**Sign in** / **Request another verification email** links. Verify your email using
+the inbox link before signing in; acceptance does not guarantee account creation
+or email delivery. Check your SMTP inbox and spam folder.
+GitHub's button displays “GitHub sign-in will be implemented soon.” without starting
+OAuth. Wrong/unverified login, unavailable services and rate limits display safe
+feedback. Successful login goes only to `/account`.
+
+Phase4 P4.1 automated verification includes actual HTTPS browser registration,
+unverified login denial, verified fixture login with an accepted Secure session
+cookie, recovery mail, rate-limit feedback and GitHub no-request feedback. Desktop
+and320px screenshots and computed field spacing/focus/no-overflow checks passed.
+Both default and Webpack builds now compile Tailwind through the same PostCSS
+pipeline. The owner's complete phase4 manual checkpoint remains pending.
+
+
+Phase4 manual UI checkpoint (owner acceptance remains unchecked):
+
+1. Configure the database/migrations and server auth/SMTP environment described
+   above, start the app, and register a fresh address. Open the actual verification
+   mail link. The browser removes its query/fragment immediately. Press **Verify
+   email** explicitly; merely opening the page must not consume the token. Then
+   sign in; registration and verification never sign in automatically.
+2. Open `/verify-email` without a link and request another email. Unknown and known
+   eligible addresses receive the same generic feedback. Missing, expired and used
+   links provide a retry path. Tokens remain only in the open page's memory: after
+   reloading or navigating away, reopen the original email link or request a new
+   one. Do not copy tokens into issue reports or screenshots.
+3. Check `/account` shows your display name and every current role. Sign out, then
+   revisit `/account`; it should return to `/login`. Mentor enrollment and admin
+   controls are covered by the phase5 checkpoint below.
+4. Sign in again, request recovery at `/forgot-password`, open the actual reset
+   email, enter a replacement password and press **Change password**. Opening the
+   link alone must do nothing. Success asks you to sign in; all old sessions and
+   the old password must stop working. Sign in with the replacement password.
+   Reusing the reset link should show safe retry guidance.
+5. Repeat with keyboard navigation and a narrow mobile viewport. Labels, focused
+   invalid fields, pending controls and errors should remain usable. Verify that
+   the GitHub button only says it will be implemented soon.
+
+P4.2 local lint, typecheck and112 unit tests with100% line/statement/function/branch
+coverage passed. The final default production build passed. Full disposable PostgreSQL/SMTP/production HTTP/native HTTPS browser and installer
+integration passed. Parent reviewed verification, reset and account screenshots at
+desktop and320px widths without visual issues or token disclosure. No owner manual acceptance, CI or clean audit is implied.
+
+### Roles and first administrator (phase 5)
+
+Register and verify the operator's account first. After login, open `/api/auth/session` in the same browser and use its `data.id`
+UUID. The bootstrap command accepts
+only that existing verified user UUID; it never accepts a password or creates a user.
+From the repository root, load the same database setting used by the app, then run:
+
+```sh
+set -a
+source packages/app/.env.local
+set +a
+npm run auth:bootstrap-admin -- YOUR_EXISTING_VERIFIED_USER_UUID
+```
+
+Keep environment files private. Bootstrap grants administrator only while no other
+administrator exists. Repeating it for the same already-administrator user succeeds;
+a different user is refused. Later grants go through an authenticated administrator.
+No bootstrap was run against your development accounts automatically.
+
+`POST /api/users/me/mentor` with the session cookie, `X-DevMentor-CSRF: 1` and an empty
+JSON object enrolls a verified developer as mentor idempotently. It accepts no user
+ID or role input. Session reads show current memberships immediately; login again
+is unnecessary. Developer remains the baseline membership. Administrator changes
+serialize with bootstrap and protect the last **verified** administrator: granting
+administrator to an unverified user cannot remove the last administrator able to
+sign in. GitHub remains a coming-soon button. Admin screens follow in P5.3.
+
+
+Administrator API (P5.2): `GET /api/admin/users?page=1&pageSize=20&q=search`
+returns `{items,page,pageSize,total}` inside the standard `data` envelope. Page is
+1–10000; pageSize is 1–100 (default20). Search is trimmed, case-insensitive,
+limited to100 characters and matches literal email/display-name text, including
+literal `%` and `_`. Results use creation time then UUID ordering. Each item
+contains only id, displayName, email, emailVerifiedAt, roles and createdAt.
+Unknown or repeated query keys are rejected. Only current verified administrators
+may list users; other sessions return403 and anonymous requests return401.
+
+`PUT /api/admin/users/USER_UUID/roles` requires the session cookie and
+`X-DevMentor-CSRF: 1`, with exactly
+`{"mentor":true,"administrator":false}` (choose both desired boolean values).
+It returns current roles; developer is preserved. The last verified administrator
+cannot be removed (409). Existing cookies observe grants/revocations immediately.
+The service rechecks persisted administrator membership inside its transaction;
+client identity/role fields cannot authorize an operation. Both endpoints use
+`Cache-Control: no-store`. The admin browser checklist follows below.
+
+### Phase 5 manual browser checkpoint
+
+1. Run the existing local database, Mailpit and development app as described above.
+   After installing the Next.js 16.4.2 security patch, restart `npm run dev` so the
+   running process uses the updated framework.
+   Register and verify two accounts; sign in to each. Registration requires email
+   verification before login. Keep GitHub as its coming-soon button.
+2. On `/account`, choose **Become a mentor**. The refreshed role list should include
+   mentor and the enrollment button should disappear. Sign out and back in to check
+   persistence. A developer or mentor opening `/admin` or `/admin/users` sees
+   **Access denied**; a signed-out visitor goes to `/login`.
+3. To bootstrap the first administrator, sign in as your verified operator account.
+   Open `/api/auth/session` in the same browser and copy `data.id`. In the configured
+   terminal run `npm run auth:bootstrap-admin -- YOUR_EXISTING_VERIFIED_USER_UUID`.
+   This changes only that existing account; the implementation never runs it for you.
+   If an administrator already exists, use its authenticated role controls instead.
+4. Refresh `/account`, choose **Manage users**, and confirm `/admin` redirects to
+   `/admin/users`. Search by email or display name, try an empty result, and use
+   Previous/Next when more than 20 accounts exist. Verify the table can scroll
+   horizontally on a narrow screen without making the whole page overflow.
+5. Grant and revoke mentor/administrator on your second account using **Save roles**.
+   Developer remains enabled. Sign in as that account and confirm its current
+   memberships control administration access immediately. Test invalid/outage
+   feedback only against accounts and infrastructure you own.
+6. With only one verified administrator remaining, try removing its administrator
+   checkbox and save: the last-administrator error should appear and access remains.
+   Grant the second verified account administrator, then demote the current account:
+   the private table disappears and subsequent admin visits are denied. Keep the
+   second administrator available so you can restore the intended operator roles.
+
+The owner manual checkpoint is pending. Phase 6 final security review is separate;
+these instructions do not claim CI, a clean dependency audit or final acceptance.
+
+For a focused disposable administration regression after a production build, run
+`npm run test:integration -- --scenario=admin`. It retains the owned database,
+migrations, application and HTTPS/browser setup and cleanup, and skips unrelated
+authentication SMTP/browser and installer scenarios. It does not replace the full
+`npm run test:integration` validation gate. Unknown options are rejected.
+
+### Authentication deployment and operator runbook
+
+Deploy the additive schema before enabling the authentication routes. Keep the
+previous application artifact and a tested database backup available; apply
+`npm run db:migrate` against the explicitly selected deployment `DATABASE_URL`.
+Do not run `db:migrate:down` on retained user data: its empty-data guard is
+intentional. Roll back application routes first while preserving schema, users,
+credentials, memberships and operational records. A destructive production rollback
+requires a separate approved backup/export and data-loss plan.
+
+Configure `DATABASE_URL`, a fixed public HTTPS `APP_ORIGIN`, independent random
+`JWT_SECRET` and `RATE_LIMIT_SECRET` values of at least 32 bytes, and the documented
+SMTP sender/host/port/authentication settings in the deployment secret manager.
+Never put secrets in CLI arguments, browser storage, screenshots or logs. The
+forwarded client IP is trusted only through explicitly configured proxy policy;
+otherwise rate limits deliberately share a conservative peer bucket. Use production
+HTTPS so the `__Host-devmentor-session` Secure/HttpOnly/SameSite=Lax cookie works.
+Public health and the home page remain independent of authentication configuration
+and database availability; health success alone does not establish auth readiness.
+
+Before activating registration, test real production SMTP credentials and delivery
+to a controlled inbox, then complete verification, login, reset and logout over
+HTTPS. Local disposable SMTP tests do not validate live credentials or deliverability.
+Register and verify the intended operator through the normal flow; obtain that
+account's UUID from its authenticated `/api/auth/session` response, then use
+`npm run auth:bootstrap-admin -- <existing-verified-user-uuid>` on the application
+host with the selected deployment database. No password is accepted on the CLI.
+The command only initializes the first administrator (or confirms that same existing
+administrator); later grants use the authenticated administration screen. Verify
+anonymous redirects, developer denial and current administrator access before
+announcing administration availability. GitHub remains a coming-soon button; no
+GitHub secrets, OAuth callbacks or provider activation are needed.
+
+JWT secret rotation deliberately invalidates existing cookies: deploy the new key
+consistently across application instances and ask users to sign in again. There is
+no fallback key ring or refresh-token flow. Rotate the rate-limit HMAC secret
+separately, consistently across instances; this changes bucket identities and
+resets effective quotas, so schedule it deliberately and monitor abuse. SMTP
+secret rotation requires a controlled verification/reset delivery check. Database
+credential rotation requires a connection/read/write check and replacement of old
+application pools. Never infer successful rotation from `/api/health` alone.
+
+### Bounded authentication maintenance
+
+Run `npm run auth:maintain` on the application host with the explicitly selected
+`DATABASE_URL` supplied through its secure environment (like the migration and
+bootstrap commands, it does not load the app's `.env.local`). The command accepts
+**no arguments**. Each invocation performs one transaction and removes at most
+**500 expired sessions, 500 expired action tokens and 500 expired rate-limit
+buckets: 1500 rows total**. It prints counts only and exits nonzero on failure.
+Expiration is compared against one PostgreSQL transaction timestamp. It skips
+locked rows rather than disturbing in-flight operations, and bounds individual
+statements to five seconds and lock waits to one second. Concurrent invocations
+are safe, but scheduling one operator invocation at a time is easiest to monitor.
+
+Run it regularly through your existing operations scheduler, and repeat a bounded
+invocation later if counts reach a per-table cap. There is no automatic unbounded
+loop or application queue. A zero count can mean rows were locked; it is not proof
+that every expired record is gone. The command never deletes users, credentials,
+role memberships, unexpired sessions/tokens/buckets, or merely revoked/consumed
+records before expiry. Expired operational records may contain forensic evidence;
+set backup/retention policy before scheduling cleanup. Do not use database-volume
+resets as maintenance or outage recovery.
+
+### Final authentication manual acceptance
+
+Implementation and independent QA are ready for this owner checkpoint. The
+[security review](.ai/reviews/2026-10-23-users-auth-security.md) ran lint, typecheck,
+131 unit tests at100% coverage, production build and full disposable integration
+successfully on804be59. The historical Oct23 audit failed for six braces entries; that advisory was
+subsequently withdrawn. The Oct24 audit still exits1 for one high Undici finding,
+with zero critical/moderate findings. The security review’s request-changes verdict
+remains in force.
+The owner chose to leave dependency versions unchanged and document this finding;
+this is not an audit waiver or release approval.
+The [QA report](.ai/qa/2026-10-23-users-auth-qa.md) and
+[acceptance matrix](.ai/specs/2026-10-16-users-auth-application-primitives.md#final-acceptance-matrix--2026-10-24)
+separate automated evidence from pending manual/deployment checks. No clean audit,
+CI pass or release approval is implied.
+
+After restarting the application, repeat the [phase 5 browser checkpoint](#phase-5-manual-browser-checkpoint)
+and verification/reset sequences above with controlled test accounts. Check visible
+registration acceptance and verification-before-login guidance, real email delivery,
+fragment removal, replay/expiry denial, old-password/session denial after reset,
+mentor self-enrollment, current administrator grant/revocation and last-verified-admin
+protection. Confirm GitHub explains that sign-in is coming soon.
+
+On an isolated staging deployment, interrupt database access and confirm safe
+unavailable feedback without private account/admin content or new session cookies;
+restore access and verify authenticated recovery without bypassing limits. Test
+SMTP rejection and resend recovery using controlled addresses. Never interrupt or
+reset the developer's database just to reproduce an outage. The automated suite
+uses its own disposable database role to deny connections, restores it in `finally`,
+and proves real session/admin recovery. It also covers migration/rollback, mail
+rejection/retry, token/role races, malformed/forged inputs and native HTTPS cookies.
+
+Record the owner result explicitly in `track.md`; the AI's automated checks and
+independent review do not constitute owner manual acceptance. Outstanding audit
+advisories and any deployment-specific SMTP/backup/proxy checks must be reviewed
+before production activation; no clean audit or live-service verification is implied.
+
+
+Use this final owner checklist and record results explicitly in `track.md`:
+
+- [ ] Restart the app and complete registration, visible acceptance, verification
+  and sign-in with a controlled inbox; confirm GitHub's coming-soon feedback.
+- [ ] Complete password recovery, token replay denial, old-password/session denial
+  and logout; check fragment removal and useful invalid-link recovery.
+- [ ] Complete the two-account phase5 checkpoint: mentor enrollment, admin search,
+  grants/revocations, last verified admin and self-demotion; check keyboard/mobile UI.
+- [ ] On isolated staging, verify live SMTP rejection/retry and database outage/recovery;
+  review HTTPS, secrets, migration/backup and retention/maintenance settings.
+- [ ] Record any assistive-technology checks and defects, or explicitly record limits.
+
+These boxes are intentionally pending. Manual success does not clear the separate
+mandatory audit blocker or change the independent request-changes verdict.

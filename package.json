@@ -12,6 +12,8 @@
     "lint": "eslint packages scripts tests",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p tests/tsconfig.json",
     "smoke": "node scripts/smoke-app.mjs",
+    "auth:maintain": "tsx --tsconfig tsconfig.base.json scripts/maintain-auth.mts",
+    "auth:bootstrap-admin": "tsx --tsconfig tsconfig.base.json scripts/bootstrap-admin.mts",
     "db:up": "docker compose up -d --wait postgres",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",
@@ -51,17 +53,17 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/smtp-server": "3.5.13",
-    "@vitest/coverage-v8": "^5.0.4",
+    "@vitest/coverage-v8": "5.0.5",
     "agent-browser": "^0.39.1",
     "eslint": "^9",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.2",
     "jsdom": "^30.1.2",
     "pg": "^8.23.1",
     "smtp-server": "3.20.2",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
-    "vitest": "^5.0.4"
+    "vitest": "5.0.5"
   },
   "engines": {
     "node": ">=24"

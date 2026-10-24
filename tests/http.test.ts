@@ -18,9 +18,9 @@ test("handler returns consistent success and safe failures", async () => {
 test("auth resolver errors and missing ownership fail closed", async () => {
   await assert.rejects(requireSession(request({}), async () => { throw new Error("failure"); }), UnauthorizedError);
   await assert.rejects(requireSession(request({}), async () => null), UnauthorizedError);
-  assert.throws(() => assertOwnership({ userId: "owner" }, undefined));
-  assert.throws(() => assertOwnership({ userId: "owner" }, "other"));
-  assert.doesNotThrow(() => assertOwnership({ userId: "owner" }, "owner"));
+  assert.throws(() => assertOwnership({ userId: "owner", roles: [] }, undefined));
+  assert.throws(() => assertOwnership({ userId: "owner", roles: [] }, "other"));
+  assert.doesNotThrow(() => assertOwnership({ userId: "owner", roles: [] }, "owner"));
   assert.throws(() => requireCsrf(request({}, {})));
   assert.throws(() => requireCsrf(request({}, { "X-DevMentor-CSRF": "1", origin: "http://attacker" })));
 });
@@ -64,14 +64,14 @@ test("all domain errors preserve custom and default messages and status", async 
     assert.ok(new Constructor().message);
     assert.equal(new Constructor("custom").message, "custom");
   }
-  const session = { userId: "owner", role: "mentor" };
+  const session = { userId: "owner", roles: ["mentor"] as const };
   assert.doesNotThrow(() => requireRole(session, "mentor"));
-  assert.throws(() => requireRole(session, "student"), ForbiddenError);
+  assert.throws(() => requireRole(session, "administrator"), ForbiddenError);
   assert.doesNotThrow(() => assertOwnsBooking(session, { studentId: "owner" }));
   assert.throws(() => assertOwnsBooking(session, { studentId: "other" }), ForbiddenError);
   assert.deepEqual(await requireSession(request({}), async () => session), session);
-  await assert.rejects(requireSession(request({}), async () => ({ userId: "" })), UnauthorizedError);
-  await assert.rejects(requireSession(request({}), async () => ({ userId: 123 } as unknown as { userId: string })), UnauthorizedError);
+  await assert.rejects(requireSession(request({}), async () => ({ userId: "", roles: [] })), UnauthorizedError);
+  await assert.rejects(requireSession(request({}), async () => ({ userId: 123 } as unknown as { userId: string; roles: [] })), UnauthorizedError);
   assert.doesNotThrow(() => requireCsrf(request({}, { "X-DevMentor-CSRF": "1", origin: "http://localhost" })));
   await assert.rejects(withScope(() => { throw new Error("scope failure"); }), /scope failure/);
   const { readEnv } = await import("@devmentor/core/config");

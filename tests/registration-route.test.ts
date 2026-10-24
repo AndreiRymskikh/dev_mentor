@@ -36,6 +36,16 @@ test("bounded JSON rejects wrong/missing types, malformed/invalid utf8, absent b
   await assert.rejects(readJsonBody(new Request("http://localhost", { method: "POST", headers: { "content-type": "application/json" }, body: new ReadableStream({ start(controller) { controller.error(new Error("read failed")); } }), duplex: "half" } as RequestInit)));
 });
 
+test("optional empty JSON reads real bytes, including empty Next-style streams, without trusting length", async () => {
+  assert.deepEqual(await readJsonBody(new Request("http://localhost", { method: "POST" }), 4096, true), {});
+  const empty = new Request("http://localhost", { method: "POST", body: new ReadableStream({ start(controller) { controller.close(); } }), duplex: "half" } as RequestInit);
+  assert.notEqual(empty.body, null);
+  assert.deepEqual(await readJsonBody(empty, 4096, true), {});
+  assert.deepEqual(await readJsonBody(request("{}"), 4096, true), {});
+  for (const req of [request("{}", { "content-type": "text/plain", "content-length": "0" }), request("{", { "content-length": "0" }), request(" ")]) await assert.rejects(readJsonBody(req, 4096, true));
+  await assert.rejects(readJsonBody(request("x".repeat(4097), { "content-length": "0" }), 4096, true));
+});
+
 test("registration route guards CSRF before services, passes untrusted input with shared peer and creates no session", async () => {
   const register = vi.spyOn(RegistrationService.prototype, "register").mockResolvedValue({ message: "generic" });
   try {

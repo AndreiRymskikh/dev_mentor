@@ -1,8 +1,9 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId } from "react";
 import type { ZodType } from "zod";
 import type { ApiResult } from "../api";
+import { useFormState } from "./useFormState";
 import { ErrorMessage } from "../feedback";
 
 interface Field { name: string; label: string; type?: "text" | "email" | "password" | "number" | "checkbox" }
@@ -16,34 +17,15 @@ interface Props<T> {
 }
 export function CrudForm<T>({ schema, fields, initialValues = {}, onSubmit, onCancel, onSuccess }: Props<T>) {
   const id = useId();
-  const [pending, setPending] = useState(false);
-  const inFlight = useRef(false);
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [message, setMessage] = useState<string>();
-  async function submit(form: HTMLFormElement) {
-    if (inFlight.current) return;
-    inFlight.current = true;
-    setPending(true);
-    setErrors({}); setMessage(undefined);
-    try {
-      const formData = new FormData(form);
-      const values = Object.fromEntries(fields.map((field) => {
-        const raw = formData.get(field.name);
-        return [field.name, field.type === "checkbox" ? raw === "on" : field.type === "number" ? (raw === "" ? undefined : Number(raw)) : raw];
-      }));
-      const parsed = await schema.safeParseAsync(values);
-      if (!parsed.success) {
-        const fieldErrors: Record<string, string[]> = {};
-        for (const issue of parsed.error.issues) (fieldErrors[issue.path.map(String).join(".") || "_form"] ??= []).push(issue.message);
-        setErrors(fieldErrors); setMessage("Please correct the highlighted fields."); return;
-      }
-      const result = await onSubmit(parsed.data);
-      if (!result.ok) { setErrors(result.error.fieldErrors ?? {}); setMessage(result.error.message); return; }
-      onSuccess?.();
-    } catch { setMessage("Unable to save. Please try again."); }
-    finally { inFlight.current = false; setPending(false); }
+  const { pending, errors, message, submit } = useFormState({ schema, onSubmit, onSuccess });
+  function submitForm(form: HTMLFormElement) {
+    const formData = new FormData(form);
+    return submit(Object.fromEntries(fields.map((field) => {
+      const raw = formData.get(field.name);
+      return [field.name, field.type === "checkbox" ? raw === "on" : field.type === "number" ? (raw === "" ? undefined : Number(raw)) : raw];
+    })));
   }
-  return <form onSubmit={(event) => { event.preventDefault(); void submit(event.currentTarget); }} onKeyDown={(event) => {
+  return <form onSubmit={(event) => { event.preventDefault(); void submitForm(event.currentTarget); }} onKeyDown={(event) => {
     if (event.key === "Escape" && !pending) { event.preventDefault(); onCancel(); }
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); event.currentTarget.requestSubmit(); }
   }} aria-busy={pending}>

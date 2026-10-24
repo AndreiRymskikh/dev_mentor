@@ -10,18 +10,28 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testconta
 import { Client } from "pg";
 import { integrationConfig as config } from "./config";
 import type { BrowserResult } from "./context";
+import { httpsProxy } from "./https-proxy";
+import { testAuthOutage } from "./scenarios/auth-outage";
+import { testAuthActions } from "./scenarios/auth-actions";
+import { testAuthForms } from "./scenarios/auth-forms";
 import { testHome } from "./scenarios/home";
 import { testAdmin } from "./scenarios/admin";
+import { testIndependentAuthQa } from "./scenarios/independent-auth-qa";
 import { testDatabase } from "./database";
 import { testInstaller } from "./setup.mts";
 
 import { registrationFixture } from "./registration-http";
 
+const argumentsList = process.argv.slice(2);
+if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=admin", "--scenario=qa"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=admin or --scenario=qa; omit for the full suite.");
+const adminOnly = argumentsList[0] === "--scenario=admin";
+const qaOnly = argumentsList[0] === "--scenario=qa";
 const exec = promisify(execFile);
 const session = `devmentor-${randomUUID()}`;
 const artifacts = path.resolve(config.artifacts);
 const browserCli = path.resolve("node_modules/agent-browser/bin/agent-browser.js");
 let mail: Awaited<ReturnType<typeof registrationFixture>> | undefined;
+let proxy: Awaited<ReturnType<typeof httpsProxy>> | undefined;
 let database: StartedPostgreSqlContainer | undefined;
 let app: ChildProcess | undefined;
 let appExited = false;
@@ -30,9 +40,11 @@ let browserUsed = false;
 
 async function browser(...args: string[]) {
   browserUsed = true;
-  const { stdout } = await exec(process.execPath, [browserCli, "--session", session, "--json", ...args], { timeout: config.browserCommandTimeoutMs, maxBuffer: 4 * 1024 * 1024 });
+  let stdout: string;
+  try { ({ stdout } = await exec(process.execPath, [browserCli, "--session", session, "--ignore-https-errors", "--json", ...args], { env: { ...process.env, AGENT_BROWSER_DEFAULT_TIMEOUT: String(config.authBrowserWaitMs) }, timeout: config.browserCommandTimeoutMs, maxBuffer: 4 * 1024 * 1024 })); }
+  catch { throw new Error("Browser command failed; action URLs and credentials are omitted from diagnostics."); }
   const result = JSON.parse(stdout) as BrowserResult;
-  assert.equal(result.success, true, result.error ?? "agent-browser command failed");
+  assert.equal(result.success, true, "Browser command failed; action URLs and credentials are omitted from diagnostics.");
   return result;
 }
 async function freePort() {
@@ -55,6 +67,7 @@ async function shutdown() {
     await Promise.race([exited, delay(5000)]);
     if (!appExited) { app.kill("SIGKILL"); await exited; }
   }
+  if (proxy) await proxy.close();
   if (mail) await mail.close();
   if (database) await database.stop();
 }
@@ -80,6 +93,8 @@ async function main() {
   mail = await registrationFixture();
   const port = await freePort();
   const baseUrl = `http://127.0.0.1:${port}`;
+  proxy = await httpsProxy(baseUrl, mail.tls);
+  mail.environment.APP_ORIGIN = proxy.origin;
   app = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "packages/app", "--hostname", "127.0.0.1", "--port", String(port)], {
     env: { ...process.env, NODE_ENV: "production", ...mail.environment, DATABASE_URL: database.getConnectionUri() },
     stdio: ["ignore", "pipe", "pipe"],
@@ -99,11 +114,19 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
+  if (!adminOnly && !qaOnly) {
   await mail.test(baseUrl, database.getConnectionUri());
+  await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
+  await testAuthActions({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, baseUrl);
   await testHome(context);
-  await testAdmin(context);
-  await testInstaller();
-  console.log("Integration passed: ephemeral PostgreSQL, home page and admin 404.");
+  }
+  if (!qaOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
+  if (!adminOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
+  if (!adminOnly && !qaOnly) {
+    await testAuthOutage({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
+    await testInstaller();
+  }
+  console.log(adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : qaOnly ? "Independent QA integration passed with owned PostgreSQL/SMTP/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
 }
 try { await main(); }
 catch (error: unknown) {

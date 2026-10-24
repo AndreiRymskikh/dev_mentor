@@ -4,11 +4,16 @@
 
 Proposed: deliver issue [#4](https://github.com/AndreiRymskikh/dev_mentor/issues/4) using reusable server, persistence and UI primitives that can support the agreed catalog, availability, booking and feedback flows. The application already has HTTP envelopes, CRUD wiring, fail-closed security helpers, request-scoped Awilix composition and basic UI helpers; it has no production authentication or ORM runtime. Extend and validate those foundations through real users/authentication flows rather than introduce a parallel framework.
 
-Status: implementation in progress; phase/task completion and outstanding manual gates are tracked in [track.md](../../track.md). No security sign-off or overall completion is claimed. Source: [issue #4](https://github.com/AndreiRymskikh/dev_mentor/issues/4).
+Status: implementation and independent validation evidence recorded; final acceptance blocked by the mandatory dependency audit and pending owner manual testing; phase/task completion and outstanding manual gates are tracked in [track.md](../../track.md). No security sign-off or overall completion is claimed. Source: [issue #4](https://github.com/AndreiRymskikh/dev_mentor/issues/4).
 
 ## Confirmed decisions
 
 - Implementation started 2026-10-21; progress and manual phase gates live in [track.md](../../track.md). Owner override: defer GitHub authentication and deliver a button explaining it will be implemented soon. OAuth endpoints, ExternalIdentity/OAuthAttempt persistence, provider configuration and live-provider acceptance are outside this implementation. Remaining GitHub descriptions below are retained as deferred design. Completion is assessed against this reduced scope.
+- Phase3 API implementation verified 2026-10-22: verification, credential sessions and password recovery/reset are complete, with99 unit tests at100% coverage, Webpack production build and full disposable PostgreSQL/SMTP/HTTP/browser integration passing. Owner manual checkpoint, existing audit advisories, authentication screens, roles/admin and phase6 whole-feature review remain open. See [tracker](../../track.md) and [run evidence](../runs/2026-10-21-users-auth-implementation.md).
+
+- Phase4 P4.1 verified 2026-10-22: accessible registration/login/recovery screens and GitHub coming-soon feedback are complete. Shared form-state extraction preserves CrudForm, and one supported PostCSS pipeline now passes default Turbopack and Webpack builds.104 unit tests pass100% all four metrics; full disposable integration and native HTTPS browser desktop/mobile/focus checks pass. P4.2 verification/reset/account/logout screens are next; owner manual acceptance and existing audit advisories remain open. See [tracker](../../track.md) and [run evidence](../runs/2026-10-21-users-auth-implementation.md).
+
+- Phase4 P4.2 implementation is complete: fragment-token verification/reset, generic resend, server-authorized account/current roles and logout. Local lint/typecheck and112 unit tests at100% coverage passed; parent default production build and full disposable PostgreSQL/SMTP/production HTTP/native HTTPS browser/installer integration passed. Parent reviewed six desktop/320px token-page/account screenshots without visual findings. Owner manual acceptance, existing audit advisories and later phases remain open. No phase5 controls or GitHub OAuth were added. See [run evidence](../runs/2026-10-21-users-auth-implementation.md).
 
 - One user can hold developer, mentor and administrator roles simultaneously. Registration grants developer; users can add mentor themselves. Only administrators grant administrator, except the first-admin operator bootstrap.
 - Email verification and password recovery are included. Account linking/unlinking is deferred: credentials and GitHub collisions are rejected without merging identities or attaching new credentials.
@@ -164,3 +169,113 @@ Each phase is tested and leaves the app working. Future domain examples prove a 
 ## Review status and completion criteria
 
 Independent scope review completed; its phase-dependency, GitHub verification and bootstrap-order findings were corrected. This is a completed proposed specification, not an implemented feature or security sign-off. Implementation completion requires all issue #4 outcomes plus evidence that each added primitive is exercised by its feature consumer; no application framework milestone independent of real behavior. No lint/build/unit/integration checks have been run for this documentation task.
+
+### Phase 5 implementation note (2026-10-22)
+
+P5.1 source is ready for parent validation: verified developer mentor enrollment,
+serialized administrator mutations, UUID-only first-admin operator command and
+current-session role visibility. Last-admin protection counts verified administrator
+memberships, so an unverified grant cannot strand administration without an account
+able to sign in. Admin grants to unverified accounts remain allowed. Unit coverage
+is100% all four metrics; parent default production build and full disposable
+PostgreSQL/SMTP/production HTTP/native HTTPS browser/installer integration passed.
+Audit remains six high/five moderate existing-tooling findings and owner manual
+acceptance is pending. No GitHub OAuth or phase6 completion is claimed.
+
+
+P5.2 implementation note (2026-10-23): bounded strict administrator users query,
+allowlisted stable-page DTO and protected listing/role APIs are implemented and
+unit-verified (120 tests,100% all metrics), with lint/typecheck passed. Real owned
+PostgreSQL/HTTP assertions are wired for parent validation; complete integration,
+build and audit are not yet claimed. P5.3 UI and owner manual checkpoint remain
+pending. GitHub authentication remains deferred to its coming-soon button.
+
+P5.2 validation correction: actual PostgreSQL search failure SQLSTATE42601 was
+fixed with numeric bound strpos and ORM comparison; early disposable regression
+now passes under parent verification. Full HTTP validation exposed and corrected
+a fixed-window login quota fixture assumption; final full suite remains pending.
+New Next security advisory is tracked as owner-approved separate S1 patch after
+P5.3. No clean audit, CI or owner manual acceptance is claimed.
+
+P5.2 API implementation is complete: final production build and120-test100%
+coverage passed, as did actual application database/admin HTTP/auth browser stages.
+The complete integration run ended exit1 on installer reuse expectation with cleanup
+passed; no full-gate pass is claimed. Final phase validation follows P5.3 and S1.
+
+
+P5.3 source and tests prepared on 2026-10-23: protected per-page administrator
+authorization with raw duplicate-rejecting cookies and direct scoped service reads;
+account mentor enrollment/current-role navigation; bounded search/pagination and
+explicit role controls using existing UI. Client requests abort superseded queries
+and reject stale responses; access changes invalidate pending requests and clear
+private DOM, including delayed-list/self-demotion races. GitHub remains coming-soon.
+128 unit tests passed at100% statements/branches/functions/lines. Parent build,
+HTTPS browser/disposable PostgreSQL integration and screenshot review are pending;
+owner acceptance remains unchecked. Dependencies are unchanged; owner-approved S1
+Next security patch is a separate task after this commit. No phase6 completion.
+
+
+P5.3 completed by its task subagent and parent-reviewed on 2026-10-23. Final
+lint/typecheck passed;128 unit tests passed at100% all four coverage metrics
+(1412 statements/830 branches/360 functions/1041 lines). Parent default production
+build39975 and targeted disposable PostgreSQL/HTTPS/admin-browser run61794 passed
+(exit0), including permissions, real role changes, search/paging, last-admin
+protection, self-demotion, revoked sessions and owned-resource cleanup. Parent
+inspected final desktop/320px screenshots: readable columns, contained horizontal
+table scrolling and no document overflow. Bounded independent source review found
+no additional concrete issue; this is not phase6 whole-feature/security signoff.
+
+The full integration gate remains pending for the separately approved S1 Next
+security patch. Earlier full run59176 stopped on the corrected visible-content
+assertion; earlier41196 stopped on installer reuse, whose cause remains unresolved.
+Targeted success does not replace the full suite. Dependencies remain unchanged
+in P5.3. GitHub remains a coming-soon button. Owner manual checkpoint remains
+unchecked and follows S1; no issue completion, clean audit or CI pass is claimed.
+
+
+## Final acceptance matrix — 2026-10-24
+
+The implementation tracker uses six delivery phases; the original five-item design
+phasing above remains historical planning. GitHub OAuth is explicitly deferred by
+the owner. The following is the current reduced-scope acceptance record, not a
+release approval.
+
+Independent security review examined frozen804be590f0ee12ad408c916d3ccfc230e59d577e
+and independently ran all six configured commands. Its
+[committed report](../reviews/2026-10-23-users-auth-security.md) has verdict
+**request changes** because npm audit failed. Independent
+[QA evidence](../qa/2026-10-23-users-auth-qa.md) records real browser interaction
+and distinguishes injected transport states from actual outages.
+
+| Acceptance area | Automated/review evidence | Remaining acceptance |
+| --- | --- | --- |
+| Persistence and lifecycle | Disposable migrations, rollback refusal, constraints, lazy scoped ORM and error disposal passed. | Deployment backup/migration verification by operator. |
+| Registration and email | Generic202, bounded delivery, quotas, actual SMTP rejection/retry and clear accepted UI passed. | Controlled live SMTP delivery and owner UI check. |
+| Verification and recovery | Digest-only single-use tokens, purpose/expiry/replay, replacement races, reset/login locking and session revocation passed. Browser fragment/history/referrer checks passed. | Owner email-link/reset sequence. |
+| Sessions and API boundaries | JWT/cookie lifecycle, duplicate cookies, stale/revoked sessions, CSRF, strict forged-input denial and current role lookup passed. | Owner login/logout and deployment HTTPS/cookie check. |
+| Roles and administration | Bounded literal search/DTOs, authorization, mentor enrollment, bootstrap/admin races, last verified admin and self-demotion passed. | Owner two-account admin checkpoint. |
+| Maintenance and outages | Bounded expiry-only cleanup, locked/concurrent records, real database denial/recovery, independent health/home and SMTP failure passed. | Staging operational checks and retention schedule. |
+| UI and reusable primitives | Independent keyboard, long-content, loading/error/retry, duplicate-submit, empty/denied and desktop320px QA passed; home and installer preservation passed. | Owner final UI/assistive-technology checks. |
+| GitHub | Coming-soon feedback tested; no OAuth provider implementation required. | Deferred; no live-provider acceptance claimed. |
+| Validation and security approval | Lint/typecheck,131 unit tests at100% all four coverage metrics, production build and full integration passed on frozen804be59. | Oct24 audit fails for one high Undici finding; approving security review remains blocked. |
+
+Coverage measured1435 statements,833 branches,364 functions and1059 lines, all100%.
+The reviewer ran sessions68368/60107/90419/28796/80533 for the five passing commands
+and76926 for failing npm audit (zero critical/moderate). The separate approved
+Next16.4.2 and Vitest5.0.5 patches are implemented. The braces advisory was subsequently withdrawn; its six entries describe the
+historical Oct23 audit. Parent Oct24 audit41819 exits1 for one high Undici finding
+(8.12.1 installed,8.12.2 available through jsdom/testcontainers development paths).
+The owner explicitly chose unchanged versions and documentation. This scope
+decision does not waive the failing gate or approve the remaining dependency risk.
+See the dated security report addendum for fresh independent audit evidence. No CI result is claimed.
+
+[Final manual instructions](../../README.md#final-authentication-manual-acceptance)
+and [tracker](../../track.md) remain authoritative for outstanding owner results.
+P6.3 documentation is complete; the full gate and owner acceptance remain open.
+Do not move this spec to implemented while those requirements remain outstanding.
+
+Final independent audit refresh2026-10-24: reviewer tool chunk8b2188 exited1
+with zero critical/moderate and one high Undici entry; the dated security report
+addendum retains request changes. Production source/tests/dependencies are unchanged
+from frozen804be59. Documentation-only diff/path/anchor checks passed; no unchanged
+code gate was represented as newly rerun for this handoff.

@@ -20,6 +20,8 @@ test("home, root layout and Next config preserve existing behavior", () => {
   assert.match(html, /--font-geist-sans/);
   assert.equal(metadata.title, "Create Next App");
   assert.ok(nextConfig.transpilePackages?.includes("@devmentor/ui"));
+  assert.ok(nextConfig.turbopack?.root);
+  assert.equal(nextConfig.turbopack?.rules, undefined, "Tailwind uses the shared PostCSS pipeline rather than a second Turbopack transform");
 });
 test("public health uses the API envelope and a fresh request scope", async () => {
   const first = await GET(new Request("http://localhost/api/health"));
