@@ -6,6 +6,8 @@ For each lesson, record the problem, root cause or supporting evidence, recommen
 
 ## Lesson index
 
+- **Check account state before changing SMTP for missing verification mail.** Generic registration acceptance is not a delivery receipt: duplicate registration sends no new verification email and does not replace the existing password; verified accounts should sign in or use explicit password recovery. Check sanitized sink settings and the owner's supplied account state before changing configuration, and keep personal identifiers out of metadata. See [local triage](runs/2026-10-24-verification-email-triage.md).
+
 - **Verify installed runtime versions after security lock updates.** npm12.2.0 reported a successful install after a targeted Vitest lock refresh while actual package manifests still reported5.0.4. Verify actual installed manifests and runner version before claiming patch tests. Preserve unrelated dependencies, isolate stale package directories reversibly when necessary, and rerun checks on the installed patch. See [Vitest patch run](runs/2026-10-23-vitest-security-patch.md).
 
 - **Read raw cookies when duplicate rejection matters.** Installed Next's cookie store collapses duplicate names to the last value, so `cookies().getAll(name)` cannot reproduce the API's fail-closed duplicate handling. Server account authorization awaits raw `headers()` and reuses the same `readSessionCookie` parser as the API; test actual duplicate header text. See [phase4 run](runs/2026-10-21-users-auth-implementation.md).
