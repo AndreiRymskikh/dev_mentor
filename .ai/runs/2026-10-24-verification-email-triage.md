@@ -14,3 +14,11 @@ Investigate the owner's missing Mailpit verification email without exposing cred
 - Browser observation was denied by browser policy; no alternate browser or indirect page-reading workaround was attempted. Diagnosis used independently authorized service-side configuration and account-state checks.
 
 No production code changed and no verification/reset email was sent. Unit/build/integration suites were not rerun for this read-only diagnosis. Metadata diff whitespace was checked. Personal account identifiers are intentionally omitted.
+
+## Follow-up: existing unverified account
+
+The owner confirmed password recovery worked and supplied a different account for the registration test. Parameterized read-only lookup showed that this account also already existed, but was unverified with no active verification token. It was therefore a duplicate registration, not a newly created account; the original credential remains unchanged.
+
+Requested a new verification email through the normal local `/api/auth/verification/request` endpoint with its required CSRF header and origin. The endpoint returned202 with success. A Mailpit metadata-only check confirmed a matching verification message arrived; no token or message body was read or logged. The owner must open the email and complete verification manually. No verification confirmation, password change, account creation or database repair was performed.
+
+Use a never-registered address to exercise first-time registration, or the verification resend flow to reuse an unverified account. No production change was needed. Checks were the actual resend response, local mailbox receipt and metadata diff whitespace; unit/build/integration suites were not rerun for this operational diagnosis.
