@@ -553,6 +553,20 @@ resets as maintenance or outage recovery.
 
 ### Final authentication manual acceptance
 
+Implementation and independent QA are ready for this owner checkpoint. The
+[security review](.ai/reviews/2026-10-23-users-auth-security.md) ran lint, typecheck,
+131 unit tests at100% coverage, production build and full disposable integration
+successfully on804be59. The historical Oct23 audit failed for six braces entries; that advisory was
+subsequently withdrawn. The Oct24 audit still exits1 for one high Undici finding,
+with zero critical/moderate findings. The security review’s request-changes verdict
+remains in force.
+The owner chose to leave dependency versions unchanged and document this finding;
+this is not an audit waiver or release approval.
+The [QA report](.ai/qa/2026-10-23-users-auth-qa.md) and
+[acceptance matrix](.ai/specs/2026-10-16-users-auth-application-primitives.md#final-acceptance-matrix--2026-10-24)
+separate automated evidence from pending manual/deployment checks. No clean audit,
+CI pass or release approval is implied.
+
 After restarting the application, repeat the [phase 5 browser checkpoint](#phase-5-manual-browser-checkpoint)
 and verification/reset sequences above with controlled test accounts. Check visible
 registration acceptance and verification-before-login guidance, real email delivery,
@@ -573,3 +587,19 @@ Record the owner result explicitly in `track.md`; the AI's automated checks and
 independent review do not constitute owner manual acceptance. Outstanding audit
 advisories and any deployment-specific SMTP/backup/proxy checks must be reviewed
 before production activation; no clean audit or live-service verification is implied.
+
+
+Use this final owner checklist and record results explicitly in `track.md`:
+
+- [ ] Restart the app and complete registration, visible acceptance, verification
+  and sign-in with a controlled inbox; confirm GitHub's coming-soon feedback.
+- [ ] Complete password recovery, token replay denial, old-password/session denial
+  and logout; check fragment removal and useful invalid-link recovery.
+- [ ] Complete the two-account phase5 checkpoint: mentor enrollment, admin search,
+  grants/revocations, last verified admin and self-demotion; check keyboard/mobile UI.
+- [ ] On isolated staging, verify live SMTP rejection/retry and database outage/recovery;
+  review HTTPS, secrets, migration/backup and retention/maintenance settings.
+- [ ] Record any assistive-technology checks and defects, or explicitly record limits.
+
+These boxes are intentionally pending. Manual success does not clear the separate
+mandatory audit blocker or change the independent request-changes verdict.

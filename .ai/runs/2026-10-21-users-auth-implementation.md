@@ -741,3 +741,48 @@ P6.2 review/QA execution is done; P6.3 complete clean gate, spec acceptance and
 owner final manual testing remain open. GitHub stays coming-soon. The spec is not
 moved to implemented. The review update also removes the duplicate unchecked S2
 tracker row; the actual committed5.0.5 security task remains marked done once.
+
+
+## P6.3 final evidence and manual handoff — 2026-10-24
+
+Resumed this original run after the owner's continuation; no implementation or
+dependency change followed the frozen independent review. P6.1 commit180dbf1,
+approved S2 patch1b8245e, independent QA804be59 and security report60a1ffc are
+recorded. Added a reduced-scope acceptance matrix to the active specification,
+final owner checklist/evidence links to README, current admin/maintenance contracts
+to BACKWARD_COMPATIBILITY and precise partial/composite status to track.md.
+
+Independent reviewer evidence is attributed to frozen804be59: lint68368,
+typecheck60107, coverage90419 (131 tests;100% statements1435/1435,
+branches833/833, functions364/364, lines1059/1059), build28796 and full
+integration80533 passed. Audit76926 exited1 with zero critical/moderate and
+six high entries for the single unpatched braces advisory. The reviewer found no
+additional concrete auth production defect but retains **request changes**;
+P6.3 does not override this verdict or waive the audit gate.
+
+Only documentation validation is needed for this update; the six commands were
+not rerun by the documentation subagent and no CI result is claimed. Relative
+links/anchors and diff whitespace are checked before parent handoff. P6.3
+evidence/runbook subtask is complete; full validation, approving review and owner
+acceptance remain open. Specification stays in active specs. Pause for final owner
+[manual testing](../../README.md#final-authentication-manual-acceptance). No remote
+tracker action, PR, push, developer database change or live-service claim is made.
+GitHub Auth remains a coming-soon button.
+
+
+P6.3 Oct24 audit reconciliation: fresh parent audit41819 exits1 for one high
+Undici finding, zero critical/moderate. The six braces entries from the independent
+Oct23 review are historical; the upstream advisory was withdrawn Oct23 as not
+practically exploitable. Installed Undici8.12.1 has an available8.12.2 patch in
+the jsdom/testcontainers development dependency paths. The owner explicitly chose
+“Leave versions unchanged and document it.” No S3 patch was implemented. This is
+a scope choice, not a waiver of audit failure or risk approval. The independent
+reviewer owns a fresh audit-only dated addendum; the unchanged source's five other
+passing configured checks above are not represented as newly rerun on Oct24.
+P6.3 full gate and owner acceptance remain unchecked.
+
+Final independent audit refresh2026-10-24: reviewer tool chunk8b2188 exited1
+with zero critical/moderate and one high Undici entry; the dated security report
+addendum retains request changes. Production source/tests/dependencies are unchanged
+from frozen804be59. Documentation-only diff/path/anchor checks passed; no unchanged
+code gate was represented as newly rerun for this handoff.

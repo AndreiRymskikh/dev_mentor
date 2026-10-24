@@ -4,7 +4,7 @@
 
 Proposed: deliver issue [#4](https://github.com/AndreiRymskikh/dev_mentor/issues/4) using reusable server, persistence and UI primitives that can support the agreed catalog, availability, booking and feedback flows. The application already has HTTP envelopes, CRUD wiring, fail-closed security helpers, request-scoped Awilix composition and basic UI helpers; it has no production authentication or ORM runtime. Extend and validate those foundations through real users/authentication flows rather than introduce a parallel framework.
 
-Status: implementation in progress; phase/task completion and outstanding manual gates are tracked in [track.md](../../track.md). No security sign-off or overall completion is claimed. Source: [issue #4](https://github.com/AndreiRymskikh/dev_mentor/issues/4).
+Status: implementation and independent validation evidence recorded; final acceptance blocked by the mandatory dependency audit and pending owner manual testing; phase/task completion and outstanding manual gates are tracked in [track.md](../../track.md). No security sign-off or overall completion is claimed. Source: [issue #4](https://github.com/AndreiRymskikh/dev_mentor/issues/4).
 
 ## Confirmed decisions
 
@@ -231,3 +231,51 @@ assertion; earlier41196 stopped on installer reuse, whose cause remains unresolv
 Targeted success does not replace the full suite. Dependencies remain unchanged
 in P5.3. GitHub remains a coming-soon button. Owner manual checkpoint remains
 unchecked and follows S1; no issue completion, clean audit or CI pass is claimed.
+
+
+## Final acceptance matrix — 2026-10-24
+
+The implementation tracker uses six delivery phases; the original five-item design
+phasing above remains historical planning. GitHub OAuth is explicitly deferred by
+the owner. The following is the current reduced-scope acceptance record, not a
+release approval.
+
+Independent security review examined frozen804be590f0ee12ad408c916d3ccfc230e59d577e
+and independently ran all six configured commands. Its
+[committed report](../reviews/2026-10-23-users-auth-security.md) has verdict
+**request changes** because npm audit failed. Independent
+[QA evidence](../qa/2026-10-23-users-auth-qa.md) records real browser interaction
+and distinguishes injected transport states from actual outages.
+
+| Acceptance area | Automated/review evidence | Remaining acceptance |
+| --- | --- | --- |
+| Persistence and lifecycle | Disposable migrations, rollback refusal, constraints, lazy scoped ORM and error disposal passed. | Deployment backup/migration verification by operator. |
+| Registration and email | Generic202, bounded delivery, quotas, actual SMTP rejection/retry and clear accepted UI passed. | Controlled live SMTP delivery and owner UI check. |
+| Verification and recovery | Digest-only single-use tokens, purpose/expiry/replay, replacement races, reset/login locking and session revocation passed. Browser fragment/history/referrer checks passed. | Owner email-link/reset sequence. |
+| Sessions and API boundaries | JWT/cookie lifecycle, duplicate cookies, stale/revoked sessions, CSRF, strict forged-input denial and current role lookup passed. | Owner login/logout and deployment HTTPS/cookie check. |
+| Roles and administration | Bounded literal search/DTOs, authorization, mentor enrollment, bootstrap/admin races, last verified admin and self-demotion passed. | Owner two-account admin checkpoint. |
+| Maintenance and outages | Bounded expiry-only cleanup, locked/concurrent records, real database denial/recovery, independent health/home and SMTP failure passed. | Staging operational checks and retention schedule. |
+| UI and reusable primitives | Independent keyboard, long-content, loading/error/retry, duplicate-submit, empty/denied and desktop320px QA passed; home and installer preservation passed. | Owner final UI/assistive-technology checks. |
+| GitHub | Coming-soon feedback tested; no OAuth provider implementation required. | Deferred; no live-provider acceptance claimed. |
+| Validation and security approval | Lint/typecheck,131 unit tests at100% all four coverage metrics, production build and full integration passed on frozen804be59. | Oct24 audit fails for one high Undici finding; approving security review remains blocked. |
+
+Coverage measured1435 statements,833 branches,364 functions and1059 lines, all100%.
+The reviewer ran sessions68368/60107/90419/28796/80533 for the five passing commands
+and76926 for failing npm audit (zero critical/moderate). The separate approved
+Next16.4.2 and Vitest5.0.5 patches are implemented. The braces advisory was subsequently withdrawn; its six entries describe the
+historical Oct23 audit. Parent Oct24 audit41819 exits1 for one high Undici finding
+(8.12.1 installed,8.12.2 available through jsdom/testcontainers development paths).
+The owner explicitly chose unchanged versions and documentation. This scope
+decision does not waive the failing gate or approve the remaining dependency risk.
+See the dated security report addendum for fresh independent audit evidence. No CI result is claimed.
+
+[Final manual instructions](../../README.md#final-authentication-manual-acceptance)
+and [tracker](../../track.md) remain authoritative for outstanding owner results.
+P6.3 documentation is complete; the full gate and owner acceptance remain open.
+Do not move this spec to implemented while those requirements remain outstanding.
+
+Final independent audit refresh2026-10-24: reviewer tool chunk8b2188 exited1
+with zero critical/moderate and one high Undici entry; the dated security report
+addendum retains request changes. Production source/tests/dependencies are unchanged
+from frozen804be59. Documentation-only diff/path/anchor checks passed; no unchanged
+code gate was represented as newly rerun for this handoff.

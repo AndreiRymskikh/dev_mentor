@@ -35,15 +35,18 @@ Each task uses a subagent, meaningful tests and a separate commit. Pause after e
 - [ ] Validation, race/browser evidence and owner manual checkpoint passed.
 
 ## Approved security follow-up
-- [x] S2 Patch the Vitest5 browser-test server to5.0.5 with aligned existing packages, separate subagent and commit (owner approved2026-10-23); lint/typecheck,131-test100% coverage,92 both-theme Storybook tests and build passed. Audit retains six high findings; final application integration follows under P6.2.
+- [x] S2 Patch the Vitest5 browser-test server to5.0.5 with aligned existing packages, separate subagent and commit (owner approved2026-10-23); lint/typecheck,131-test100% coverage,92 both-theme Storybook tests and build passed. The Oct23 audit retained six high findings; final application integration passed under independent P6.2 review. See the Oct24 audit update below.
 - [x] S1 Upgrade Next.js to a compatible security patch after P5.3; separate subagent and commit before the manual handoff (owner approved2026-10-23).
 
 ## Phase 6 — Final validation and independent review (current)
 - [x] P6.1 Complete database/mail/browser security/outage scenarios and deployment/operator docs.
 - [x] P6.2 Independent security review and QA through subagents; review performed, with the audit blocker retained rather than approved.
   - [x] Independent browser QA: dedicated real/synthetic scenario, responsive evidence inspection and successful owned focused run; report in `.ai/qa/2026-10-23-users-auth-qa.md`.
-  - [x] Independent whole-feature security review and all configured gate commands executed; verdict **request changes** because the mandatory audit fails. See `.ai/reviews/2026-10-23-users-auth-security.md`.
-- [ ] P6.3 Full validation gate, actual evidence, spec acceptance updates; move spec only after required work is complete.
+  - [x] Independent whole-feature security review and all configured gate commands executed; verdict **request changes** because the mandatory audit fails; see the dated report update for the current advisory. See `.ai/reviews/2026-10-23-users-auth-security.md`.
+- [ ] P6.3 Full validation gate and final acceptance; blocked by the failing mandatory audit and pending owner acceptance.
+  - [x] P6.3 evidence/runbook subtask: reconcile acceptance matrix, actual independent results and final manual instructions; documentation completed for separate commit.
+  - [ ] Clean dependency audit and an approving independent review.
+  - [ ] Move specification to implemented only after all required acceptance is complete.
 - [ ] Owner final manual acceptance passed.
 
 ## Evidence
@@ -280,3 +283,33 @@ moderate; no clean audit or CI result is claimed. S2 is separately approved
 and unchecked, followed by independent P6.2 review/QA and P6.3 final evidence.
 Owner final manual acceptance remains unchecked, the specification is not moved
 to implemented, and GitHub Auth remains a coming-soon button.
+
+
+P6.3 final evidence handoff — 2026-10-24: resumed the original run and reconciled
+the [spec acceptance matrix](.ai/specs/2026-10-16-users-auth-application-primitives.md#final-acceptance-matrix--2026-10-24),
+[security review](.ai/reviews/2026-10-23-users-auth-security.md) and
+[independent QA](.ai/qa/2026-10-23-users-auth-qa.md). P6.1 is committed180dbf1,
+S2 patch1b8245e, QA804be59 and security report60a1ffc. The reviewer ran all six
+configured commands on frozen804be59: five passed; npm audit exited1 with six high
+braces entries and zero critical/moderate findings. The request-changes verdict
+remains in force; no risk waiver, CI pass or clean full gate is claimed.
+P6.3 evidence/runbook work is complete with this documentation update, but the
+combined P6.3 gate remains unchecked. All owner manual checkpoints remain
+unconfirmed. Stop for [final manual testing](README.md#final-authentication-manual-acceptance);
+GitHub remains coming-soon and the spec stays active.
+
+
+Oct24 audit update: parent audit41819 exited1 with zero critical/moderate and one
+high Undici finding. The former six braces entries are historical: the reviewed
+[braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) was withdrawn
+Oct23 as not practically exploitable. Undici8.12.1 remains installed;8.12.2 is
+the available patch through the jsdom/testcontainers development dependency paths.
+The owner explicitly chose to leave versions unchanged and document this finding.
+That scope decision does not waive the mandatory audit or approve residual risk.
+See the dated independent review addendum for its fresh audit evidence.
+
+Final independent audit refresh2026-10-24: reviewer tool chunk8b2188 exited1
+with zero critical/moderate and one high Undici entry; the dated security report
+addendum retains request changes. Production source/tests/dependencies are unchanged
+from frozen804be59. Documentation-only diff/path/anchor checks passed; no unchanged
+code gate was represented as newly rerun for this handoff.

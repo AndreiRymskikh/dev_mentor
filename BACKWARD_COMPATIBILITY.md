@@ -6,7 +6,7 @@ DevMentor is a private, unreleased npm-workspace application. These current cont
 | --- | --- | --- |
 | Package exports | @devmentor/core HTTP/container/config entry points, db repository contracts, ui PageShell and backend API/forms/tables/feedback entry points; app → core → db and standalone UI | Update all consumers together; retain aliases when consumers cannot migrate atomically; typecheck and test the contract. |
 | HTTP | GET /api/health is database-independent and returns the standard success envelope. Failures use ok:false and error.code/message/optional fieldErrors with appropriate status; unexpected failures never expose raw errors. | Document response/status changes and update client helpers, route and integration tests in the same change. |
-| UI routes | Home content/assets remain available. /admin intentionally returns HTTP 404 until the owner-approved admin feature exists. | Replace admin's 404 contract with specified auth/ownership scenarios when introducing that feature; update browser tests. |
+| UI routes | Home content/assets remain available. /admin and /admin/users require current administrator membership; anonymous visitors redirect to login, non-admins see access denied, authorized /admin redirects to /admin/users. | Preserve server authorization and current-role checks; update browser/API denial and permitted-operation tests together. |
 | Security helpers | Session resolution fails closed; ownership and mutation CSRF checks deny invalid requests. | Treat weakened auth, ownership or CSRF behavior as a security change requiring explicit review, failure-path tests and risk-high review/QA. |
 | Commands | Root dev/start/build/lint/typecheck/test/coverage/integration scripts, argument forwarding, and database lifecycle/migration script names | Preserve delegating aliases when renaming; update CI, README and pipeline validation configuration together. Migration up/down commands use explicit MikroORM configuration; DATABASE_URL is required in the process environment. No seeders exist yet. |
 | Local PostgreSQL | Compose uses PostgreSQL 18, a persistent postgres_data volume and localhost-only port binding. Environment template names POSTGRES_DB/USER/PASSWORD/PORT and DATABASE_URL are configuration contracts. | Never reset volumes as part of routine changes. Major upgrades require reviewed migration or backup/restore; keep real credentials ignored. |
@@ -37,4 +37,19 @@ Session resolution requires current verified User and unrevoked/unexpired AuthSe
 with current memberships; concrete lookup infrastructure failures return503.
 PostgreSQL rate buckets add narrow900-second login windows; existing registration/email
 windows retain3600-second defaults. Logout revokes persisted sessions and expires
-cookies with identical attributes. GitHub and admin UI remain deferred; /admin stays404.
+cookies with identical attributes. At the phase 3 checkpoint, GitHub and admin UI were deferred and /admin stayed404. Phase 5 supersedes that historical admin contract with the protected routes above. GitHub remains coming-soon only.
+
+
+## Roles and operator commands (phases 5–6)
+
+Administrator lists expose only the bounded allowlisted user DTO. Role mutations
+retain developer membership and serialize current-actor authorization and the last
+verified-administrator invariant. Mentor enrollment is verified, self-service and
+idempotent. The first-admin UUID-only bootstrap shares the administrator lock;
+later grants use authenticated administration. No arbitrary user CRUD is exposed.
+
+`auth:maintain` accepts no arguments and deletes only expired operational rows,
+up to500 per table per invocation, with bound timeouts and locked-row skipping.
+It preserves identities, credentials, memberships and unexpired records. These
+commands require an explicitly selected DATABASE_URL; they never reset Compose
+volumes. See the [operator runbook](README.md#authentication-deployment-and-operator-runbook).
