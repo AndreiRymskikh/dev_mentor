@@ -1,0 +1,18 @@
+@import "@devmentor/ui/tokens.css";
+@import "@devmentor/ui/controls.css";
+
+.dm-mentor {
+  width: calc(100% - 2 * var(--space-page-gutter));
+  margin-block: var(--space-section);
+  padding: var(--space-panel);
+  color: var(--foreground);
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  font-family: var(--font-body);
+  line-height: var(--line-body);
+  overflow-wrap: anywhere;
+}
+.dm-mentor.gap-group, .dm-mentor .gap-group { gap: var(--space-group); }
+.dm-mentor h1 { font-size: var(--font-size-page); font-weight: var(--weight-heading); }
+@media (max-width: 480px) { .dm-mentor h1 { font-size: var(--font-size-section); } }

@@ -603,3 +603,33 @@ Use this final owner checklist and record results explicitly in `track.md`:
 
 These boxes are intentionally pending. Manual success does not clear the separate
 mandatory audit blocker or change the independent request-changes verdict.
+
+## Optional mentor invitations
+
+Verified self-service mentor enrollment remains available. An operator may also create a single-use
+invitation for a verified account's exact normalized email. With an explicitly selected `DATABASE_URL`
+and bare HTTP(S) `APP_ORIGIN`, run:
+
+```sh
+npm run invite -- create operator-label engineer@example.test react typescript
+npm run invite -- resend operator-label INVITATION_UUID
+npm run invite -- revoke operator-label INVITATION_UUID
+```
+
+Operator labels use 1–64 letters, digits, underscores or hyphens. Tags are `typescript`, `react`,
+`python`, `ai-agents` (no duplicates). Successful commands print a token-free audit line containing
+only operation, operator label and invitation UUID. Create/resend separately print the raw link once;
+share that link privately and never copy it into an audit note or tracker comment. The app stores only
+its SHA-256 digest. Resend invalidates the old link; accepted/revoked invitations cannot be changed.
+Expired pending invitations must be resent or revoked rather than duplicated. Existing active mentors
+cannot receive a new invitation; role removal remains an authenticated administrative operation.
+
+`INVITATION_TTL_DAYS` and `MENTOR_PUBLISH_WINDOW_DAYS` default to 14, accept integer values 1–365,
+and are snapshotted when creating/resending and accepting respectively. Updating defaults does not
+move existing deadlines. After signing in through the invitation's continuation link, explicitly
+accept; `/mentor` shows the first publication deadline in the viewer's timezone. Self-service mentors
+have no artificial invitation deadline.
+
+Migration `Migration202610260001` adds invitations and the mentor-profile floor. Its down migration
+locks both tables and refuses when either contains data. For production rollback retain the schema
+and roll back application routes; never delete invitation/profile data to force rollback.

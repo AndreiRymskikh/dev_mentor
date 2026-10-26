@@ -36,12 +36,29 @@ The source specs describe a different historical tree. Current roles are develop
 
 Not yet run: lint, typecheck, coverage, build, integration, audit, review and UI QA. Initial checkout clean; source specs are now committed on develop (38c99b0), superseding the earlier issue's durability blocker. GitHub connector cannot access this repository; authenticated gh works outside sandbox.
 
+## Latest evidence — slice 1
+
+Implemented invitation/profile schema, partial uniqueness and acceptance checks; digest-only persistence;
+user-before-invitation locking; create/accept/revoke/resend; strict validation and bounded day settings;
+operator audit output; typed DI; no-store API routes; invitation page/continuation; UTC hydration and
+mentor deadline page. Self-service enrollment remains available.
+
+Passed: lint, typecheck, 145 unit tests with 100% statements/branches/functions/lines (112 production
+files); isolated disposable PostgreSQL migration up/down, empty schema diff, identity denial,
+concurrent create/accept, accept-versus-revoke, deadline preservation and existing-session resolution.
+Standard build failed: Turbopack CSS worker local-port EPERM persists after elevated retry. Supported
+Webpack production build passed; full integration is running against it. CSS styling was subsequently
+adapted to the shared token/controls contract and needs a fresh build/browser pass. Audit/review/QA
+not yet completed. Temporary standalone DB harness is untracked and must not enter the PR.
+
 ## Progress
 
-- [ ] 1.1 Reconcile contracts and tracker mapping.
-- [ ] 1.2 Implement invitation persistence.
-- [ ] 1.3 Implement services, operator command and HTTP wiring.
-- [ ] 1.4 Implement invitation and mentor deadline UI.
+PR: #9
+
+- [x] 1.1 Reconcile contracts and tracker mapping.
+- [x] 1.2 Implement invitation persistence.
+- [x] 1.3 Implement services, operator command and HTTP wiring.
+- [x] 1.4 Implement invitation and mentor deadline UI.
 - [ ] 1.5 Verify and finalize invitation PR.
 - [ ] 2.1 Implement profile domain and persistence.
 - [ ] 2.2 Implement owner/public services and routes.

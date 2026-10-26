@@ -24,3 +24,8 @@ export { RolesRepository, ADMIN_MEMBERSHIP_LOCK, type RoleChangeResult, type Des
 export { AdminUsersRepository, type AdminUserDto, type AdminUsersPage, type AdminListQuery } from "./repositories/users/admin-users.repository";
 
 export { AuthMaintenanceRepository, type AuthMaintenanceCounts } from "./repositories/maintenance/auth-maintenance.repository";
+
+export { Invitation } from "./entities/invitations/invitation.entity";
+export { MentorProfile } from "./entities/mentors/mentor-profile.entity";
+
+export { InvitationRepository, type InvitationRecord, type InvitationResult } from "./repositories/invitations/invitation.repository";

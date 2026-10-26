@@ -41,7 +41,8 @@
     "check:tokens": "npm run check:tokens --workspace @devmentor/ui",
     "test:foundations": "npm run test:foundations --workspace @devmentor/ui",
     "typecheck:storybook": "npm run typecheck:storybook --workspace @devmentor/ui",
-    "verify:storybook": "npm run verify:storybook --workspace @devmentor/ui"
+    "verify:storybook": "npm run verify:storybook --workspace @devmentor/ui",
+    "invite": "tsx --tsconfig tsconfig.base.json scripts/invite.mts"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

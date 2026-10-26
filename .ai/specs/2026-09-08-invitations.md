@@ -1,5 +1,22 @@
 # DevMentor — E02-S01: Invitations and the mentor role grant
 
+## Implementation decisions — 2026-10-26
+
+Owner-approved adaptation for this checkout: retain verified self-service mentor enrollment and add
+**optional** invitations. All historical invitation-only / absent-enrollment criteria below are
+superseded. Both paths keep developer membership and reach mentor onboarding/profile editing.
+Current roles are `developer`, `mentor`, `administrator`. Persisted sessions reload current roles;
+there is no `sessionVersion` and invitation acceptance preserves the existing session without
+cookie rotation. Tests must prove continued access with the original cookie.
+
+Local tracker: epic [#6](https://github.com/AndreiRymskikh/dev_mentor/issues/6), invitations
+[#7](https://github.com/AndreiRymskikh/dev_mentor/issues/7), mentor page
+[#8](https://github.com/AndreiRymskikh/dev_mentor/issues/8). Historical external issue numbers are
+provenance only. Current auth/test/shadcn foundations are implemented. No mentor profile or seeder
+exists: introduce only the real fields needed by each slice, using the current DB runtime and
+`src/migrations` registry. Keep off-site payment scope; prices/availability are outside this run.
+
+
 Date: 2026-09-08
 Status: active
 Issue: [#15](https://github.com/open-mercato/ai_techleaders_project/issues/15) (epic #8)

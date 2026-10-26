@@ -53,3 +53,20 @@ up to500 per table per invocation, with bound timeouts and locked-row skipping.
 It preserves identities, credentials, memberships and unexpired records. These
 commands require an explicitly selected DATABASE_URL; they never reset Compose
 volumes. See the [operator runbook](README.md#authentication-deployment-and-operator-runbook).
+
+## Optional invitations (E02 slice 1)
+
+Owner decision 2026-10-26 preserves verified self-service enrollment. Invitation acceptance adds mentor
+membership transactionally to the matching persisted verified email, retains developer/administrator
+roles and does not revoke or reissue existing sessions: current session resolution reads live roles.
+`GET /api/invitations/[token]` and `POST /api/invitations/[token]/accept` use no-store envelopes; every
+unknown/expired/revoked/consumed token returns the same 404. Mismatches return 403. Raw tokens never
+enter persistence or audit logs. Owner-only `GET /api/mentors/me/onboarding` returns the first deadline
+or null for self-service enrollment. `/mentor` requires current mentor membership.
+
+The additive invitation/profile migration and its non-destructive rollback guard are documented in
+README. `invite` and the two bounded day settings are additive operator contracts. Local issue #6
+tracks the epic, #7 invitations, #8 profile publication; external historical issue numbers are not
+local dependencies. Login continuation accepts only `/invitation/<43-character-token>` and otherwise
+retains `/account`, preventing an open redirect. UI time rendering begins in UTC on the server and
+hydrates to the viewer's zone without replacing the actual instant.

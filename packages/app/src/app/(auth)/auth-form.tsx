@@ -31,7 +31,7 @@ export function AuthForm({ mode }: { mode: keyof typeof definitions }) {
       if (!result.ok && result.error.code === "UNAUTHORIZED") return { ...result, error: { ...result.error, message: "Unable to sign in. Check your email and password, and verify your email before signing in." } };
       return result;
     },
-    onSuccess: () => { setSuccess(true); if (mode === "login") router.replace("/account"); },
+    onSuccess: () => { setSuccess(true); if (mode === "login") { const returnTo = new URLSearchParams(window.location.search).get("returnTo"); router.replace(returnTo && /^\/invitation\/[A-Za-z0-9_-]{43}$/.test(returnTo) ? returnTo : "/account"); } },
   });
   useEffect(() => { form.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus(); }, [errors]);
   const accepted = mode === "register" && success;

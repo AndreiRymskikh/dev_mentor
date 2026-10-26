@@ -17,5 +17,5 @@ export default async function AccountPage() {
     return <div role="alert"><h1>Account temporarily unavailable</h1><p>We could not load your account. Please try again.</p><Link href="/account">Try again</Link></div>;
   }
   if (!principal) redirect("/login");
-  return <div className="grid gap-group"><h1 className="text-3xl font-semibold">Your account</h1><p>{principal.displayName}</p><h2>Roles</h2><ul>{principal.roles.map((role) => <li key={role}>{role}</li>)}</ul>{!principal.roles.includes("mentor") && <MentorButton />}{principal.roles.includes("administrator") && <Link href="/admin/users">Manage users</Link>}<LogoutButton /></div>;
+  return <div className="grid gap-group"><h1 className="text-3xl font-semibold">Your account</h1><p>{principal.displayName}</p><h2>Roles</h2><ul>{principal.roles.map((role) => <li key={role}>{role}</li>)}</ul>{!principal.roles.includes("mentor") && <MentorButton />}{principal.roles.includes("administrator") && <Link href="/admin/users">Manage users</Link>}{principal.roles.includes("mentor") && <Link href="/mentor">Your mentor home</Link>}<LogoutButton /></div>;
 }
