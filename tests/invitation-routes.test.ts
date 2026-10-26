@@ -15,7 +15,7 @@ test("invitation routes preserve safe envelopes, CSRF, authenticated identity an
   expect((await POST(request(),context)).status).toBe(401);resolve.mockResolvedValue({id,displayName:"Invited",roles:["developer"]});
   expect((await POST(request("{}","0"),context)).status).toBe(403);
   for(const body of ["null","[]",'"bad"','{"role":"mentor"}'])expect((await POST(request(body),context)).status).toBe(400);
-  accept.mockResolvedValue({initialPublishDueAt:"soon"});const response=await POST(request(),context);expect(response.status).toBe(200);expect(accept).toHaveBeenLastCalledWith(id,token);expect(response.headers.get("set-cookie")).toBeNull();
+  accept.mockResolvedValue({publishDueAt:"soon"});const response=await POST(request(),context);expect(response.status).toBe(200);expect(accept).toHaveBeenLastCalledWith(id,token);expect(response.headers.get("set-cookie")).toBeNull();
   const status=vi.spyOn(InvitationService.prototype,"onboarding").mockResolvedValue({initialPublishDueAt:null});expect((await onboarding(new Request("http://localhost"))).status).toBe(200);expect(status).toHaveBeenCalledWith(id);resolve.mockResolvedValue(null);await onboarding(new Request("http://localhost"));expect(status).toHaveBeenLastCalledWith(null);
   const container=createAppContainer();const a=container.createScope(),b=container.createScope();expect(a.cradle.invitationService).not.toBe(b.cradle.invitationService);expect(a.cradle.invitationRepository).not.toBe(b.cradle.invitationRepository);await a.dispose();await b.dispose();await container.dispose();
 });

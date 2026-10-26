@@ -122,7 +122,7 @@ async function main() {
   await testAuthActions({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, baseUrl);
   await testHome(context);
   }
-  if (!adminOnly && !qaOnly) await testInvitationFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET);
+  if (!adminOnly && !qaOnly) await testInvitationFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
   if (!qaOnly && !invitationsOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
   if (!adminOnly && !invitationsOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
   if (!adminOnly && !qaOnly && !invitationsOnly) {

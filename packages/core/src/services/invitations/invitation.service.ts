@@ -40,7 +40,7 @@ export class InvitationService {
     const now = this.clock(); const dueAt = new Date(now.getTime() + this.settings().MENTOR_PUBLISH_WINDOW_DAYS * 86400000);
     this.requireResult(await this.available(() => this.repository.accept(actor.data, hashToken(token.data), now, dueAt)));
     this.emit("invitations.invitation.accepted");
-    return { initialPublishDueAt: dueAt.toISOString() };
+    return { publishDueAt: dueAt.toISOString() };
   }
   async change(input: unknown, resend: boolean) {
     const parsed = invitationIdSchema.safeParse(input);

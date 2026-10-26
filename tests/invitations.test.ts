@@ -27,7 +27,7 @@ test("service validates normalized explicit inputs and maps each transactional o
   const { ForbiddenError } = await import("@devmentor/core/http"); repo.lookup.mockRejectedValueOnce(new ForbiddenError()); await expect(service.lookup(token)).rejects.toMatchObject({status:403});
   for (const actor of [null,"bad"]) await expect(service.accept(actor, token)).rejects.toMatchObject({ status: 401 });
   await expect(service.accept(id, "bad")).rejects.toMatchObject({ status: 404 });
-  expect(await service.accept(id.toUpperCase(), token)).toEqual({ initialPublishDueAt: "2026-11-09T12:00:00.000Z" }); expect(repo.accept).toHaveBeenCalledWith(id, hashToken(token), now, new Date("2026-11-09T12:00:00Z")); expect(emit).toHaveBeenCalledWith("invitations.invitation.accepted");
+  expect(await service.accept(id.toUpperCase(), token)).toEqual({ publishDueAt: "2026-11-09T12:00:00.000Z" }); expect(repo.accept).toHaveBeenCalledWith(id, hashToken(token), now, new Date("2026-11-09T12:00:00Z")); expect(emit).toHaveBeenCalledWith("invitations.invitation.accepted");
   await expect(service.change("bad", false)).rejects.toMatchObject({ status: 400 });
   expect(await service.change(id, false)).toEqual({ id, token: null }); expect(repo.change).toHaveBeenLastCalledWith(id, now, undefined);
   const rotated = await service.change(id.toUpperCase(), true); expect(rotated.token).toHaveLength(43); expect(repo.change).toHaveBeenLastCalledWith(id, now, { tokenHash: hashToken(rotated.token!), expiresAt: new Date("2026-11-09T12:00:00Z") });

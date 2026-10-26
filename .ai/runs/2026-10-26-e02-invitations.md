@@ -64,3 +64,18 @@ PR: #9
 - [ ] 2.2 Implement owner/public services and routes.
 - [ ] 2.3 Implement profile editor and public page.
 - [ ] 2.4 Verify and finalize profile PR.
+
+## Follow-up verification
+
+Final invitation source passes lint/typecheck, 145 unit tests and 100% per-file coverage on all four
+metrics. Webpack build passes. Native focused `--scenario=invitations` passes all database stages,
+real operator command, HTTP denial and optional enrollment, browser login continuation/acceptance,
+preserved session and deadline refresh, replay rejection, desktop/320px screenshots. Inspected both
+mobile screenshots: controls fit and deadline includes the viewer zone. Full integration earlier
+stopped during existing SMTP/auth HTTP tests with a request timeout; a fresh full run remains owed.
+
+Audit found Undici 8.12.1 (development-only JSDOM/Testcontainers chain). Registry verified compatible
+8.12.3 (Node >=22.19); only that lockfile entry changed. Installed version is 8.12.3 and audit reports
+zero vulnerabilities. No thresholds or assertions were weakened. The focused HTTP fixture now uses
+the internal HTTP URL with the configured HTTPS origin; browsers still use the owned HTTPS proxy.
+Acceptance returns `publishDueAt` for that invitation; the owner read preserves `initialPublishDueAt`.

@@ -9,7 +9,7 @@ import { SessionJwt } from "../../../packages/core/src/services/sessions/jwt";
 import type { IntegrationContext } from "../context";
 import { integrationConfig as config } from "../config";
 
-export async function testInvitationFlow({baseUrl,artifacts,browser}:IntegrationContext,databaseUrl:string,jwtSecret:string) {
+export async function testInvitationFlow({baseUrl,artifacts,browser}:IntegrationContext,databaseUrl:string,jwtSecret:string,internalBaseUrl:string) {
   const client=new Client({connectionString:databaseUrl}), ids=[randomUUID(),randomUUID()];const email=`invitation-${randomUUID()}@example.test`,other=`other-${randomUUID()}@example.test`,password="invitation browser password";let stage="fixture";
   const click=(name:string)=>browser("find","role","button","click","--name",name,"--exact");
   const wait=(text:string)=>browser("wait","--text",text);
@@ -19,7 +19,7 @@ export async function testInvitationFlow({baseUrl,artifacts,browser}:Integration
     for(const [index,id]of ids.entries()){await client.query("insert into users(id,normalized_email,display_name,email_verified_at,created_at,updated_at) values($1,$2,$3,now(),now(),now())",[id,index?other:email,"Invited engineer"]);await client.query("insert into credentials(user_id,password_hash,password_changed_at) values($1,$2,now())",[id,passwordHash]);await client.query("insert into user_roles(user_id,role) values($1,'developer')",[id]);}
     const execute=promisify(execFile);stage="operator-create";const {stdout}=await execute("npm",["run","invite","--","create","integration-operator",email,"react"],{env:{...process.env,DATABASE_URL:databaseUrl,APP_ORIGIN:baseUrl},timeout:config.operatorCommandTimeoutMs});const token=/\/invitation\/([A-Za-z0-9_-]{43})/.exec(stdout)?.[1];assert.ok(token);assert.match(stdout,/invitation.create operator=integration-operator id=/);
     const rows=await client.query("select id,token_hash from invitations where email=$1",[email]);assert.equal(rows.rowCount,1);assert.equal(rows.rows[0].token_hash,createHash("sha256").update(token).digest("hex"));
-    const request=(suffix:string,cookie?:string,body?:string)=>fetch(baseUrl+suffix,{method:body===undefined?"GET":"POST",headers:{...(cookie?{cookie}:{}),origin:baseUrl,"Content-Type":"application/json","X-DevMentor-CSRF":"1"},...(body===undefined?{}:{body}),signal:AbortSignal.timeout(config.authRequestTimeoutMs)});
+    const request=(suffix:string,cookie?:string,body?:string)=>fetch(internalBaseUrl+suffix,{method:body===undefined?"GET":"POST",headers:{...(cookie?{cookie}:{}),origin:baseUrl,"Content-Type":"application/json","X-DevMentor-CSRF":"1"},...(body===undefined?{}:{body}),signal:AbortSignal.timeout(config.authRequestTimeoutMs)});
     stage="http-denials";assert.equal((await request(`/api/invitations/${token}/accept`,undefined,"{}")).status,401);
     const sid=randomUUID();await client.query("insert into auth_sessions(id,user_id,expires_at) values($1,$2,$3)",[sid,ids[1],new Date(Date.now()+86400000)]);const mismatchCookie=`__Host-devmentor-session=${await new SessionJwt(()=>jwtSecret).sign(ids[1],sid,Math.floor(Date.now()/1000))}`;
     assert.equal((await request(`/api/invitations/${token}/accept`,mismatchCookie,"{}")).status,403);assert.equal((await request(`/api/invitations/${"z".repeat(43)}`)).status,404);
