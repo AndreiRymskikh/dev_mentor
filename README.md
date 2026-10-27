@@ -652,11 +652,11 @@ identity, invitation details and deadlines never enter that projection. A profil
 its user lacks current verified mentor membership; stored publication state/content is retained.
 There are no ratings, reviews, prices, availability or booking controls in this slice.
 
-`GET/PUT /api/mentors/me` and `POST /api/mentors/me/publish|unpublish` require a current mentor session;
+`GET/PUT /api/mentors/me` and `POST /api/mentors/me/publish` and `POST /api/mentors/me/unpublish` require a current mentor session;
 mutations require the standard CSRF header/origin and explicit input shapes. `GET /api/mentors/<slug>`
-is public. Unknown/unpublished slugs return404. The static owner segment `me` is reserved during slug
+is public. Unknown/unpublished slugs return 404. The static owner segment `me` is reserved during slug
 generation so it cannot shadow a public mentor API route; collisions retry only the named slug unique
-constraint, in at most100 fresh transactions.
+constraint, in at most 100 fresh transactions.
 
 Migration `Migration202610260002` adds only mentor profile fields. Down locks the table and refuses
 when saved content or a slug/publication exists; production rollback retains schema/data. Empty

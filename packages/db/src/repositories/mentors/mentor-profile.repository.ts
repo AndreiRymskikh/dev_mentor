@@ -4,6 +4,7 @@ import { User } from "../../entities/users/user.entity";
 import { UserRole } from "../../entities/users/user-role.entity";
 import { MentorProfile } from "../../entities/mentors/mentor-profile.entity";
 export interface MentorProfileRecord { userId: string; displayName: string; publicWorkUrl: string | null; bio: string | null; stackTags: string[]; slug: string | null; publishedAt: Date | null }
+export type PublicMentorProfileRecord=Pick<MentorProfileRecord,"displayName"|"publicWorkUrl"|"bio"|"stackTags"|"slug">;
 export class SlugCollisionError extends Error {}
 export class MentorProfileRepository {
   constructor(private readonly runtime=database) {}
@@ -27,12 +28,12 @@ export class MentorProfileRepository {
       await em.flush();return record;
     });}catch(error){if(error instanceof UniqueConstraintViolationException && "constraint" in error && error.constraint==="mentor_profiles_slug_unique")throw new SlugCollisionError();throw error;}
   }
-  async publicBySlug(slug:string):Promise<MentorProfileRecord|null> {
+  async publicBySlug(slug:string):Promise<PublicMentorProfileRecord|null> {
     return this.runtime.withEntityManager(async em=>{
       const profile=await em.findOne(MentorProfile,{slug,publishedAt:{$ne:null}});if(!profile)return null;
       const user=await em.findOne(User,{id:profile.userId,emailVerifiedAt:{$ne:null}});
       if(!user || !await em.findOne(UserRole,{userId:profile.userId,role:"mentor"}))return null;
-      return {userId:user.id,displayName:user.displayName,publicWorkUrl:profile.publicWorkUrl??null,bio:profile.bio??null,stackTags:profile.stackTags,slug:profile.slug??null,publishedAt:profile.publishedAt??null};
+      return {displayName:user.displayName,publicWorkUrl:profile.publicWorkUrl??null,bio:profile.bio??null,stackTags:profile.stackTags,slug};
     });
   }
 }

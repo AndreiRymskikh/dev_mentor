@@ -30,4 +30,4 @@ export { MentorProfile } from "./entities/mentors/mentor-profile.entity";
 
 export { InvitationRepository, type InvitationRecord, type InvitationResult } from "./repositories/invitations/invitation.repository";
 
-export { MentorProfileRepository, SlugCollisionError, type MentorProfileRecord } from "./repositories/mentors/mentor-profile.repository";
+export { MentorProfileRepository, SlugCollisionError, type MentorProfileRecord, type PublicMentorProfileRecord } from "./repositories/mentors/mentor-profile.repository";

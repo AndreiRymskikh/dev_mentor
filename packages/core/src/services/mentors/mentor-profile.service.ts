@@ -1,12 +1,12 @@
 import type { PublicMentorProfile, OwnerMentorProfile } from "../../domain/mentor-profile";
-import { SlugCollisionError, type MentorProfileRepository, type MentorProfileRecord } from "@devmentor/db";
+import { SlugCollisionError, type MentorProfileRepository, type MentorProfileRecord, type PublicMentorProfileRecord } from "@devmentor/db";
 import { z } from "zod";
 import { AppError, ConflictError, ForbiddenError, NotFoundError, ServiceUnavailableError, UnauthorizedError, ValidationError } from "../../http/errors";
 import { userIdSchema } from "../../validators/users/roles.schema";
 import { mentorProfileUpdateSchema, mentorSlugSchema } from "../../validators/mentors/mentor-profile-update.schema";
 import { uniqueSlug } from "../../domain/slug";
 import { mentorPagePublishable } from "./readiness";
-export function toPublicDto(profile:MentorProfileRecord):PublicMentorProfile {return {displayName:profile.displayName,publicWorkUrl:profile.publicWorkUrl,bio:profile.bio,stackTags:[...profile.stackTags],slug:profile.slug};}
+export function toPublicDto(profile:PublicMentorProfileRecord):PublicMentorProfile {return {displayName:profile.displayName,publicWorkUrl:profile.publicWorkUrl,bio:profile.bio,stackTags:[...profile.stackTags],slug:profile.slug};}
 export function toOwnerDto(profile:MentorProfileRecord):OwnerMentorProfile {return {...toPublicDto(profile),publishedAt:profile.publishedAt?.toISOString()??null,readiness:mentorPagePublishable.evaluate(profile)};}
 export class MentorProfileService {
   constructor(private readonly repository:Pick<MentorProfileRepository,"read"|"mutate"|"publicBySlug">,private readonly clock:()=>Date=()=>new Date(),private readonly emit:(event:"mentors.profile.published")=>void=()=>undefined) {}

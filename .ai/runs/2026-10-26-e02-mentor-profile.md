@@ -49,12 +49,12 @@ readiness, publish/unpublish, stable copyable link, public projection/view and m
 Added generated shadcn checkbox/badge adapted to product tokens and existing cn; removed the CLI's
 redundant cn dependency. No lockfile drift remains relative to the invitation prerequisite.
 
-Passed: lint/typecheck,164 unit tests with100% statements/branches/functions/lines across136 production
+Passed: lint/typecheck, 164 unit tests with 100% statements/branches/functions/lines across 136 production
 files, Storybook typecheck/build, standard Turbopack production build, disposable profile migration
 up/down and empty schema diff, real equal-name collision retry, ownership/current-role denial,
 idempotence, serialization and public key-equality proofs. The native `--scenario=profiles` run passed
 all database stages plus both invitation and profile HTTP/browser flows, including clipboard and
-resource failure/recovery, public privacy, reserved me slug, republish/rename, and320px/desktop in both
+resource failure/recovery, public privacy, reserved me slug, republish/rename, and 320px/desktop in both
 themes. Inspected four screenshots; controls fit and public content uses the shared design system.
 
 Review follow-ups since that browser run: clear a previous copy-success notice before a failed new
@@ -63,3 +63,11 @@ assertions are added; lint/typecheck/100% unit coverage pass. A fresh production
 owed for this final copy/readiness wording revision. Publication observers are best effort, with
 post-commit failure regression coverage. Parent invitation observer follow-up will be merged before
 final validation. Full default integration/audit/review/independent high-risk QA are not yet claimed.
+
+## Public read-model review follow-up
+
+Narrowed the repository's public read model to the same five safe fields needed by the service;
+private user identity and publication metadata no longer cross that internal public-read boundary.
+The service still explicitly constructs its outward DTO. Added key equality at the repository and
+live database boundary, and removed redundant constructor-only calls from tests; the existing scoped
+DI assertions exercise real default construction. Targeted profile unit tests and typecheck pass.
