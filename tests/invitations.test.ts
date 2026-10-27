@@ -34,11 +34,14 @@ test("service validates normalized explicit inputs and maps each transactional o
   await expect(service.onboarding(null)).rejects.toMatchObject({ status: 401 }); repo.onboarding.mockResolvedValueOnce(null); await expect(service.onboarding(id)).rejects.toMatchObject({ status:403 }); expect(await service.onboarding(id)).toEqual({initialPublishDueAt:null}); expect(await service.identity(id)).toBe("test@example.test");
 });
 test("default clock/settings/event hook work without module-load configuration", async () => {
+  vi.stubEnv("INVITATION_TTL_DAYS",undefined);vi.stubEnv("MENTOR_PUBLISH_WINDOW_DAYS",undefined);
+  try {
   const { repo } = fixture(); const service = new InvitationService(repo); await service.create(input); const accepted=await service.accept(id,token); const rotated=await service.change(id,true);
   expect(Date.parse(accepted.publishDueAt)-repo.accept.mock.calls[0][2].getTime()).toBe(14*86400000);expect(repo.change.mock.calls[0][2].expiresAt.getTime()-repo.change.mock.calls[0][1].getTime()).toBe(14*86400000);expect(repo.change.mock.calls[0][2].tokenHash).toBe(hashToken(rotated.token!));
   expect(repo.create.mock.calls[0][0].createdAt).toBeInstanceOf(Date);
   expect(readEnv({}).INVITATION_TTL_DAYS).toBe(14); expect(readEnv({ INVITATION_TTL_DAYS:"7", MENTOR_PUBLISH_WINDOW_DAYS:"30" })).toMatchObject({ INVITATION_TTL_DAYS:7, MENTOR_PUBLISH_WINDOW_DAYS:30 });
   for (const value of ["0", "366", "1.2", "bad"]) expect(() => readEnv({ INVITATION_TTL_DAYS:value })).toThrow("Invalid server");
+  } finally {vi.unstubAllEnvs();}
 });
 test("schema migration is additive, maps text arrays and refuses destructive rollback", () => {
   const migration = Object.create(Migration202610260001.prototype) as Migration202610260001; const addSql = vi.fn(); migration.addSql = addSql; migration.up();
@@ -48,7 +51,7 @@ test("schema migration is additive, maps text arrays and refuses destructive rol
 test("persistence locks user before token and denies every invalid invitation/identity state", async () => {
   const runtime=createDatabaseRuntime(); const findOne=vi.fn(),create=vi.fn((_entity, value)=>value),flush=vi.fn(),upsert=vi.fn(); const em={findOne,create,flush,upsert};
   vi.spyOn(runtime,"transaction").mockImplementation(async work=>work(em as never)); vi.spyOn(runtime,"withEntityManager").mockImplementation(async work=>work(em as never));
-  const repo=new InvitationRepository(runtime); 
+  const repo=new InvitationRepository(runtime);
   let user: {id:string;normalizedEmail:string;emailVerifiedAt:Date|null}|null={id,normalizedEmail:"test@example.test",emailVerifiedAt:now}; let mentor=false, developer=true;
   const row={id,email:"test@example.test",tokenHash:hashToken(token),stackTags:["react"],expiresAt:new Date(now.getTime()+1000),acceptedAt:null as Date|null,revokedAt:null as Date|null,acceptedById:null as string|null,publishDueAt:null as Date|null}; let invitation: typeof row|null={...row}; let profile: {userId:string;initialPublishDueAt?:Date|null}|null=null;
   findOne.mockImplementation(async (entity,query)=>entity===User?user:entity===UserRole?(query.role==="mentor"?mentor:developer)?{role:query.role}:null:entity===Invitation?invitation:profile);
