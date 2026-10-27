@@ -70,3 +70,23 @@ tracks the epic, #7 invitations, #8 profile publication; external historical iss
 local dependencies. Login continuation accepts only `/invitation/<43-character-token>` and otherwise
 retains `/account`, preventing an open redirect. UI time rendering begins in UTC on the server and
 hydrates to the viewer's zone without replacing the actual instant.
+
+## Mentor profile publication (E02 slice 2)
+
+Additive owner API routes use current persisted mentor membership, CSRF, bounded JSON and the existing
+no-store envelope. Partial updates accept only publicWorkUrl/bio/stackTags; publication readiness is
+422 with fieldErrors using those keys. Published updates cannot remove required content. Both
+invitation and existing self-service mentors can read a virtual draft; GET does not create rows.
+
+Public `/m/<slug>` and `/api/mentors/<slug>` use an explicit five-key DTO. Slugs are nullable in drafts,
+allocated once, and immutable across rename/unpublish/republish. Publication implies a non-null slug
+in PostgreSQL. Only `mentor_profiles_slug_unique` triggers the bounded fresh-transaction retry. The
+reserved list includes the real static owner segment `me`. Reads hide unpublished profiles and users
+without current verified mentor membership. Role changes preserve stored content/publication state.
+
+The schema migration is additive and down refuses saved/public content, retaining the first-deadline
+floor. UI exports add backend/panels through the existing wildcard and components/mentors explicitly;
+core adds pure validators/mentors exports. Existing form props/value conversion/keyboard behavior
+remain supported while textarea, multiselect and additional submit actions are additive. Form actions
+now use the shared controls in secondary-then-primary order. Reputation, prices, slots and payments
+remain absent. Profile publication's best-effort observer cannot undo a committed transaction.

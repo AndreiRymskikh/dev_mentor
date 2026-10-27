@@ -27,7 +27,7 @@ export async function testInvitations(runtime: ReturnType<typeof createDatabaseR
     const race=await Promise.all([repository.accept(id,"6".repeat(64),now,expiresAt),repository.change(pendingId,now)]);assert.equal(race.filter(value=>value==="ok").length,1);assert.equal(race.filter(value=>value==="not-found").length,1);
     assert.deepEqual(await runtime.withEntityManager(async em=>(await em.findOneOrFail(MentorProfile,{userId:id})).initialPublishDueAt),due);
     const pending=await runtime.withEntityManager(em=>em.findOne(Invitation,{email,acceptedAt:null,revokedAt:null}));assert.equal(pending,null);
-    await assert.rejects((await runtime.getOrm()).migrator.down(),/Refusing destructive mentor rollback/);
+    await assert.rejects((await runtime.getOrm()).migrator.down({to:0}),/Refusing destructive mentor rollback/);
   } finally {
     await runtime.transaction(async em=>{await em.nativeDelete(Invitation,{email});await em.nativeDelete(MentorProfile,{userId:id});await em.nativeDelete(AuthSession,{userId:id});await em.nativeDelete(UserRole,{userId:{$in:[id,other]}});await em.nativeDelete(User,{id:{$in:[id,other]}});});
   }

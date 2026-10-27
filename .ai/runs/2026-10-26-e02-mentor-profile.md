@@ -12,7 +12,7 @@ public share link. Both owner-approved enrollment paths work. Reuse the installe
 generic forms and feedback. No ratings, availability, prices, booking, payments or OAuth.
 
 The branch includes PR #9's prerequisite commits so it builds independently; it targets develop and
-must merge after #9. Its diff naturally reduces to slice 2 after #9 merges. Do not merge either PR
+must merge after #9. After #9 squash-merges, merge the latest develop into this branch to advance the common base and reduce its PR diff to slice 2; do not force-push. Do not merge either PR
 without independent review and QA. Existing roles and persisted sessions remain authoritative.
 
 ## Plan and risks
@@ -36,8 +36,30 @@ its local standard Turbopack build is restricted while Webpack/CI standard build
 
 ## Progress
 
-- [ ] 2.1 Implement profile domain and validation.
-- [ ] 2.2 Implement persistence and migration.
-- [ ] 2.3 Implement services and HTTP contracts.
-- [ ] 2.4 Implement profile and public UI.
+- [x] 2.1 Implement profile domain and validation.
+- [x] 2.2 Implement persistence and migration.
+- [x] 2.3 Implement services and HTTP contracts.
+- [x] 2.4 Implement profile and public UI.
 - [ ] 2.5 Verify and finalize profile PR.
+
+## Implementation and verification checkpoint
+
+Implemented all profile domain, migration, repository/service/DI, API callbacks, partial-form editing,
+readiness, publish/unpublish, stable copyable link, public projection/view and mentor-home checklist.
+Added generated shadcn checkbox/badge adapted to product tokens and existing cn; removed the CLI's
+redundant cn dependency. No lockfile drift remains relative to the invitation prerequisite.
+
+Passed: lint/typecheck,164 unit tests with100% statements/branches/functions/lines across136 production
+files, Storybook typecheck/build, standard Turbopack production build, disposable profile migration
+up/down and empty schema diff, real equal-name collision retry, ownership/current-role denial,
+idempotence, serialization and public key-equality proofs. The native `--scenario=profiles` run passed
+all database stages plus both invitation and profile HTTP/browser flows, including clipboard and
+resource failure/recovery, public privacy, reserved me slug, republish/rename, and320px/desktop in both
+themes. Inspected four screenshots; controls fit and public content uses the shared design system.
+
+Review follow-ups since that browser run: clear a previous copy-success notice before a failed new
+copy attempt, and separate neutral readiness labels from actionable field-error messages. Regression
+assertions are added; lint/typecheck/100% unit coverage pass. A fresh production/browser pass remains
+owed for this final copy/readiness wording revision. Publication observers are best effort, with
+post-commit failure regression coverage. Parent invitation observer follow-up will be merged before
+final validation. Full default integration/audit/review/independent high-risk QA are not yet claimed.

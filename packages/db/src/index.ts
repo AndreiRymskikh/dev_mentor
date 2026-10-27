@@ -29,3 +29,5 @@ export { Invitation } from "./entities/invitations/invitation.entity";
 export { MentorProfile } from "./entities/mentors/mentor-profile.entity";
 
 export { InvitationRepository, type InvitationRecord, type InvitationResult } from "./repositories/invitations/invitation.repository";
+
+export { MentorProfileRepository, SlugCollisionError, type MentorProfileRecord } from "./repositories/mentors/mentor-profile.repository";

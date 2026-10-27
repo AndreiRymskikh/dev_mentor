@@ -27,6 +27,12 @@ Design authority for architecture, data model and contracts:
 
 A **thin story spec** — behaviour, screens and acceptance criteria only.
 
+Implementation detail for partial drafts: empty work-link/bio values clear those draft fields; the
+publish gate requires the complete trio. Removing required content from a published profile returns
+field errors and preserves the committed page; unpublish first to return to a partial draft. Readiness
+labels are neutral field names, while validation messages describe the action needed. The static
+owner API segment `me` is reserved alongside the other route names.
+
 ## 📝 TLDR
 
 A mentor fills in a link to their public work, the existing `bio` as their plain description and up to four stack tags, publishes

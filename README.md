@@ -633,3 +633,41 @@ have no artificial invitation deadline.
 Migration `Migration202610260001` adds invitations and the mentor-profile floor. Its down migration
 locks both tables and refuses when either contains data. For production rollback retain the schema
 and roll back application routes; never delete invitation/profile data to force rollback.
+
+## Mentor profiles and public share links
+
+Both verified self-service mentors and invited mentors can open `/mentor`, then **Edit your mentor
+profile**. **Save draft** accepts a partial profile; **Save and publish** first saves, then checks the
+public-work HTTP(S) URL, plain experience description (up to 2,000 characters) and at least one of
+TypeScript, React, Python or AI agents. Publish failures show field errors and retain the inputs.
+
+The first publication creates a stable `/m/<slug>` link. The slug stays unchanged after a display-name
+change, unpublishing and republishing. The owner screen shows copy success or a manual-copy fallback
+when clipboard access fails. **Unpublish** hides the public page without deleting the draft or slug.
+Published edits must remain complete; unpublish first when returning to a partial draft. Concurrent
+saves/transitions serialize on the user/profile rows; the last committed update wins.
+
+Public responses contain only display name, public-work link, bio, stack tags and slug. Email, user
+identity, invitation details and deadlines never enter that projection. A profile is also hidden while
+its user lacks current verified mentor membership; stored publication state/content is retained.
+There are no ratings, reviews, prices, availability or booking controls in this slice.
+
+`GET/PUT /api/mentors/me` and `POST /api/mentors/me/publish|unpublish` require a current mentor session;
+mutations require the standard CSRF header/origin and explicit input shapes. `GET /api/mentors/<slug>`
+is public. Unknown/unpublished slugs return404. The static owner segment `me` is reserved during slug
+generation so it cannot shadow a public mentor API route; collisions retry only the named slug unique
+constraint, in at most100 fresh transactions.
+
+Migration `Migration202610260002` adds only mentor profile fields. Down locks the table and refuses
+when saved content or a slug/publication exists; production rollback retains schema/data. Empty
+profile floors and their original invitation deadlines survive the down migration.
+
+Storybook's **Mentors / Public profile** contains Published, DraftPreview and LongContent examples.
+Run `npm run storybook` or `npm run build-storybook`; the same `MentorPageView` renders the owner
+preview and signed-out page. Generic `CrudForm` adds textarea/multiselect and additional submit
+callbacks; `useApiResource`, `ResourcePanel` and `ReadinessChecklist` provide shared load/retry/readiness
+feedback. Pure validator exports keep schemas on the client without importing the server container.
+
+Focused disposable database/browser verification: `npm run test:integration -- --scenario=profiles`.
+The default `npm run test:integration` remains the complete authoritative regression suite. Clipboard
+permission and resource failures are injected only by tests, never by product UI controls.

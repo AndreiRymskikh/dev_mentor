@@ -1,3 +1,4 @@
+import { testMentorProfileFlow } from "./scenarios/mentor-profile";
 import { testInvitationFlow } from "./scenarios/invitations";
 import assert from "node:assert/strict";
 import { execFile, spawn, type ChildProcess } from "node:child_process";
@@ -24,10 +25,11 @@ import { testInstaller } from "./setup.mts";
 import { registrationFixture } from "./registration-http";
 
 const argumentsList = process.argv.slice(2);
-if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=admin", "--scenario=qa", "--scenario=invitations"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=admin, --scenario=qa or --scenario=invitations; omit for the full suite.");
+if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
 const adminOnly = argumentsList[0] === "--scenario=admin";
 const qaOnly = argumentsList[0] === "--scenario=qa";
 const invitationsOnly = argumentsList[0] === "--scenario=invitations";
+const profilesOnly = argumentsList[0] === "--scenario=profiles";
 const exec = promisify(execFile);
 const session = `devmentor-${randomUUID()}`;
 const artifacts = path.resolve(config.artifacts);
@@ -116,20 +118,21 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
-  if (!adminOnly && !qaOnly && !invitationsOnly) {
+  if (!adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
   await mail.test(baseUrl, database.getConnectionUri());
   await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
   await testAuthActions({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, baseUrl);
   await testHome(context);
   }
   if (!adminOnly && !qaOnly) await testInvitationFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
-  if (!qaOnly && !invitationsOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
-  if (!adminOnly && !invitationsOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
-  if (!adminOnly && !qaOnly && !invitationsOnly) {
+  if (!adminOnly && !qaOnly && !invitationsOnly) await testMentorProfileFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
+  if (!qaOnly && !invitationsOnly && !profilesOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
+  if (!adminOnly && !invitationsOnly && !profilesOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
+  if (!adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
     await testAuthOutage({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
     await testInstaller();
   }
-  console.log(invitationsOnly ? "Targeted invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : qaOnly ? "Independent QA integration passed with owned PostgreSQL/SMTP/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
+  console.log(profilesOnly ? "Targeted E02 profile/invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : invitationsOnly ? "Targeted invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : qaOnly ? "Independent QA integration passed with owned PostgreSQL/SMTP/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
 }
 try { await main(); }
 catch (error: unknown) {

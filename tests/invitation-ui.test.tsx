@@ -1,3 +1,4 @@
+import { MentorProfileService } from "../packages/core/src/services/mentors/mentor-profile.service";
 import { test, expect, vi } from "vitest";
 import { act } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
@@ -24,6 +25,7 @@ test("invitation page shows identical invalid states, safe infrastructure errors
   for(const error of [new Error("secret"),new AppError("OFFLINE","private",503)]){lookup.mockRejectedValueOnce(error);const html=await render();expect(html).toContain("Unable to load");expect(html).not.toContain("secret");}
 });
 test("mentor home protects current membership and renders durable deadline or self-service guidance",async()=>{
+  vi.spyOn(MentorProfileService.prototype,"getMine").mockResolvedValue({displayName:"Name",bio:null,publicWorkUrl:null,stackTags:[],slug:null,publishedAt:null,readiness:[]});
   const resolve=vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue(null),onboarding=vi.spyOn(InvitationService.prototype,"onboarding").mockResolvedValue({initialPublishDueAt:date});
   await expect(MentorPage()).rejects.toThrow("redirect:/login");resolve.mockResolvedValue({id,displayName:"Name",roles:["developer"]});expect(renderToStaticMarkup(await MentorPage())).toContain("Mentor access is required");expect(onboarding).not.toHaveBeenCalled();
   resolve.mockResolvedValue({id,displayName:"Name",roles:["developer","mentor"]});expect(renderToStaticMarkup(await MentorPage())).toContain("Publish at least one bookable session");onboarding.mockResolvedValue({initialPublishDueAt:null});expect(renderToStaticMarkup(await MentorPage())).toContain("Prepare your mentor profile");

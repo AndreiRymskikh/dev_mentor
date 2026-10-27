@@ -37,3 +37,15 @@
 .dm-field { display: grid; gap: var(--space-related); min-width: var(--space-none); }
 .dm-help, .dm-field-indicator { margin: var(--space-none); color: var(--text-muted); font-size: var(--font-size-label); font-weight: var(--weight-body); line-height: var(--line-label); overflow-wrap: anywhere; }
 .dm-field-error { display: flex; align-items: start; gap: var(--space-related); margin: var(--space-none); color: var(--foreground); font-size: var(--font-size-label); line-height: var(--line-label); overflow-wrap: anywhere; }
+
+/* Generated checkbox/badge primitives use the existing product tokens. */
+.dm-checkbox { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: var(--size-target-min); height: var(--size-target-min); border: var(--border-width) solid var(--border-control); border-radius: var(--radius-control); background: var(--surface-card); color: var(--foreground); cursor: pointer; }
+.dm-checkbox[data-state="checked"] { background: var(--action-primary); border-color: var(--action-primary); color: var(--text-on-action); }
+.dm-checkbox:disabled { color: var(--text-muted); cursor: not-allowed; }
+.dm-checkbox-indicator { display: flex; align-items: center; justify-content: center; }
+.dm-badge { display: inline-flex; align-items: center; width: fit-content; max-width: var(--size-fill); padding: var(--space-related) var(--space-control-inline); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-control); font-size: var(--font-size-label); line-height: var(--line-label); overflow-wrap: anywhere; }
+.dm-badge-default { background: var(--surface-support); color: var(--text-support); }
+.dm-badge-outline { background: var(--surface-card); color: var(--foreground); }
+.dm-crud-fields { display: grid; gap: var(--space-group); }
+.dm-choice { display: flex; align-items: center; gap: var(--space-related); min-height: var(--size-control); }
+.dm-form-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-related); }

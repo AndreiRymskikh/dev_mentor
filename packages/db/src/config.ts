@@ -1,3 +1,4 @@
+import { Migration202610260002 } from "./migrations/Migration202610260002";
 import { Migration202610260001 } from "./migrations/Migration202610260001";
 import { Invitation } from "./entities/invitations/invitation.entity";
 import { MentorProfile } from "./entities/mentors/mentor-profile.entity";
@@ -28,7 +29,7 @@ export function databaseOptions() {
     clientUrl,
     entities: [User, UserRole, Credential, AuthSession, ActionToken, RateLimitBucket, Invitation, MentorProfile],
     extensions: [Migrator],
-    migrations: { migrationsList: [Migration202610210001, Migration202610260001], snapshot: false, transactional: true, allOrNothing: true },
+    migrations: { migrationsList: [Migration202610210001, Migration202610260001, Migration202610260002], snapshot: false, transactional: true, allOrNothing: true },
     discovery: { warnWhenNoEntities: false },
     allowGlobalContext: false,
     debug: false,

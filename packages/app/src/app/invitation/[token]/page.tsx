@@ -1,3 +1,4 @@
+import { StackTags } from "@devmentor/core/validators/mentors";
 import "../../mentor.css";
 import { headers } from "next/headers";
 import { withScope } from "@devmentor/core/container";
@@ -19,5 +20,5 @@ export default async function InvitationPage({ params }: { params: Promise<{ tok
     return <ErrorMessage message="Unable to load your invitation. Please try again." />;
   }
   const { invitation, principal, email } = data;
-  return <main className="dm-mentor mx-auto grid max-w-xl gap-group p-group"><Link href="/">DevMentor</Link><h1 className="text-3xl font-semibold">You’re invited to mentor</h1><p>Invitation for {invitation.email}</p><p>{invitation.stackTags.join(", ")}</p>{!principal ? <><p>Sign in with the invited email address, then return to this link to accept.</p><Link href={`/login?returnTo=${encodeURIComponent(`/invitation/${token}`)}`}>Sign in</Link></> : email === invitation.email ? <><p>Accept as {principal.displayName}. Your existing roles stay available.</p><AcceptButton token={token} /></> : <><p>You are signed in as {email}. Sign out and sign in with {invitation.email} to accept.</p><Link href="/account">Manage your account</Link></>}</main>;
+  return <main className="dm-mentor mx-auto grid max-w-xl gap-group p-group"><Link href="/">DevMentor</Link><h1 className="text-3xl font-semibold">You’re invited to mentor</h1><p>Invitation for {invitation.email}</p><p>{StackTags.options.filter(option=>invitation.stackTags.includes(option.value)).map(option=>option.label).join(", ")}</p>{!principal ? <><p>Sign in with the invited email address, then return to this link to accept.</p><Link href={`/login?returnTo=${encodeURIComponent(`/invitation/${token}`)}`}>Sign in</Link></> : email === invitation.email ? <><p>Accept as {principal.displayName}. Your existing roles stay available.</p><AcceptButton token={token} /></> : <><p>You are signed in as {email}. Sign out and sign in with {invitation.email} to accept.</p><Link href="/account">Manage your account</Link></>}</main>;
 }
