@@ -66,3 +66,7 @@ test("persistence locks user before token and denies every invalid invitation/id
   invitation={...row};expect(await repo.change(id,now,{tokenHash:"b".repeat(64),expiresAt:due})).toBe("ok");expect(invitation).toMatchObject({tokenHash:"b".repeat(64),expiresAt:due,revokedAt:null});
   expect(await repo.identity(id)).toBe(row.email);user=null;expect(await repo.identity(id)).toBeNull();expect(await repo.onboarding(id)).toBeNull();user={id,normalizedEmail:row.email,emailVerifiedAt:null};expect(await repo.onboarding(id)).toBeNull();user.emailVerifiedAt=now;mentor=false;expect(await repo.onboarding(id)).toBeNull();mentor=true;profile=null;expect(await repo.onboarding(id)).toEqual({initialPublishDueAt:null});profile={userId:id,initialPublishDueAt:null};expect(await repo.onboarding(id)).toEqual({initialPublishDueAt:null});profile.initialPublishDueAt=due;expect(await repo.onboarding(id)).toEqual({initialPublishDueAt:due.toISOString()});
 });
+
+test("a failed acceptance observer cannot turn a committed grant into an error",async()=>{
+  const {service,repo,emit}=fixture();emit.mockImplementationOnce(()=>{throw new Error("observer failure");});expect(await service.accept(id,token)).toEqual({publishDueAt:"2026-11-09T12:00:00.000Z"});expect(repo.accept).toHaveBeenCalledOnce();expect(emit).toHaveBeenCalledOnce();
+});

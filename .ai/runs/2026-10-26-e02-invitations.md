@@ -93,3 +93,22 @@ pipeline/category/priority/risk/QA labels are absent and guards skip them.
 
 Slice 2 is tracked in [its own run](2026-10-26-e02-mentor-profile.md), issue #8 and PR #10. Its pending
 steps are not a completion claim for this invitation PR. The epic remains active for later slices.
+
+## Review follow-up
+
+The profile review exposed a consistency gap in the invitation observer: a throwing post-commit
+observer could make an accepted invitation appear to fail. Acceptance now preserves its committed
+result when its explicitly best-effort observer throws, with a regression proving one grant attempt
+and a successful response. Full unit checks/CI are rerun for this follow-up; earlier aaebae5 CI proof
+is historical, not claimed for the new source head. The configured SDLC taxonomy is now installed;
+PR #9 carries review/feature/priority-medium/risk-high/needs-qa, with no self-QA approval.
+
+## Clean standard build — 2026-10-27
+
+A clean standard `npm run build` now passes. The previously failing generated `.next` directory was
+preserved in `/tmp/e02-invitations-next-before-clean-build-20261027` and rebuilt; no source pipeline,
+validation command or threshold changed. A sibling worktree's standard build had already passed.
+This is evidence that retrying with fresh generated state resolved this run's failure, not a proven
+root-cause diagnosis of Turbopack internals. The observer follow-up passes lint/typecheck and all146
+unit tests at 100% for statements, branches, functions and lines. Final full integration/CI follow-up
+is still pending for the new source commit.
