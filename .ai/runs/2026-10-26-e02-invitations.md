@@ -35,7 +35,7 @@ The source specs describe a different historical tree. Current roles are develop
 
 ## Verification
 
-Not yet run: lint, typecheck, coverage, build, integration, audit, review and UI QA. Initial checkout clean; source specs are now committed on develop (38c99b0), superseding the earlier issue's durability blocker. GitHub connector cannot access this repository; authenticated gh works outside sandbox.
+Not yet run: lint, typecheck, coverage, build, integration, audit, review and UI QA. Initial checkout clean; source specs are now committed on develop (38c99b0), superseding the earlier issue's durability blocker. The initial historical issue numbers were absent locally; authenticated gh resolved the correct local mapping.
 
 ## Latest evidence — slice 1
 
@@ -109,6 +109,17 @@ A clean standard `npm run build` now passes. The previously failing generated `.
 preserved in `/tmp/e02-invitations-next-before-clean-build-20261027` and rebuilt; no source pipeline,
 validation command or threshold changed. A sibling worktree's standard build had already passed.
 This is evidence that retrying with fresh generated state resolved this run's failure, not a proven
-root-cause diagnosis of Turbopack internals. The observer follow-up passes lint/typecheck and all146
+root-cause diagnosis of Turbopack internals. The observer follow-up passes lint/typecheck and all 146
 unit tests at 100% for statements, branches, functions and lines. Final full integration/CI follow-up
 is still pending for the new source commit.
+
+## Final full gate — 2026-10-27
+
+The clean standard Turbopack build and complete native `npm run test:integration` now pass locally,
+including real SMTP/auth HTTP/browser, invitation flow, administration, independent auth QA, outage
+recovery and installer preservation. The earlier Webpack-era timeout is historical and is not an
+unresolved failure of this final clean standard build. Lint/typecheck and 146 unit tests pass with
+100% per-file statements/branches/functions/lines; final `npm audit` reports zero vulnerabilities.
+Redundant constructor-only test calls were removed and default deadline/rotation assertions were
+strengthened; production code is unchanged by that final test cleanup. Independent high-risk review
+and QA approval remain required; no merge or QA approval is performed by this run.
