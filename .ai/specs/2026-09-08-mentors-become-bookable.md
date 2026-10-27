@@ -12,8 +12,7 @@ cookie rotation. Tests must prove continued access with the original cookie.
 Local tracker: epic [#6](https://github.com/AndreiRymskikh/dev_mentor/issues/6), invitations
 [#7](https://github.com/AndreiRymskikh/dev_mentor/issues/7), mentor page
 [#8](https://github.com/AndreiRymskikh/dev_mentor/issues/8). Historical external issue numbers are
-provenance only. Current auth/test/shadcn foundations are implemented. No mentor profile or seeder
-exists: introduce only the real fields needed by each slice, using the current DB runtime and
+provenance only. Current auth/test/shadcn foundations are implemented. At implementation start there was no mentor profile or seeder; introduce only the real fields needed by each slice, using the current DB runtime and
 `src/migrations` registry. Keep off-site payment scope; prices/availability are outside this run.
 
 
@@ -23,7 +22,7 @@ Issue: [#8](https://github.com/open-mercato/ai_techleaders_project/issues/8) —
 Design authority: `.ai/specs/product-brief.md`, `.ai/specs/2026-09-01-engineering-standards.md`
 Builds on: `.ai/specs/2026-09-04-accounts-and-roles.md` (E01), `.ai/specs/2026-09-04-platform-primitives.md`
 Uses the non-normative pattern catalogue: `.ai/specs/2026-09-08-platform-primitives-ii.md`
-Story specs: `implemented/2026-09-08-invitations.md`, `-mentor-page.md`, `-availability-slots.md`,
+Story specs: `implemented/2026-09-08-invitations.md`, `implemented/2026-09-08-mentor-page.md`, `2026-09-08-availability-slots.md`,
 `-mentor-prices.md` — each owns its acceptance criteria and screens; this document is the sole
 authority for architecture, data model and contracts shared by those four stories. Stripe Connect is
 a separate 1.1 capability owned by `2026-09-08-stripe-connect-onboarding.md`; this epic records only
@@ -828,3 +827,5 @@ across the whole epic:
 - **A pre-existing §3 violation, not introduced here.** The repository's only migration,
   `Migration20260901142829.ts`, has no `down()`. Every migration in this spec ships both directions;
   the existing one should be fixed under its own issue.
+
+2026-10-27: slices 1 and 2 implemented in local PRs #9/#10 (stories #7/#8), with full CI green and independent review/QA pending. Slice 2 verification and local SMTP limitation: [run](../runs/2026-10-26-e02-mentor-profile.md). Slices 3/4 remain active.

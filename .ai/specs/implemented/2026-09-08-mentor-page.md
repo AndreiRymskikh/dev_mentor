@@ -12,13 +12,12 @@ cookie rotation. Tests must prove continued access with the original cookie.
 Local tracker: epic [#6](https://github.com/AndreiRymskikh/dev_mentor/issues/6), invitations
 [#7](https://github.com/AndreiRymskikh/dev_mentor/issues/7), mentor page
 [#8](https://github.com/AndreiRymskikh/dev_mentor/issues/8). Historical external issue numbers are
-provenance only. Current auth/test/shadcn foundations are implemented. No mentor profile or seeder
-exists: introduce only the real fields needed by each slice, using the current DB runtime and
+provenance only. Current auth/test/shadcn foundations are implemented. At implementation start there was no mentor profile or seeder; implementation adds only the real fields needed by each slice, using the current DB runtime and
 `src/migrations` registry. Keep off-site payment scope; prices/availability are outside this run.
 
 
 Date: 2026-09-08
-Status: active
+Status: implemented and verified — 2026-10-27; independent review/QA required before merge
 Issue: [#16](https://github.com/open-mercato/ai_techleaders_project/issues/16) (epic #8)
 Depends on: E02-S01 (#15); E01 Slices 1, 2 and 4
 Design authority for architecture, data model and contracts:
@@ -122,3 +121,5 @@ N02/R04, D21/R13, D24/R16.
 
 - **`headline`, `bio`, `yearsOfExperience`** — resolved in the epic spec: kept, with `bio` reused as
   R04's one description field. Retiring the unused placeholders is a separate change.
+
+Implementation: PR #10, local story #8, run [verification and limitations](../../runs/2026-10-26-e02-mentor-profile.md). Availability and prices remain in their separate active specs.

@@ -1,7 +1,7 @@
 # E02 slice 2: mentor profile and share link
 
-Status: in-progress
-Source doc: .ai/specs/2026-09-08-mentor-page.md
+Status: complete
+Source doc: .ai/specs/implemented/2026-09-08-mentor-page.md
 Tracking epic: #6; story: #8; depends on invitation PR #9.
 Original run: .ai/runs/2026-10-26-e02-invitations.md
 
@@ -31,8 +31,17 @@ with the same field errors, retaining saved data. Slugs are generated once and r
 
 ## Verification
 
-Not run for slice 2 yet. Prerequisite slice 1 has 100% unit coverage and focused DB/HTTP/browser proof;
-its local standard Turbopack build is restricted while Webpack/CI standard build passed.
+Final combined source head: `9ef791e3649e76dfaf1706db3f8e0b719b8fa7f9`.
+Lint/typecheck, 165 unit tests with 100% of all four coverage metrics across 136 production files,
+standard Turbopack build and audit (zero vulnerabilities) pass locally. Storybook typecheck/build,
+both-theme story tests (6) and built documentation verification (90 checks) pass.
+All four GitHub CI jobs pass, including the full disposable PostgreSQL/browser suite:
+https://github.com/AndreiRymskikh/dev_mentor/actions/runs/40496906955
+
+Local full integration was attempted twice on the final combined source, including a clean build.
+Both passed every database stage and timed out in the pre-existing SMTP HTTP registration stage,
+before browser scenarios. This remains a local verification limitation; CI's full suite passed.
+The focused invitation/profile run is recorded below separately. No timeout was increased or test weakened.
 
 ## Progress
 
@@ -40,7 +49,7 @@ its local standard Turbopack build is restricted while Webpack/CI standard build
 - [x] 2.2 Implement persistence and migration.
 - [x] 2.3 Implement services and HTTP contracts.
 - [x] 2.4 Implement profile and public UI.
-- [ ] 2.5 Verify and finalize profile PR.
+- [x] 2.5 Verify and finalize profile PR.
 
 ## Implementation and verification checkpoint
 
@@ -57,12 +66,11 @@ all database stages plus both invitation and profile HTTP/browser flows, includi
 resource failure/recovery, public privacy, reserved me slug, republish/rename, and 320px/desktop in both
 themes. Inspected four screenshots; controls fit and public content uses the shared design system.
 
-Review follow-ups since that browser run: clear a previous copy-success notice before a failed new
-copy attempt, and separate neutral readiness labels from actionable field-error messages. Regression
-assertions are added; lint/typecheck/100% unit coverage pass. A fresh production/browser pass remains
-owed for this final copy/readiness wording revision. Publication observers are best effort, with
-post-commit failure regression coverage. Parent invitation observer follow-up will be merged before
-final validation. Full default integration/audit/review/independent high-risk QA are not yet claimed.
+Final focused `npm run test:integration -- --scenario=profiles` passes on the combined source,
+including both invitation/profile browser flows and every database stage. This reruns the copy/readiness
+wording and five-field public repository projection. Fresh desktop/mobile screenshots in both themes
+were inspected and published on PR #10's dedicated evidence branch. The unrelated local full SMTP
+HTTP timeout above remains disclosed; the complete CI integration job passed.
 
 ## Public read-model review follow-up
 
@@ -71,3 +79,9 @@ private user identity and publication metadata no longer cross that internal pub
 The service still explicitly constructs its outward DTO. Added key equality at the repository and
 live database boundary, and removed redundant constructor-only calls from tests; the existing scoped
 DI assertions exercise real default construction. Targeted profile unit tests and typecheck pass.
+
+## Final review and handoff
+
+Merged the final invitation prerequisite, including best-effort post-commit observers and environment-isolated default-setting tests. Public repository reads now carry exactly the safe five-field projection. The JSON callback wrapper owns authorization/CSRF once and retains the existing envelope; no speculative raw-Response contract was added. Author review found no remaining blocking code findings after these fixes. GitHub disallows author approval; independent review and high-risk QA remain required. Both PRs target develop; merge #9 first, then merge develop into #10 after a squash merge to refresh its common base. Neither PR was merged by this run.
+
+Engine: om-auto-create-pr (steps: 5, --loop: no)
