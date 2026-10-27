@@ -18,7 +18,7 @@ exists: introduce only the real fields needed by each slice, using the current D
 
 
 Date: 2026-09-08
-Status: active
+Status: implemented and verified — optional-invitation adaptation; PR #9; independent review/QA required
 Issue: [#15](https://github.com/open-mercato/ai_techleaders_project/issues/15) (epic #8)
 Depends on: E01 Slices 1, 2 and 4 (the test toolchain, the session mechanism, shadcn `input`) — see the
 epic spec's prerequisite table; the issue names E01-S01 (#12), which covers only the session half

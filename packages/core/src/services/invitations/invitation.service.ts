@@ -39,8 +39,10 @@ export class InvitationService {
     if (!token.success) throw new NotFoundError("This invitation is not valid.");
     const now = this.clock(); const dueAt = new Date(now.getTime() + this.settings().MENTOR_PUBLISH_WINDOW_DAYS * 86400000);
     this.requireResult(await this.available(() => this.repository.accept(actor.data, hashToken(token.data), now, dueAt)));
-    this.emit("invitations.invitation.accepted");
-    return { publishDueAt: dueAt.toISOString() };
+    const accepted = { publishDueAt: dueAt.toISOString() };
+    try { this.emit("invitations.invitation.accepted"); }
+    catch { return accepted; } // Observers cannot undo the already-committed role grant.
+    return accepted;
   }
   async change(input: unknown, resend: boolean) {
     const parsed = invitationIdSchema.safeParse(input);

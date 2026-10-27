@@ -1,7 +1,8 @@
 # E02 slices 1 and 2 implementation
 
-Status: in-progress
-Source doc: .ai/specs/2026-09-08-mentors-become-bookable.md
+Status: complete — invitation implementation; independent review/QA required
+Source doc: .ai/specs/implemented/2026-09-08-invitations.md
+Shared architecture: .ai/specs/2026-09-08-mentors-become-bookable.md
 Story specs: .ai/specs/2026-09-08-invitations.md and .ai/specs/2026-09-08-mentor-page.md
 Epic: #6; invitations: #7; profile/share link: #8.
 
@@ -34,7 +35,7 @@ The source specs describe a different historical tree. Current roles are develop
 
 ## Verification
 
-Not yet run: lint, typecheck, coverage, build, integration, audit, review and UI QA. Initial checkout clean; source specs are now committed on develop (38c99b0), superseding the earlier issue's durability blocker. GitHub connector cannot access this repository; authenticated gh works outside sandbox.
+Not yet run: lint, typecheck, coverage, build, integration, audit, review and UI QA. Initial checkout clean; source specs are now committed on develop (38c99b0), superseding the earlier issue's durability blocker. The initial historical issue numbers were absent locally; authenticated gh resolved the correct local mapping.
 
 ## Latest evidence — slice 1
 
@@ -59,11 +60,7 @@ PR: #9
 - [x] 1.2 Implement invitation persistence.
 - [x] 1.3 Implement services, operator command and HTTP wiring.
 - [x] 1.4 Implement invitation and mentor deadline UI.
-- [ ] 1.5 Verify and finalize invitation PR.
-- [ ] 2.1 Implement profile domain and persistence.
-- [ ] 2.2 Implement owner/public services and routes.
-- [ ] 2.3 Implement profile editor and public page.
-- [ ] 2.4 Verify and finalize profile PR.
+- [x] 1.5 Verify and finalize invitation PR.
 
 ## Follow-up verification
 
@@ -79,3 +76,50 @@ Audit found Undici 8.12.1 (development-only JSDOM/Testcontainers chain). Registr
 zero vulnerabilities. No thresholds or assertions were weakened. The focused HTTP fixture now uses
 the internal HTTP URL with the configured HTTPS origin; browsers still use the owned HTTPS proxy.
 Acceptance returns `publishDueAt` for that invitation; the owner read preserves `initialPublishDueAt`.
+
+## Final invitation outcome
+
+Implemented in PR #9, code head aaebae5457f45cb4220a7eeadb0004c3a8bb52ba. All four GitHub CI jobs
+passed and the workflow completed successfully: production build, lint/typecheck, 100% unit coverage,
+and the complete disposable PostgreSQL/browser integration suite. Local lint/typecheck/coverage,
+Webpack build, focused native invitation DB/HTTP/browser scenario and zero-vulnerability audit pass.
+Local default Turbopack still hits worker-port EPERM and the local full suite timed out in SMTP/auth;
+those environment limits are not represented as passing local runs. No thresholds were relaxed.
+
+Source acceptance criteria use the owner-approved optional-invitation adaptation. No production
+schema/data was reset. The invitation specification moves to implemented after implementation and
+verification; independent high-risk review and QA approval remain merge requirements. Configured
+pipeline/category/priority/risk/QA labels are absent and guards skip them.
+
+Slice 2 is tracked in [its own run](2026-10-26-e02-mentor-profile.md), issue #8 and PR #10. Its pending
+steps are not a completion claim for this invitation PR. The epic remains active for later slices.
+
+## Review follow-up
+
+The profile review exposed a consistency gap in the invitation observer: a throwing post-commit
+observer could make an accepted invitation appear to fail. Acceptance now preserves its committed
+result when its explicitly best-effort observer throws, with a regression proving one grant attempt
+and a successful response. Full unit checks/CI are rerun for this follow-up; earlier aaebae5 CI proof
+is historical, not claimed for the new source head. The configured SDLC taxonomy is now installed;
+PR #9 carries review/feature/priority-medium/risk-high/needs-qa, with no self-QA approval.
+
+## Clean standard build — 2026-10-27
+
+A clean standard `npm run build` now passes. The previously failing generated `.next` directory was
+preserved in `/tmp/e02-invitations-next-before-clean-build-20261027` and rebuilt; no source pipeline,
+validation command or threshold changed. A sibling worktree's standard build had already passed.
+This is evidence that retrying with fresh generated state resolved this run's failure, not a proven
+root-cause diagnosis of Turbopack internals. The observer follow-up passes lint/typecheck and all 146
+unit tests at 100% for statements, branches, functions and lines. Final full integration/CI follow-up
+is still pending for the new source commit.
+
+## Final full gate — 2026-10-27
+
+The clean standard Turbopack build and complete native `npm run test:integration` now pass locally,
+including real SMTP/auth HTTP/browser, invitation flow, administration, independent auth QA, outage
+recovery and installer preservation. The earlier Webpack-era timeout is historical and is not an
+unresolved failure of this final clean standard build. Lint/typecheck and 146 unit tests pass with
+100% per-file statements/branches/functions/lines; final `npm audit` reports zero vulnerabilities.
+Redundant constructor-only test calls were removed and default deadline/rotation assertions were
+strengthened; production code is unchanged by that final test cleanup. Independent high-risk review
+and QA approval remain required; no merge or QA approval is performed by this run.
