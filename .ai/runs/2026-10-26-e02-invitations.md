@@ -1,7 +1,8 @@
 # E02 slices 1 and 2 implementation
 
-Status: in-progress
-Source doc: .ai/specs/2026-09-08-mentors-become-bookable.md
+Status: complete — invitation implementation; independent review/QA required
+Source doc: .ai/specs/implemented/2026-09-08-invitations.md
+Shared architecture: .ai/specs/2026-09-08-mentors-become-bookable.md
 Story specs: .ai/specs/2026-09-08-invitations.md and .ai/specs/2026-09-08-mentor-page.md
 Epic: #6; invitations: #7; profile/share link: #8.
 
@@ -59,11 +60,7 @@ PR: #9
 - [x] 1.2 Implement invitation persistence.
 - [x] 1.3 Implement services, operator command and HTTP wiring.
 - [x] 1.4 Implement invitation and mentor deadline UI.
-- [ ] 1.5 Verify and finalize invitation PR.
-- [ ] 2.1 Implement profile domain and persistence.
-- [ ] 2.2 Implement owner/public services and routes.
-- [ ] 2.3 Implement profile editor and public page.
-- [ ] 2.4 Verify and finalize profile PR.
+- [x] 1.5 Verify and finalize invitation PR.
 
 ## Follow-up verification
 
@@ -79,3 +76,20 @@ Audit found Undici 8.12.1 (development-only JSDOM/Testcontainers chain). Registr
 zero vulnerabilities. No thresholds or assertions were weakened. The focused HTTP fixture now uses
 the internal HTTP URL with the configured HTTPS origin; browsers still use the owned HTTPS proxy.
 Acceptance returns `publishDueAt` for that invitation; the owner read preserves `initialPublishDueAt`.
+
+## Final invitation outcome
+
+Implemented in PR #9, code head aaebae5457f45cb4220a7eeadb0004c3a8bb52ba. All four GitHub CI jobs
+passed and the workflow completed successfully: production build, lint/typecheck, 100% unit coverage,
+and the complete disposable PostgreSQL/browser integration suite. Local lint/typecheck/coverage,
+Webpack build, focused native invitation DB/HTTP/browser scenario and zero-vulnerability audit pass.
+Local default Turbopack still hits worker-port EPERM and the local full suite timed out in SMTP/auth;
+those environment limits are not represented as passing local runs. No thresholds were relaxed.
+
+Source acceptance criteria use the owner-approved optional-invitation adaptation. No production
+schema/data was reset. The invitation specification moves to implemented after implementation and
+verification; independent high-risk review and QA approval remain merge requirements. Configured
+pipeline/category/priority/risk/QA labels are absent and guards skip them.
+
+Slice 2 is tracked in [its own run](2026-10-26-e02-mentor-profile.md), issue #8 and PR #10. Its pending
+steps are not a completion claim for this invitation PR. The epic remains active for later slices.

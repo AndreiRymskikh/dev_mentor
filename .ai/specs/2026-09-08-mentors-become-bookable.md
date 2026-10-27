@@ -23,7 +23,7 @@ Issue: [#8](https://github.com/open-mercato/ai_techleaders_project/issues/8) —
 Design authority: `.ai/specs/product-brief.md`, `.ai/specs/2026-09-01-engineering-standards.md`
 Builds on: `.ai/specs/2026-09-04-accounts-and-roles.md` (E01), `.ai/specs/2026-09-04-platform-primitives.md`
 Uses the non-normative pattern catalogue: `.ai/specs/2026-09-08-platform-primitives-ii.md`
-Story specs: `2026-09-08-invitations.md`, `-mentor-page.md`, `-availability-slots.md`,
+Story specs: `implemented/2026-09-08-invitations.md`, `-mentor-page.md`, `-availability-slots.md`,
 `-mentor-prices.md` — each owns its acceptance criteria and screens; this document is the sole
 authority for architecture, data model and contracts shared by those four stories. Stripe Connect is
 a separate 1.1 capability owned by `2026-09-08-stripe-connect-onboarding.md`; this epic records only
