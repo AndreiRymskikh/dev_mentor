@@ -1,6 +1,6 @@
 # E02 independent review and QA — PRs #9 / #10
 
-Status: in-progress
+Status: complete
 Start: 2026-10-28
 Goal: independently review and exercise #9 first, fix findings, then repeat for #10. No merge.
 
@@ -56,3 +56,31 @@ for unexpected request rejection. Added invalid-path/recovery assertions. Target
 Initial pre-fix gate: lint/typecheck/165-test100% coverage/build passed; integration failed the existing
 stalled-SMTP elapsed-deadline assertion. No test/deadline weakened. Final post-fix gate and separate
 browser QA remain pending. This run will report the actual final outcome, not infer it from earlier CI.
+
+## Final PR #10 verification and outcome
+
+Separate reviewer verified the cancellation correction; no remaining static findings. The complete
+post-fix configured gate passes: lint, typecheck, 167 tests at100% per-file all-four coverage, standard
+Turbopack build, full native disposable PostgreSQL/SMTP/auth/admin/invitation/profile/browser/outage/
+installer integration and audit zero vulnerabilities. The earlier SMTP timing failure remains recorded;
+the fresh complete run passed with unchanged timeouts/assertions. No production source changed after
+791cdb9; this final handoff changes metadata only.
+
+Independent QA passes11 exercised groups:7 browser groups and4 HTTP groups, with direct DB assertions.
+Empty/partial drafts, readiness/publish, clipboard success-then-denial, published-data retention,
+actual delayed loading/503/retry, keyboard,2000-character owner/public320px+1280px light/dark, current
+ownership/CSRF denial, exact public allowlist and stable unpublish/republish/rename links all pass.
+Browser React cleanup cancellation could not be proved with native anchor navigation and is explicitly
+NOT_EXERCISED; the rejecting-on-abort unit regression and static re-review prove the fix separately.
+Multiple-browser-timezone checks are also not claimed. Reports distinguish browser and HTTP/DB evidence
+and record corrected harness assumptions (readiness422, trimmed fixture whitespace). Owned resources
+were cleaned. Fresh evidence is published on PR #10's dedicated screenshot branch.
+
+#9 final documentation-head CI completed all four jobs successfully at a0d3b60:
+https://github.com/AndreiRymskikh/dev_mentor/actions/runs/40660729417
+#10 final head CI is reported on the PR after this metadata commit; not inferred from local evidence.
+
+Both user-requested independent-agent review/QA passes and fixes are complete. Formal second-person
+GitHub review and high-risk QA approval remain external requirements because the authenticated account
+is the PR author. No self-approval, QA signoff or merge was performed. Merge #9 first, then refresh #10
+from develop after squash merge. Cleanup removes only this run's isolated worktrees and temporary services.
