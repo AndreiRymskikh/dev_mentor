@@ -473,11 +473,16 @@ database; the visitor cannot.
 
 ### Domain events (§6, all additive)
 
-`invitations.invitation.accepted` `{ invitationId, userId, publishDueAt }`,
-`mentors.profile.published` `{ mentorProfileId, slug }`, and
-`availability.slot.published` `{ mentorProfileId, slotId, startsAt }`.
-In-process only, subscribers log; the bus swallows handler failures, so nothing durable rides on them
-(Primitives I B15's rule).
+Implementation adaptation (2026-10-28 independent review): slices 1 and 2 use typed, in-process
+best-effort notification callbacks named `invitations.invitation.accepted` and
+`mentors.profile.published`. The only registered observers write fixed event-name log entries;
+there are no event payloads or domain-event bus/subscribers in this checkout. No identifiers,
+email addresses, tokens or deadlines enter these logs. An observer failure cannot undo or turn an
+already committed mutation into an HTTP failure. Tests assert this behavior. The originally proposed
+`{ invitationId, userId, publishDueAt }` / `{ mentorProfileId, slug }` payloads and event-map module
+are deferred until a real consumer requires them; they are not published contracts.
+
+The future `availability.slot.published` notification and its data belong to slice 3.
 
 ## 📝 UI/UX
 

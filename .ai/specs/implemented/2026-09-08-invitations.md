@@ -125,8 +125,7 @@ production caller for create, revoke and resend and emits a token-free audit lin
 ## 📝 Risks
 
 `risk-high` — this is the only self-service role grant in the product, and R07 forbids any other.
-`needs-qa`, second reviewer. Compatibility: a new table (`up` and `down`, §3), a new event (§6,
-additive), a new `invite` npm script (§5, additive, listed in `README.md`). Every changed production
+`needs-qa`, second reviewer. Compatibility: a new table (`up` and `down`, §3), a fixed-name best-effort acceptance notification (§6; event-name logging only, no payload), a new `invite` npm script (§5, additive, listed in `README.md`). Every changed production
 file, including pages and `scripts/invite.ts`, is explicitly included in the 100%-coverage gate.
 
 ## 📝 Decisions in play
