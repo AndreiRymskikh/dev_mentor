@@ -43,3 +43,16 @@ were not exercised; semantic datetime/current-zone rendering checked. All owned 
 Reports/screenshots published to PR #9 on a dedicated evidence branch. Follow-up commit changes only
 spec/run documentation; tested production source is unchanged. Formal second-person GitHub review and
 high-risk QA approval remain required; no self-signoff or merge. PR #10 review/QA next.
+
+## PR #10 finding and correction
+
+Merged #9's documentation-only correction, then a separate reviewer found a major cancellation bug:
+useApiResource aborted pending fetches on effect cleanup but left apiCall's rejection unhandled.
+The old stale-response test resolved after abort and missed actual fetch rejection. Added a regression
+that rejects on AbortSignal for URL change and unmount; before the fix Vitest exits1 with two unhandled
+AbortErrors. The hook now handles cancellation without stale state and provides safe retry feedback
+for unexpected request rejection. Added invalid-path/recovery assertions. Targeted 11 UI tests pass.
+
+Initial pre-fix gate: lint/typecheck/165-test100% coverage/build passed; integration failed the existing
+stalled-SMTP elapsed-deadline assertion. No test/deadline weakened. Final post-fix gate and separate
+browser QA remain pending. This run will report the actual final outcome, not infer it from earlier CI.

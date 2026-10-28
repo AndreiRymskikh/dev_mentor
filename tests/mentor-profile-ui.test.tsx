@@ -80,3 +80,35 @@ test("new partial forms default textarea text and multiselect values to empty wh
 test("mentor home links each readiness item to the editor and distinguishes unpublished from published pages",async()=>{
  vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue({id,displayName:"Mentor",roles:["developer","mentor"]});vi.spyOn(InvitationService.prototype,"onboarding").mockResolvedValue({initialPublishDueAt:null});const get=vi.spyOn(MentorProfileService.prototype,"getMine").mockResolvedValue(draft);const pending=renderToStaticMarkup(await MentorHome());expect(pending).toContain("Missing");expect(pending).toContain('href="/mentor/profile"');get.mockResolvedValue(published);expect(renderToStaticMarkup(await MentorHome())).toContain("Complete");
 });
+
+test("resource hook consumes real fetch abort rejections on URL changes and unmount",async()=>{
+ const aborted:string[]=[];
+ const fetcher=vi.fn((url:string,options:RequestInit)=>new Promise<Response>((resolve,reject)=>{
+   if(url==="/api/ready"){resolve(response({ok:true,data:"Current"}));return;}
+   options.signal!.addEventListener("abort",()=>{aborted.push(url);reject(new DOMException("Request aborted","AbortError"));},{once:true});
+ }));
+ vi.stubGlobal("fetch",fetcher);
+ const view=await mount(<HookView url="/api/pending"/>);
+ try{
+   expect(view.host.textContent).toContain("Loading");
+   await act(async()=>view.root.render(<HookView url="/api/ready"/>));
+   expect(aborted).toEqual(["/api/pending"]);expect(view.host.textContent).toContain("Current");
+   await act(async()=>view.root.render(<HookView url="/api/unmount"/>));
+   expect(view.host.textContent).toContain("Loading");
+ }finally{await view.close();}
+ expect(aborted).toEqual(["/api/pending","/api/unmount"]);
+ // Let Node deliver unhandled rejections; Vitest fails this test run if either abort escapes.
+ await new Promise<void>(resolve=>setImmediate(resolve));
+});
+
+test("resource hook renders safe retry feedback for a rejected request contract",async()=>{
+ const fetcher=vi.fn();vi.stubGlobal("fetch",fetcher);
+ const view=await mount(<HookView url="https://untrusted.test/private"/>);
+ try{
+   expect(view.host.textContent).toContain("Unable to load this resource. Please try again.");
+   expect(view.host.textContent).not.toContain("untrusted.test");expect(fetcher).not.toHaveBeenCalled();
+   fetcher.mockResolvedValueOnce(response({ok:true,data:"Recovered"}));
+   await act(async()=>view.root.render(<HookView url="/api/recovered"/>));
+   expect(view.host.textContent).toContain("Recovered");
+ }finally{await view.close();}
+});
