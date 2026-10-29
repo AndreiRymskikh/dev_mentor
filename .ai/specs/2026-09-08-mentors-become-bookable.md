@@ -1,12 +1,28 @@
 # DevMentor — Mentors Become Bookable (E02)
 
+## Implementation decisions — 2026-10-26
+
+Owner-approved adaptation for this checkout: retain verified self-service mentor enrollment and add
+**optional** invitations. All historical invitation-only / absent-enrollment criteria below are
+superseded. Both paths keep developer membership and reach mentor onboarding/profile editing.
+Current roles are `developer`, `mentor`, `administrator`. Persisted sessions reload current roles;
+there is no `sessionVersion` and invitation acceptance preserves the existing session without
+cookie rotation. Tests must prove continued access with the original cookie.
+
+Local tracker: epic [#6](https://github.com/AndreiRymskikh/dev_mentor/issues/6), invitations
+[#7](https://github.com/AndreiRymskikh/dev_mentor/issues/7), mentor page
+[#8](https://github.com/AndreiRymskikh/dev_mentor/issues/8). Historical external issue numbers are
+provenance only. Current auth/test/shadcn foundations are implemented. At implementation start there was no mentor profile or seeder; introduce only the real fields needed by each slice, using the current DB runtime and
+`src/migrations` registry. Keep off-site payment scope; prices/availability are outside this run.
+
+
 Date: 2026-09-08
 Status: active — moves to `implemented/` when its four first-iteration slices land
 Issue: [#8](https://github.com/open-mercato/ai_techleaders_project/issues/8) — stories #15, #16, #17, #18
 Design authority: `.ai/specs/product-brief.md`, `.ai/specs/2026-09-01-engineering-standards.md`
 Builds on: `.ai/specs/2026-09-04-accounts-and-roles.md` (E01), `.ai/specs/2026-09-04-platform-primitives.md`
 Uses the non-normative pattern catalogue: `.ai/specs/2026-09-08-platform-primitives-ii.md`
-Story specs: `2026-09-08-invitations.md`, `-mentor-page.md`, `-availability-slots.md`,
+Story specs: `implemented/2026-09-08-invitations.md`, `implemented/2026-09-08-mentor-page.md`, `2026-09-08-availability-slots.md`,
 `-mentor-prices.md` — each owns its acceptance criteria and screens; this document is the sole
 authority for architecture, data model and contracts shared by those four stories. Stripe Connect is
 a separate 1.1 capability owned by `2026-09-08-stripe-connect-onboarding.md`; this epic records only
@@ -456,11 +472,16 @@ database; the visitor cannot.
 
 ### Domain events (§6, all additive)
 
-`invitations.invitation.accepted` `{ invitationId, userId, publishDueAt }`,
-`mentors.profile.published` `{ mentorProfileId, slug }`, and
-`availability.slot.published` `{ mentorProfileId, slotId, startsAt }`.
-In-process only, subscribers log; the bus swallows handler failures, so nothing durable rides on them
-(Primitives I B15's rule).
+Implementation adaptation (2026-10-28 independent review): slices 1 and 2 use typed, in-process
+best-effort notification callbacks named `invitations.invitation.accepted` and
+`mentors.profile.published`. The only registered observers write fixed event-name log entries;
+there are no event payloads or domain-event bus/subscribers in this checkout. No identifiers,
+email addresses, tokens or deadlines enter these logs. An observer failure cannot undo or turn an
+already committed mutation into an HTTP failure. Tests assert this behavior. The originally proposed
+`{ invitationId, userId, publishDueAt }` / `{ mentorProfileId, slug }` payloads and event-map module
+are deferred until a real consumer requires them; they are not published contracts.
+
+The future `availability.slot.published` notification and its data belong to slice 3.
 
 ## 📝 UI/UX
 
@@ -811,3 +832,5 @@ across the whole epic:
 - **A pre-existing §3 violation, not introduced here.** The repository's only migration,
   `Migration20260901142829.ts`, has no `down()`. Every migration in this spec ships both directions;
   the existing one should be fixed under its own issue.
+
+2026-10-27: slices 1 and 2 implemented in local PRs #9/#10 (stories #7/#8), with full CI green and independent review/QA pending. Slice 2 verification and local SMTP limitation: [run](../runs/2026-10-26-e02-mentor-profile.md). Slices 3/4 remain active.

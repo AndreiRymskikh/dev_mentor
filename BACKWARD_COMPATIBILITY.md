@@ -53,3 +53,40 @@ up to500 per table per invocation, with bound timeouts and locked-row skipping.
 It preserves identities, credentials, memberships and unexpired records. These
 commands require an explicitly selected DATABASE_URL; they never reset Compose
 volumes. See the [operator runbook](README.md#authentication-deployment-and-operator-runbook).
+
+## Optional invitations (E02 slice 1)
+
+Owner decision 2026-10-26 preserves verified self-service enrollment. Invitation acceptance adds mentor
+membership transactionally to the matching persisted verified email, retains developer/administrator
+roles and does not revoke or reissue existing sessions: current session resolution reads live roles.
+`GET /api/invitations/[token]` and `POST /api/invitations/[token]/accept` use no-store envelopes; every
+unknown/expired/revoked/consumed token returns the same 404. Mismatches return 403. Raw tokens never
+enter persistence or audit logs. Owner-only `GET /api/mentors/me/onboarding` returns the first deadline
+or null for self-service enrollment. `/mentor` requires current mentor membership.
+
+The additive invitation/profile migration and its non-destructive rollback guard are documented in
+README. `invite` and the two bounded day settings are additive operator contracts. Local issue #6
+tracks the epic, #7 invitations, #8 profile publication; external historical issue numbers are not
+local dependencies. Login continuation accepts only `/invitation/<43-character-token>` and otherwise
+retains `/account`, preventing an open redirect. UI time rendering begins in UTC on the server and
+hydrates to the viewer's zone without replacing the actual instant.
+
+## Mentor profile publication (E02 slice 2)
+
+Additive owner API routes use current persisted mentor membership, CSRF, bounded JSON and the existing
+no-store envelope. Partial updates accept only publicWorkUrl/bio/stackTags; publication readiness is
+422 with fieldErrors using those keys. Published updates cannot remove required content. Both
+invitation and existing self-service mentors can read a virtual draft; GET does not create rows.
+
+Public `/m/<slug>` and `/api/mentors/<slug>` use an explicit five-key DTO. Slugs are nullable in drafts,
+allocated once, and immutable across rename/unpublish/republish. Publication implies a non-null slug
+in PostgreSQL. Only `mentor_profiles_slug_unique` triggers the bounded fresh-transaction retry. The
+reserved list includes the real static owner segment `me`. Reads hide unpublished profiles and users
+without current verified mentor membership. Role changes preserve stored content/publication state.
+
+The schema migration is additive and down refuses saved/public content, retaining the first-deadline
+floor. UI exports add backend/panels through the existing wildcard and components/mentors explicitly;
+core adds pure validators/mentors exports. Existing form props/value conversion/keyboard behavior
+remain supported while textarea, multiselect and additional submit actions are additive. Form actions
+now use the shared controls in secondary-then-primary order. Reputation, prices, slots and payments
+remain absent. Profile publication's best-effort observer cannot undo a committed transaction.

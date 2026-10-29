@@ -1,3 +1,5 @@
+import { testMentorProfiles } from "./mentor-profile";
+import { testInvitations } from "./invitations";
 import { testAuthMaintenance } from "./auth-maintenance";
 import { testAdminUsersDatabase } from "./admin-users-db";
 import { testRoles } from "./roles";
@@ -17,7 +19,7 @@ export async function testDatabase(clientUrl: string) {
   const orm = await runtime.getOrm();
   try {
     await orm.migrator.up();
-    await orm.migrator.down();
+    await orm.migrator.down({ to: 0 });
     await orm.migrator.up();
     assert.equal(await orm.schema.getUpdateSchemaSQL({ wrap: false }), "");
     assert.deepEqual(orm.getMetadata().get(UserRole).properties.userId.fieldNames, ["user_id"]);
@@ -35,7 +37,7 @@ export async function testDatabase(clientUrl: string) {
     await runtime.transaction(async (em) => {
       em.create(User, { id, normalizedEmail: "operator@example.test", displayName: "Operator", createdAt: now, updatedAt: now });
     });
-    await assert.rejects(orm.migrator.down(), /Refusing destructive auth rollback/);
+    await assert.rejects(orm.migrator.down({ to: 0 }), /Refusing destructive auth rollback/);
     await runtime.withEntityManager(async (em) => assert.equal(await em.count(User), 1));
     await runtime.transaction(async (em) => {
       em.create(UserRole, { userId: id, role: "mentor" });
@@ -105,6 +107,8 @@ export async function testDatabase(clientUrl: string) {
     await testVerification(runtime);
     await testSessions(runtime);
     await testPasswordRecovery(runtime);
+    await testInvitations(runtime);
+    await testMentorProfiles(runtime);
     await testRoles(runtime, clientUrl);
     await testAdminUsersDatabase(runtime);
     await testAuthMaintenance(runtime, clientUrl);
@@ -113,9 +117,9 @@ export async function testDatabase(clientUrl: string) {
     await sql.execute("delete from credentials");
     await sql.execute("delete from user_roles");
     await sql.execute("delete from users");
-    await assert.rejects(orm.migrator.down(), /Refusing destructive auth rollback/);
+    await assert.rejects(orm.migrator.down({ to: 0 }), /Refusing destructive auth rollback/);
     await sql.execute("delete from rate_limit_buckets");
-    await orm.migrator.down();
+    await orm.migrator.down({ to: 0 });
     await orm.migrator.up();
     // Exercise the same root aliases/config discovery operators use.
     const execute = promisify(execFile);

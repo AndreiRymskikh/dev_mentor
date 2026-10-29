@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 const envSchema = z.object({
+  INVITATION_TTL_DAYS: z.coerce.number().int().min(1).max(365).default(14),
+  MENTOR_PUBLISH_WINDOW_DAYS: z.coerce.number().int().min(1).max(365).default(14),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.url().optional(),
   JWT_SECRET: z.string().min(32).optional(),

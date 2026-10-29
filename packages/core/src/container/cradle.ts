@@ -1,3 +1,7 @@
+import type { MentorProfileRepository } from "@devmentor/db";
+import type { MentorProfileService } from "../services/mentors/mentor-profile.service";
+import type { InvitationRepository } from "@devmentor/db";
+import type { InvitationService } from "../services/invitations/invitation.service";
 import type { AdminUsersRepository } from "@devmentor/db";
 import type { AdminUsersService } from "../services/users/admin-users.service";
 import type { RolesRepository } from "@devmentor/db";
@@ -15,6 +19,10 @@ import type { RegistrationService } from "../services/users/registration.service
 import type { RateLimitService } from "../services/limits/rate-limit.service";
 import type { EmailSender } from "../services/emails/email-sender.port";
 export interface Cradle {
+  mentorProfileRepository: MentorProfileRepository;
+  mentorProfileService: MentorProfileService;
+  invitationRepository: InvitationRepository;
+  invitationService: InvitationService;
   adminUsersRepository: AdminUsersRepository;
   adminUsersService: AdminUsersService;
   rolesRepository: RolesRepository;

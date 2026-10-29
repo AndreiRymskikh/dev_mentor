@@ -101,3 +101,9 @@ test("forgot form has only an email field and generic success", async () => {
     assert.doesNotMatch(view.host.textContent!, /Continue with GitHub/);
   } finally { await view.close(); }
 });
+test("login continues only to a well-formed local invitation URL", async () => {
+  const fetcher=vi.fn();vi.stubGlobal("fetch",fetcher);const view=await mount("login");
+  try {view.fill("email","a@example.test");view.fill("password","password");
+    for(const target of ["/invitation/"+"a".repeat(43),"https://evil.test", "//evil.test", "/invitation/bad"]){view.dom.reconfigure({url:"http://localhost/login?returnTo="+encodeURIComponent(target)});fetcher.mockResolvedValueOnce(response({ok:true,data:{}}));await view.submit();assert.equal(replace.mock.calls.at(-1)?.[0],target.endsWith("a".repeat(43))?target:"/account");}
+  } finally {await view.close();}
+});

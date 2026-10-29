@@ -1,44 +1,50 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useRef, useEffect } from "react";
 import type { ZodType } from "zod";
 import type { ApiResult } from "../api";
 import { useFormState } from "./useFormState";
 import { ErrorMessage } from "../feedback";
+import { FormField } from "../fields";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Button } from "../../components/ui/button";
 
-interface Field { name: string; label: string; type?: "text" | "email" | "password" | "number" | "checkbox" }
+interface Field { name: string; label: string; hint?: string; type?: "text" | "email" | "password" | "number" | "checkbox" | "textarea" | "multiselect"; options?: readonly {value:string;label:string}[] }
 interface Props<T> {
   schema: ZodType<T>;
   fields: Field[];
-  initialValues?: Record<string, string | number | boolean>;
+  initialValues?: Record<string, string | number | boolean | readonly string[]>;
   onSubmit: (values: T) => Promise<ApiResult<unknown>>;
   onCancel: () => void;
   onSuccess?: () => void;
+  submitLabel?: string;
+  additionalActions?: readonly {label:string;onSubmit:(values:T)=>Promise<ApiResult<unknown>>}[];
 }
-export function CrudForm<T>({ schema, fields, initialValues = {}, onSubmit, onCancel, onSuccess }: Props<T>) {
-  const id = useId();
-  const { pending, errors, message, submit } = useFormState({ schema, onSubmit, onSuccess });
+function selected(value:unknown,option:string) {return Array.isArray(value)&&value.includes(option);}
+export function CrudForm<T>({ schema, fields, initialValues = {}, onSubmit, onCancel, onSuccess, submitLabel="Save", additionalActions=[] }: Props<T>) {
+  const id = useId(), formRef=useRef<HTMLFormElement>(null), handler=useRef(onSubmit);
+  const { pending, errors, message, submit } = useFormState({ schema, onSubmit:values=>handler.current(values), onSuccess });
+  useEffect(()=>{formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();},[errors]);
   function submitForm(form: HTMLFormElement) {
     const formData = new FormData(form);
     return submit(Object.fromEntries(fields.map((field) => {
       const raw = formData.get(field.name);
-      return [field.name, field.type === "checkbox" ? raw === "on" : field.type === "number" ? (raw === "" ? undefined : Number(raw)) : raw];
+      return [field.name, field.type === "multiselect" ? formData.getAll(field.name).map(String) : field.type === "checkbox" ? raw === "on" : field.type === "number" ? (raw === "" ? undefined : Number(raw)) : raw];
     })));
   }
-  return <form onSubmit={(event) => { event.preventDefault(); void submitForm(event.currentTarget); }} onKeyDown={(event) => {
+  return <form ref={formRef} noValidate onSubmit={(event) => { event.preventDefault();const selected=Number((event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-submit-action")??-1);handler.current=additionalActions[selected]?.onSubmit??onSubmit;void submitForm(event.currentTarget); }} onKeyDown={(event) => {
     if (event.key === "Escape" && !pending) { event.preventDefault(); onCancel(); }
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); event.currentTarget.requestSubmit(); }
   }} aria-busy={pending}>
-    <fieldset disabled={pending}>
-      {fields.map((field) => <div key={field.name}>
-        <label htmlFor={`${id}-${field.name}`}>{field.label}</label>
-        <input id={`${id}-${field.name}`} name={field.name} type={field.type ?? "text"} defaultValue={field.type === "checkbox" ? undefined : String(initialValues[field.name] ?? "")} defaultChecked={field.type === "checkbox" ? Boolean(initialValues[field.name]) : undefined} aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `${id}-${field.name}-error` : undefined} />
-        {errors[field.name] && <p id={`${id}-${field.name}-error`}>{errors[field.name].join(" ")}</p>}
-      </div>)}
+    <fieldset disabled={pending} className="dm-crud-fields">
+      {fields.map((field) => field.type==="multiselect" ? <fieldset key={field.name} aria-describedby={errors[field.name]?`${id}-${field.name}-error`:undefined}><legend className="dm-label">{field.label}</legend>{(field.options??[]).map(option=><label key={option.value} className="dm-choice"><Checkbox name={field.name} value={option.value} defaultChecked={selected(initialValues[field.name],option.value)} aria-invalid={Boolean(errors[field.name])}/><span>{option.label}</span></label>)}{errors[field.name]&&<p id={`${id}-${field.name}-error`} role="alert">{errors[field.name].join(" ")}</p>}</fieldset> : <FormField key={field.name} id={`${id}-${field.name}`} label={field.label} hint={field.hint} error={errors[field.name]?.join(" ")}>
+        {control=>field.type==="textarea"?<Textarea {...control} name={field.name} defaultValue={String(initialValues[field.name]??"")}/>:field.type==="checkbox"?<input {...control} name={field.name} type="checkbox" defaultChecked={Boolean(initialValues[field.name])}/>:<Input {...control} name={field.name} type={field.type??"text"} defaultValue={String(initialValues[field.name]??"")}/>}
+      </FormField>)}
       {message && <ErrorMessage message={message} />}
       {errors._form && <ErrorMessage message={errors._form.join(" ")} />}
-      <button type="submit">{pending ? "Saving…" : "Save"}</button>
-      <button type="button" onClick={onCancel}>Cancel</button>
+      <div className="dm-form-actions"><Button variant="text" onClick={onCancel}>Cancel</Button><Button type="submit" variant={additionalActions.length?"text":"primary"}>{pending ? "Saving…" : submitLabel}</Button>{additionalActions.map((action,index)=><Button key={action.label} type="submit" data-submit-action={index}>{action.label}</Button>)}</div>
     </fieldset>
   </form>;
 }
