@@ -19,4 +19,8 @@ Start: 2026-10-29. Goal: new screenshot-driven E01 spec and linked GitHub implem
 - Shared test-environment descriptor absent; supplied mockups used as proposed visuals, no fresh live app evidence claimed.
 
 ## Deliverables and validation
-Pending publication. Docs-only: runtime lint/build/tests/integration not required and not run for this run; prior colour-task results are not attributed to these documents. Validate markdown diff, paths, all ten screenshot references and tracker linkage.
+Published specification PR [#11](https://github.com/AndreiRymskikh/dev_mentor/pull/11), tracking issue [#12](https://github.com/AndreiRymskikh/dev_mentor/issues/12), and five implementation slices #13–17. Existing #4/#6 were not modified. Labels applied through existence guards; issues remain unassigned/not in progress.
+
+Docs-only: runtime lint/build/tests/integration not required and not run for this run; prior colour-task results are not attributed to these documents. Validate markdown diff, paths, all ten screenshot references and tracker linkage.
+
+Validation passed: all ten PNG names map to the spec; all local linked design/contract paths exist; fresh-context review fixes applied; staged whitespace diff clean. Runtime tests and CI were not claimed. Final remote readback and evidence summary pending.

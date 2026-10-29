@@ -170,3 +170,16 @@ Every slice includes its own meaningful tests and leaves the app working. Checkb
 ## Review and delivery status
 
 Fresh-context scope review completed: clarified bounded UI completion versus deferred capabilities, made E02 approval/contracts S04 entry criteria, and separated independently shippable expiry/mobile work from final whole-E01 sign-off. No implementation, unit execution, browser QA or CI is claimed by this specification. Source inspection and screenshot inventory are design evidence only. Original PNGs are proposed-design evidence, not current-app screenshots. The configured shared test environment descriptor is absent, so fresh current-app screenshots and generated mockups were not produced; provided PNGs are the authoritative proposed visuals. Related issues and PR links are recorded after publication.
+
+## Related implementation issues
+
+Design-only specification PR: [#11](https://github.com/AndreiRymskikh/dev_mentor/pull/11). The spec PR does not close implementation work.
+
+- [#12 — E01 v2: Implement all screenshot-defined account and workspace screens](https://github.com/AndreiRymskikh/dev_mentor/issues/12)
+- [#13 — E01v2-S01: Shared auth/workspace frames and semantic feedback colours](https://github.com/AndreiRymskikh/dev_mentor/issues/13)
+- [#14 — E01v2-S02: Implement sign-in, registration, inbox and verified-email screens](https://github.com/AndreiRymskikh/dev_mentor/issues/14)
+- [#15 — E01v2-S03: Implement mentee home, operator home and screenshot users screen](https://github.com/AndreiRymskikh/dev_mentor/issues/15)
+- [#16 — E01v2-S04: Implement the complete mentor-home screen using E02 services](https://github.com/AndreiRymskikh/dev_mentor/issues/16)
+- [#17 — E01v2-S05: Implement expired-session recovery and mobile sign-in screens](https://github.com/AndreiRymskikh/dev_mentor/issues/17)
+
+S01 is #13; S02 is #14; S03 is #15; S04 is #16; S05 is #17. The parent #12 owns final all-screen sign-off. Existing #4/#6 remain linked dependencies and were not edited or closed.
