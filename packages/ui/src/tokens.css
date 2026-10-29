@@ -1,27 +1,29 @@
-/* Approved home-page tokens. Provenance and contrast: ../../../lekcja-06/tokeny.md.
+/* E01/E02 screenshot colour foundation (2026-10-29).
+ * Provenance: ../../../.ai/docs/designs/e01/ and e02/;
+ * rationale: ../../../.ai/runs/2026-10-29-screenshot-colour-theme.md.
+ * Dark colours are an accessible neutral/blue adaptation of the light references.
  * Raw variables are private to this file; consumers use semantic/component tokens.
  * Light is default. OS dark preference applies unless data-theme="light" is set
  * on the root element. data-theme="dark" explicitly selects dark mode.
  * This file defines values only; it does not style or import application UI.
  */
 :root {
-  --raw-color-f6f7f2: #f6f7f2;
+  --raw-color-f7f7f7: #f7f7f7;
   --raw-color-ffffff: #ffffff;
-  --raw-color-18332f: #18332f;
-  --raw-color-16312d: #16312d;
-  --raw-color-c7ef83: #c7ef83;
-  --raw-color-e9efdf: #e9efdf;
-  --raw-color-5d6f59: #5d6f59;
-  --raw-color-31534a: #31534a;
-  --raw-color-e4ece6: #e4ece6;
-  --raw-color-9fb6aa: #9fb6aa;
-  --raw-color-c6b4e0: #c6b4e0;
-  --raw-color-dce2d9: #dce2d9;
-  --raw-color-627069: #627069;
-  --raw-color-547137: #547137;
-  --raw-color-142c29: #142c29;
-  --raw-color-203d35: #203d35;
-  --raw-color-d6f3a6: #d6f3a6;
+  --raw-color-171717: #171717;
+  --raw-color-8fa8ff: #8fa8ff;
+  --raw-color-ecf0ff: #ecf0ff;
+  --raw-color-5c5c5c: #5c5c5c;
+  --raw-color-2547d0: #2547d0;
+  --raw-color-f5f5f5: #f5f5f5;
+  --raw-color-a3a3a3: #a3a3a3;
+  --raw-color-c4b5fd: #c4b5fd;
+  --raw-color-ebebeb: #ebebeb;
+  --raw-color-141414: #141414;
+  --raw-color-262626: #262626;
+  --raw-color-b2c3ff: #b2c3ff;
+  --raw-color-335cff: #335cff;
+  --raw-color-858585: #858585;
   --raw-space-4: 4px;
   --raw-space-8: 8px;
   --raw-space-12: 12px;
@@ -39,7 +41,7 @@
   --raw-font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Consolas, monospace;
   --raw-duration-interaction: 200ms;
   --raw-duration-none: 0ms;
-  --raw-shadow-code-panel: 0 22px 45px -30px #18332f80;
+  --raw-shadow-code-panel: 0 22px 45px -30px #17171780;
 
 
   /* Approved Stage 1 raw additions: F01–F08, 2026-10-19. */
@@ -154,38 +156,38 @@
   --opacity-content: var(--raw-opacity-full);
 
   /* Purpose-based aliases and component exceptions. */
-  /* Source: E1 + A1/P2; approved decisions in ../POSTEP.md. */
-  --background: var(--raw-color-f6f7f2);
-  /* Source: E1 + A1/P2; approved decisions in ../POSTEP.md. */
-  --foreground: var(--raw-color-18332f);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
+  /* Source: E01/E02 screenshot palette; colour-theme run above. */
+  --background: var(--raw-color-f7f7f7);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --foreground: var(--raw-color-171717);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
   --surface-card: var(--raw-color-ffffff);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --surface-support: var(--raw-color-e9efdf);
-  /* Source: A1; approved decisions in ../POSTEP.md. */
-  --surface-inverse: var(--raw-color-16312d);
-  /* Source: P1/P2; WCAG 1.4.3; approved decisions in ../POSTEP.md. */
-  --text-muted: var(--raw-color-627069);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --text-support: var(--raw-color-5d6f59);
-  /* Source: P1/P2; WCAG 1.4.3; approved decisions in ../POSTEP.md. */
-  --text-accent: var(--raw-color-547137);
-  /* Source: A1; approved decisions in ../POSTEP.md. */
-  --text-inverse: var(--raw-color-e4ece6);
-  /* Source: A1 consolidated; approved decisions in ../POSTEP.md. */
-  --text-inverse-muted: var(--raw-color-9fb6aa);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --action-primary: var(--raw-color-18332f);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --action-primary-hover: var(--raw-color-31534a);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --surface-support: var(--raw-color-ecf0ff);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --surface-inverse: var(--raw-color-171717);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-muted: var(--raw-color-5c5c5c);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-support: var(--raw-color-5c5c5c);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-accent: var(--raw-color-2547d0);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-inverse: var(--raw-color-f5f5f5);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-inverse-muted: var(--raw-color-a3a3a3);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --action-primary: var(--raw-color-335cff);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --action-primary-hover: var(--raw-color-2547d0);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
   --text-on-action: var(--raw-color-ffffff);
-  /* Source: A1/P2; decorative only; approved decisions in ../POSTEP.md. */
-  --border-subtle: var(--raw-color-dce2d9);
-  /* Source: P1/P2; WCAG 1.4.11; approved decisions in ../POSTEP.md. */
-  --border-control: var(--raw-color-627069);
-  /* Source: P1/P2; WCAG 1.4.11; approved decisions in ../POSTEP.md. */
-  --focus-ring: var(--raw-color-547137);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --border-subtle: var(--raw-color-ebebeb);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --border-control: var(--raw-color-858585);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --focus-ring: var(--raw-color-2547d0);
   /* Source: A1 normalized; approved decisions in ../POSTEP.md. */
   --space-related: var(--raw-space-8);
   /* Source: A1 normalized; approved decisions in ../POSTEP.md. */
@@ -208,67 +210,67 @@
   --motion-duration-interaction: var(--raw-duration-interaction);
   --code-panel-radius: var(--raw-radius-16);
   --code-panel-shadow: var(--raw-shadow-code-panel);
-  --code-syntax-keyword: var(--raw-color-c6b4e0);
-  --code-syntax-highlight: var(--raw-color-c7ef83);
+  --code-syntax-keyword: var(--raw-color-c4b5fd);
+  --code-syntax-highlight: var(--raw-color-8fa8ff);
 }
 
 :root[data-theme="dark"] {
-  /* Source: E1 + A1/P2; approved decisions in ../POSTEP.md. */
-  --background: var(--raw-color-142c29);
-  /* Source: E1 + A1/P2; approved decisions in ../POSTEP.md. */
-  --foreground: var(--raw-color-e4ece6);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --surface-card: var(--raw-color-18332f);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --surface-support: var(--raw-color-203d35);
-  /* Source: P1/P2; WCAG 1.4.3; approved decisions in ../POSTEP.md. */
-  --text-muted: var(--raw-color-9fb6aa);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --text-support: var(--raw-color-9fb6aa);
-  /* Source: P1/P2; WCAG 1.4.3; approved decisions in ../POSTEP.md. */
-  --text-accent: var(--raw-color-c7ef83);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --action-primary: var(--raw-color-c7ef83);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --action-primary-hover: var(--raw-color-d6f3a6);
-  /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-  --text-on-action: var(--raw-color-142c29);
-  /* Source: A1/P2; decorative only; approved decisions in ../POSTEP.md. */
-  --border-subtle: var(--raw-color-203d35);
-  /* Source: P1/P2; WCAG 1.4.11; approved decisions in ../POSTEP.md. */
-  --border-control: var(--raw-color-9fb6aa);
-  /* Source: P1/P2; WCAG 1.4.11; approved decisions in ../POSTEP.md. */
-  --focus-ring: var(--raw-color-c7ef83);
+  /* Source: E01/E02 screenshot palette; colour-theme run above. */
+  --background: var(--raw-color-141414);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --foreground: var(--raw-color-f5f5f5);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --surface-card: var(--raw-color-171717);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --surface-support: var(--raw-color-262626);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-muted: var(--raw-color-a3a3a3);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-support: var(--raw-color-a3a3a3);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-accent: var(--raw-color-8fa8ff);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --action-primary: var(--raw-color-8fa8ff);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --action-primary-hover: var(--raw-color-b2c3ff);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --text-on-action: var(--raw-color-141414);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --border-subtle: var(--raw-color-262626);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --border-control: var(--raw-color-a3a3a3);
+  /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+  --focus-ring: var(--raw-color-8fa8ff);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    /* Source: E1 + A1/P2; approved decisions in ../POSTEP.md. */
-    --background: var(--raw-color-142c29);
-    /* Source: E1 + A1/P2; approved decisions in ../POSTEP.md. */
-    --foreground: var(--raw-color-e4ece6);
-    /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-    --surface-card: var(--raw-color-18332f);
-    /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-    --surface-support: var(--raw-color-203d35);
-    /* Source: P1/P2; WCAG 1.4.3; approved decisions in ../POSTEP.md. */
-    --text-muted: var(--raw-color-9fb6aa);
-    /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-    --text-support: var(--raw-color-9fb6aa);
-    /* Source: P1/P2; WCAG 1.4.3; approved decisions in ../POSTEP.md. */
-    --text-accent: var(--raw-color-c7ef83);
-    /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-    --action-primary: var(--raw-color-c7ef83);
-    /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-    --action-primary-hover: var(--raw-color-d6f3a6);
-    /* Source: A1/P2; approved decisions in ../POSTEP.md. */
-    --text-on-action: var(--raw-color-142c29);
-    /* Source: A1/P2; decorative only; approved decisions in ../POSTEP.md. */
-    --border-subtle: var(--raw-color-203d35);
-    /* Source: P1/P2; WCAG 1.4.11; approved decisions in ../POSTEP.md. */
-    --border-control: var(--raw-color-9fb6aa);
-    /* Source: P1/P2; WCAG 1.4.11; approved decisions in ../POSTEP.md. */
-    --focus-ring: var(--raw-color-c7ef83);
+    /* Source: E01/E02 screenshot palette; colour-theme run above. */
+    --background: var(--raw-color-141414);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --foreground: var(--raw-color-f5f5f5);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --surface-card: var(--raw-color-171717);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --surface-support: var(--raw-color-262626);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --text-muted: var(--raw-color-a3a3a3);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --text-support: var(--raw-color-a3a3a3);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --text-accent: var(--raw-color-8fa8ff);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --action-primary: var(--raw-color-8fa8ff);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --action-primary-hover: var(--raw-color-b2c3ff);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --text-on-action: var(--raw-color-141414);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --border-subtle: var(--raw-color-262626);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --border-control: var(--raw-color-a3a3a3);
+    /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
+    --focus-ring: var(--raw-color-8fa8ff);
   }
 }
 
