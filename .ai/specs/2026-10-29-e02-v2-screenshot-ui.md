@@ -146,3 +146,17 @@ Each issue includes tests and a working incremental route. Gates block dependent
 Design/source inspection only; no fresh runtime tests or live provider operations performed. Shared test-environment descriptor is absent; provided PNGs are proposed-design evidence, not current-app screenshots. Model/contract proposals require implementation validation. New screenshot policy requests are explicitly proposals, leaving protected product decisions unchanged until approved.
 
 Fresh-context scope review completed: clarified booking completion/ownership, split content versus review implementation ownership, rejection behavior, test-mode versus live evidence and bounded cross-epic obligations. No reviewer result is claimed as runtime QA.
+
+## Related implementation and dependency issues
+
+Design PR: [#18](https://github.com/AndreiRymskikh/dev_mentor/pull/18), draft pending G1/G2.
+
+- [#19 — E02 v2: Implement all seven screenshot-defined mentor screens](https://github.com/AndreiRymskikh/dev_mentor/issues/19)
+- [#20 — E02v2-S01: Implement the full invitation landing and acceptance screen](https://github.com/AndreiRymskikh/dev_mentor/issues/20)
+- [#21 — E02v2-S02: Implement the profile-editor screenshot and real display-name saving](https://github.com/AndreiRymskikh/dev_mentor/issues/21)
+- [#22 — E02v2-S03a: Implement rich public-profile content and the complete non-review layout](https://github.com/AndreiRymskikh/dev_mentor/issues/22)
+- [#23 — E02v2-S03b: Implement approved completion-backed public ratings and reviews](https://github.com/AndreiRymskikh/dev_mentor/issues/23)
+- [#24 — E02v2-S04: Implement live payout setup, enabled and restricted screens](https://github.com/AndreiRymskikh/dev_mentor/issues/24)
+- [#25 — E02v2-D01: Specify the booking destination and trusted service-completion contract](https://github.com/AndreiRymskikh/dev_mentor/issues/25)
+
+Existing [#16](https://github.com/AndreiRymskikh/dev_mentor/issues/16) receives the screenshot02 first-workspace addendum; #13 provides the shared shell and #6 prices/slots. New issues do not duplicate these. #25 owns booking/completion specification discovery before dependent implementation. #23/#24 are explicitly not ready at their policy gates.

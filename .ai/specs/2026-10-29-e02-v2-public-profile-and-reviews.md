@@ -55,7 +55,7 @@ N02 currently forbids public ratings/reviews; D04 permits post-service feedback 
 
 [MentorCruise's own reviews policy](https://help.mentorcruise.com/article/72-removing-false-or-fraudulent-reviews-and-ratings) ties session reviews to completed sessions. Adopt a verifiable relationship boundary, not its subscription/operations machinery or a claim that DevMentor has verified outcomes.
 
-Additive migrations require up/down/schema parity and refusal to drop saved public/review content. Existing DTO stays compatible; new endpoints/versioned projections are explicitly reviewed. No public raw identity, payment or invitation fields. Independent review/QA required for scoping/schema changes. Feature rollout defaults off until G1 accepted and completion/moderation evidence exists; rollback disables publication, retaining protected user data according to approved retention.
+Additive migrations require up/down/schema parity and refusal to drop saved public/review content. Existing DTO stays compatible; new endpoints/versioned projections are explicitly reviewed. No public raw identity, payment or invitation fields. Independent review/QA required for scoping/schema changes. Review rollout defaults off until G1 is accepted and completion/moderation evidence exists; C1/C2 content delivery can ship independently under its approved scope and dependencies; rollback disables publication, retaining protected user data according to approved retention.
 
 ## ✅ Acceptance and Implementation Plan
 

@@ -19,4 +19,8 @@ Start: 2026-10-29. Goal: audit all seven E02 screenshot screens and publish a ne
 - No runtime source, secret settings, database or provider accounts changed.
 
 ## Validation
-Pending publication/readback. Docs-only: no lint/build/unit/integration/CI or live-provider testing claimed. Validate all seven PNG names, local Markdown paths, staged diff, issue relationships and guarded labels. Shared test-environment descriptor absent; supplied images are authoritative proposed visuals, no fresh current-app screenshots generated.
+Published draft specification PR #18; new parent #19 and six related issues #20–25. Existing #16 received a marker-idempotent screenshot02 acceptance addendum; its body/labels/claim were preserved.
+
+Docs-only: no lint/build/unit/integration/CI or live-provider testing claimed. Validate all seven PNG names, local Markdown paths, staged diff, issue relationships and guarded labels. Shared test-environment descriptor absent; supplied images are authoritative proposed visuals, no fresh current-app screenshots generated.
+
+Companion scope reviews: payout proposal has no material cohesion defects; public-profile review found an overbroad rollout sentence that could block independent content delivery, corrected to gate reviews only. No runtime QA implied.
