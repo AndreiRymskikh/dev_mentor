@@ -31,3 +31,7 @@ export class RateLimitError extends AppError {
     this.retryAfterSeconds = Number.isFinite(retryAfterSeconds) ? Math.min(3600, Math.max(1, Math.ceil(retryAfterSeconds))) : 3600;
   }
 }
+
+export class ReadinessError extends AppError {
+  constructor(fieldErrors:FieldErrors) {super("VALIDATION_ERROR","Complete the highlighted fields before publishing.",422,fieldErrors);}
+}

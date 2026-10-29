@@ -9,7 +9,9 @@
     "./tokens.css": "./src/tokens.css",
     "./styles.css": "./src/styles.css",
     "./components/ui/*": "./src/components/ui/*.tsx",
-    "./controls.css": "./src/controls.css"
+    "./controls.css": "./src/controls.css",
+    "./time": "./src/time/index.ts",
+    "./components/mentors": "./src/components/mentors/MentorPageView.tsx"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

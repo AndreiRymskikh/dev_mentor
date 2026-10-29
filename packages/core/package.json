@@ -8,7 +8,8 @@
     "./http": "./src/http/index.ts",
     "./container": "./src/container/index.ts",
     "./config": "./src/config/index.ts",
-    "./validators/users": "./src/validators/users/index.ts"
+    "./validators/users": "./src/validators/users/index.ts",
+    "./validators/mentors": "./src/validators/mentors/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

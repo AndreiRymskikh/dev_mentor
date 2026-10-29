@@ -1,7 +1,23 @@
 # DevMentor — E02-S02: The mentor page and its share link
 
+## Implementation decisions — 2026-10-26
+
+Owner-approved adaptation for this checkout: retain verified self-service mentor enrollment and add
+**optional** invitations. All historical invitation-only / absent-enrollment criteria below are
+superseded. Both paths keep developer membership and reach mentor onboarding/profile editing.
+Current roles are `developer`, `mentor`, `administrator`. Persisted sessions reload current roles;
+there is no `sessionVersion` and invitation acceptance preserves the existing session without
+cookie rotation. Tests must prove continued access with the original cookie.
+
+Local tracker: epic [#6](https://github.com/AndreiRymskikh/dev_mentor/issues/6), invitations
+[#7](https://github.com/AndreiRymskikh/dev_mentor/issues/7), mentor page
+[#8](https://github.com/AndreiRymskikh/dev_mentor/issues/8). Historical external issue numbers are
+provenance only. Current auth/test/shadcn foundations are implemented. At implementation start there was no mentor profile or seeder; implementation adds only the real fields needed by each slice, using the current DB runtime and
+`src/migrations` registry. Keep off-site payment scope; prices/availability are outside this run.
+
+
 Date: 2026-09-08
-Status: active
+Status: implemented and verified — 2026-10-27; independent review/QA required before merge
 Issue: [#16](https://github.com/open-mercato/ai_techleaders_project/issues/16) (epic #8)
 Depends on: E02-S01 (#15); E01 Slices 1, 2 and 4
 Design authority for architecture, data model and contracts:
@@ -9,6 +25,12 @@ Design authority for architecture, data model and contracts:
 `.ai/specs/2026-09-08-platform-primitives-ii.md` are catalogue pointers, not a second authority.
 
 A **thin story spec** — behaviour, screens and acceptance criteria only.
+
+Implementation detail for partial drafts: empty work-link/bio values clear those draft fields; the
+publish gate requires the complete trio. Removing required content from a published profile returns
+field errors and preserves the committed page; unpublish first to return to a partial draft. Readiness
+labels are neutral field names, while validation messages describe the action needed. The static
+owner API segment `me` is reserved alongside the other route names.
 
 ## 📝 TLDR
 
@@ -99,3 +121,5 @@ N02/R04, D21/R13, D24/R16.
 
 - **`headline`, `bio`, `yearsOfExperience`** — resolved in the epic spec: kept, with `bio` reused as
   R04's one description field. Retiring the unused placeholders is a separate change.
+
+Implementation: PR #10, local story #8, run [verification and limitations](../../runs/2026-10-26-e02-mentor-profile.md). Availability and prices remain in their separate active specs.
