@@ -45,9 +45,9 @@ export function AuthForm({ mode }: { mode: keyof typeof definitions }) {
   const accepted = mode === "register" && success;
   useEffect(() => { if (accepted) heading.current?.focus(); }, [accepted]);
   const fields = [
-    ...(mode === "register" ? [{ name: "displayName", label: "Display name", type: "text", autoComplete: "nickname", hint: "The name shown on your account." }] : []),
-    { name: "email", label: "Email address", type: "email", autoComplete: "email", hint: "Use the email address for your account." },
-    ...(mode !== "forgot" ? [{ name: "password", label: "Password", type: "password", autoComplete: mode === "register" ? "new-password" : "current-password", hint: mode === "register" ? "Use 12–72 UTF-8 bytes. Most letters use one byte; some characters use more." : "Enter your account password." }] : []),
+    ...(mode === "register" ? [{ name: "displayName", label: "Display name", type: "text", autoComplete: "nickname", hint: undefined }] : []),
+    { name: "email", label: "Email address", type: "email", autoComplete: "email", hint: undefined },
+    ...(mode !== "forgot" ? [{ name: "password", label: "Password", type: "password", autoComplete: mode === "register" ? "new-password" : "current-password", hint: mode === "register" ? "Use 12–72 UTF-8 bytes. Most letters use one byte; some characters use more." : undefined }] : []),
   ];
   return <div className="grid gap-group">
     <div><h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold">{accepted ? "Check your inbox" : definition.title}</h1></div>

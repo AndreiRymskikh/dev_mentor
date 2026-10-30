@@ -60,7 +60,7 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
     await browser("open", `${baseUrl}/admin`); await browser("wait", "--url", "**/admin/users");
     stage = "pagination"; await search(prefix); await wait("Page 1 of 2"); await click("Next"); await wait("Page 2 of 2"); await click("Previous"); await wait("Page 1 of 2");
     stage = "responsive-screenshots";
-    for (const [width, height, name] of [[1280, 1000, "desktop"], [320, 900, "mobile"]] as const) {
+    for (const [width, height, name] of [[1440, 1000, "desktop"], [320, 900, "mobile"]] as const) {
       await browser("set", "viewport", String(width), String(height)); await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
       await browser("wait", "--fn", "getComputedStyle(document.querySelector('.users-table')).overflowX === 'auto'");
       if (width === 320) await browser("wait", "--fn", "document.querySelector('table').getBoundingClientRect().width > innerWidth && document.querySelector('.users-table').scrollWidth > document.querySelector('.users-table').clientWidth");

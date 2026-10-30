@@ -24,13 +24,13 @@ export async function testAuthActions({ baseUrl, artifacts, browser }: Integrati
     await browser("wait", "--fn", `!document.querySelector('input[name="token"]') && sessionStorage.length === 0 && localStorage.length === 0`);
   };
   const screenshots = async (name: string) => {
-    await browser("set", "viewport", "1280", "1000");
+    await browser("set", "viewport", "1440", "1000");
     await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
     await browser("screenshot", path.join(artifacts, `${name}-desktop.png`));
     await browser("set", "viewport", "320", "900");
     await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
     await browser("screenshot", path.join(artifacts, `${name}-mobile.png`));
-    await browser("set", "viewport", "1280", "1000");
+    await browser("set", "viewport", "1440", "1000");
   };
   try {
     await client.connect(); await client.query("delete from rate_limit_buckets");

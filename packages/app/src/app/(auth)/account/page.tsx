@@ -17,7 +17,7 @@ export default async function AccountPage() {
     const token = readSessionCookie({ headers: await headers() });
     principal = await withScope(({ sessionService }) => sessionService.resolve(token));
   } catch {
-    return <div role="alert"><h1>Account temporarily unavailable</h1><p>We could not load your account. Please try again.</p><Link href="/account">Try again</Link></div>;
+    return <main role="alert"><h1>Account temporarily unavailable</h1><p>We could not load your account. Please try again.</p><Link href="/account">Try again</Link></main>;
   }
   if (!principal) redirect("/login");
   return <PrivateContent><WorkspaceFrame identity={principal.displayName} roles={principal.roles} current="account" signOut={<LogoutButton />}>

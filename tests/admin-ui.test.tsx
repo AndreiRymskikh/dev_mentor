@@ -47,7 +47,7 @@ test("admin server pages resolve raw cookies once, enforce role, recheck persist
 test("admin search normalizes and encodes, pagination/retry/empty states work", async () => {
   const fetcher = vi.fn().mockResolvedValueOnce(response({ ...initial, page: 2 })).mockResolvedValueOnce(failure("SERVICE_UNAVAILABLE")).mockResolvedValueOnce(response(initial)).mockResolvedValueOnce(response({ ...initial, items: [], page: 2 })).mockResolvedValueOnce(response({ ...initial, items: [], total: 0 })); vi.stubGlobal("fetch", fetcher);
   const view = await mount(); try {
-    assert.match(view.host.textContent!, /Yes/); assert.match(view.host.textContent!, /No/); assert.match(view.host.textContent!, /Developer \(always enabled\)/);
+    assert.match(view.host.textContent!, /Yes/); assert.match(view.host.textContent!, /No/); assert.match(view.host.textContent!, /Mentee \(always enabled\)/);
     await view.click("Next"); assert.match(fetcher.mock.calls[0][0], /page=2/); await view.click("Previous"); assert.match(view.host.textContent!, /Safe error/); await view.click("Try again");
     view.host.querySelector<HTMLInputElement>('[name="q"]')!.value = " Foo+BAR "; await view.submit(); assert.match(fetcher.mock.calls[3][0], /page=1&pageSize=20&q=foo%2Bbar/); assert.match(view.host.textContent!, /Previous page/); await view.click("Previous page"); assert.match(view.host.textContent!, /No results/);
   } finally { await view.close(); }

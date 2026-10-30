@@ -49,7 +49,7 @@ export function UsersList({ actorId, initial }: { actorId: string; initial: Admi
       setMessage("Roles updated."); await load(query.current.page);
     } finally { mutation.current = false; setPending(false); }
   }
-  if (!data) return <main><h1>Access changed</h1><p>Your administrator session is no longer available.</p><Link href="/account">Your account</Link></main>;
+  if (!data) return <section><h1>Access changed</h1><p>Your administrator session is no longer available.</p><Link href="/account">Your account</Link></section>;
   return <div><h1>Users</h1>
     <form onSubmit={event => { event.preventDefault(); const q = String(new FormData(event.currentTarget).get("q")).trim().toLowerCase(); void load(1, q); }}>
       <FormField label="Search email or name">{control => <Input {...control} name="q" maxLength={100} />}</FormField><Button type="submit" disabled={pending}>Search</Button>
@@ -60,7 +60,7 @@ export function UsersList({ actorId, initial }: { actorId: string; initial: Admi
       { key: "payout", label: "Payout setup", render: user => user.roles.includes("mentor") ? "Not available" : "Not a mentor" },
       { key: "verified", label: "Verified", render: user => user.emailVerifiedAt ? "Yes" : "No" },
       { key: "roles", label: "Roles", render: user => user.roles.map(role => role === "developer" ? "Mentee" : role === "administrator" ? "Operator" : "Mentor").join(", ") },
-    ]} rowKey={user => user.id} loading={loading} error={error} onRetry={() => { void load(query.current.page); }} page={data.page} pageSize={data.pageSize} total={data.total} onPageChange={page => { void load(page); }} actions={user => <form key={user.roles.join()} aria-label={`Roles for ${user.email}`} onSubmit={event => { void save(event, user); }}><fieldset disabled={pending || loading}><legend>Developer (always enabled)</legend><label><input type="checkbox" name="mentor" defaultChecked={user.roles.includes("mentor")} />Mentor</label><label><input type="checkbox" name="administrator" defaultChecked={user.roles.includes("administrator")} />Administrator</label><Button type="submit">Save roles</Button></fieldset></form>} /></div>
+    ]} rowKey={user => user.id} loading={loading} error={error} onRetry={() => { void load(query.current.page); }} page={data.page} pageSize={data.pageSize} total={data.total} onPageChange={page => { void load(page); }} actions={user => <form key={user.roles.join()} aria-label={`Roles for ${user.email}`} onSubmit={event => { void save(event, user); }}><fieldset disabled={pending || loading}><legend>Mentee (always enabled)</legend><label><input type="checkbox" name="mentor" defaultChecked={user.roles.includes("mentor")} />Mentor</label><label><input type="checkbox" name="administrator" defaultChecked={user.roles.includes("administrator")} />Operator</label><Button type="submit">Save roles</Button></fieldset></form>} /></div>
     {!loading && !error && data.items.length === 0 && data.page > 1 && <Button onClick={() => { void load(data.page - 1); }}>Previous page</Button>}
   </div>;
 }
