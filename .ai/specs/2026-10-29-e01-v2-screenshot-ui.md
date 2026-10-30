@@ -152,7 +152,7 @@ Every slice includes its own meaningful tests and leaves the app working. Checkb
 ### S03 — Mentee/operator homes and administrator users (depends on S01)
 - [x] Step 7: migrate `/account` with truthful session availability, additive role navigation and retained enrollment; add protected `/admin/workspace` without changing `/admin`.
 - [x] Step 8: migrate real users table, retain role management/search/pagination and allowlisted DTO; distinguish absent payout integration.
-- [ ] Step 9: test anonymous/non-admin/admin/multi-role/revoked access and logout; publish E01-05/07/08 stories and browser screenshots.
+- [x] Step 9: test anonymous/non-admin/admin/multi-role/revoked access and logout; publish E01-05/07/08 stories and browser screenshots.
 
 ### S04 — Complete mentor-home UI (depends on S01 and owning E02 services)
 - [ ] Step 10: verify S04 entry criteria: the E02 owner has recorded the accepted price policy/publication boundary in #6 and delivered tested owner API/DTO contracts. If absent, keep S04 blocked; consume these contracts without making domain policy decisions or implementing parallel services.
@@ -162,7 +162,7 @@ Every slice includes its own meaningful tests and leaves the app working. Checkb
 ### S05 — Expiry/mobile (depends on S01–S03; independently shippable before S04)
 - [x] Step 13: add safe expired-session transition, reason-specific warning and private-content cleanup; preserve 403/503 and safe invitation continuation.
 - [x] Step 14: implement E01-10 responsive match and complete screen state stories; include auth helpers and password-manager/keyboard checks.
-- [ ] Step 15: capture E01-09/10 desktop/narrow comparisons and run slice-local gates; expiry/mobile can finish independently of mentor services.
+- [x] Step 15: capture E01-09/10 desktop/narrow comparisons and run slice-local gates; expiry/mobile can finish independently of mentor services.
 
 ### Final integration milestone — all slices delivered
 - [ ] Step 16: after S01–S05, capture all ten 1440px/390px reference states plus 320/768px and dark-mode checks; run required gates/CI and record dependency gaps. E01 UI is complete only when every screen's bounded acceptance is met, including real prices/slots in S04. Explicit unavailable catalog/notes/payouts affordances remain documented deferred capabilities and cannot be claimed implemented.
@@ -186,6 +186,6 @@ S01 is #13; S02 is #14; S03 is #15; S04 is #16; S05 is #17. The parent #12 owns 
 
 ## Implementation progress — 2026-10-30
 
-[Implementation PR #26](https://github.com/AndreiRymskikh/dev_mentor/pull/26) delivers shared auth/workspace frames; real sign-in/registration/verification; current-role mentee/operator/users presentation; expiry recovery and mentor private-editor cleanup. See [run and exact validation limits](../runs/2026-10-29-e01-v2-ui.md). S01/S02 local implementation and tests are complete. S03/S05 production implementation exists; full integration, final screenshots and PR review remain in progress. Do not interpret checked implementation steps as final CI/QA sign-off.
+[Implementation PR #26](https://github.com/AndreiRymskikh/dev_mentor/pull/26) delivers shared auth/workspace frames; real sign-in/registration/verification; current-role mentee/operator/users presentation; expiry recovery and mentor private-editor cleanup. See [run and exact validation limits](../runs/2026-10-29-e01-v2-ui.md). S01/S02/S03/S05 implementation and local automated verification are complete. All 172 unit tests have 100% coverage; the full disposable integration suite passes; all four CI jobs passed at implementation 0f23139; 18 Storybook states pass in both themes at four widths. Screenshot evidence is on PR #26. Independent human QA/formal approval, native password-manager behavior and manual 200% zoom are not claimed complete. Do not interpret checked implementation steps as final CI/QA sign-off.
 
 S04 remains blocked: #6 has not delivered prices/slots or accepted currency/bounds and publication-policy reconciliation. Existing mentor profile onboarding remains available. No parallel E02 implementation, fake price/slot data, optimistic readiness, booking/cancellation or payout setup was added. This specification stays active; final Step 16 is incomplete.
