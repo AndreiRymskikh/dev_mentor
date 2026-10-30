@@ -16,11 +16,15 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
   const roles = async (index: number, mentor: boolean, admin: boolean) => {
     stage = "roles-fixture-" + index; await search(email(index)); await wait(email(index));
     const form = `form[aria-label="Roles for ${email(index)}"]`;
+    stage = "roles-mentor-" + index; await browser("scrollintoview", `${form} [name="mentor"]`);
     await browser(mentor ? "check" : "uncheck", `${form} [name="mentor"]`);
+    stage = "roles-operator-" + index; await browser("scrollintoview", `${form} [name="administrator"]`);
     await browser(admin ? "check" : "uncheck", `${form} [name="administrator"]`);
+    stage = "roles-save-" + index; await browser("scrollintoview", `${form} button[type="submit"]`);
     await browser("click", `${form} button[type="submit"]`);
   };
   try {
+    await browser("set", "media", "light");
     await client.connect(); const passwordHash = await hash(password, 12);
     await client.query("delete from rate_limit_buckets");
     for (const [index, id] of ids.entries()) {
@@ -84,7 +88,7 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
     stage = "self-demoted-new-entry"; await browser("open", `${baseUrl}/admin/users`); await wait("Access denied");
     await login(1); await browser("open", `${baseUrl}/admin/users`); await wait("Users");
     stage = "revoked-session-search"; await client.query("update auth_sessions set revoked_at=now() where user_id=$1 and revoked_at is null", [ids[1]]);
-    await browser("fill", '[name="q"]', prefix); await click("Search"); await browser("wait", "--url", "**/login");
+    await browser("fill", '[name="q"]', prefix); await click("Search"); await browser("wait", "--url", "**/login?reason=session-expired");
     await browser("wait", "--fn", "!document.querySelector('table')");
     await wait("Your session has expired");
     for (const width of [320, 390, 768, 1440]) {
