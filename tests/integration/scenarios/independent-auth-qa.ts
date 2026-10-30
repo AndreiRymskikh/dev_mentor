@@ -70,8 +70,9 @@ export async function testIndependentAuthQa({ baseUrl, artifacts, browser }: Int
     await search(emails[1]); await settled();
     stage = "synthetic-role-failure-retry";
     const form = `form[aria-label="Roles for ${emails[1]}"]`;
+    await browser("scrollintoview", `${form} [name="mentor"]`);
     await browser("check", `${form} [name="mentor"]`);
-    await intercept(`/api/admin/users/${ids[1]}/roles`, "failure"); await browser("click", `${form} button[type=submit]`); await wait("Service temporarily unavailable");
+    await intercept(`/api/admin/users/${ids[1]}/roles`, "failure"); await browser("scrollintoview", `${form} button[type=submit]`); await browser("click", `${form} button[type=submit]`); await wait("Service temporarily unavailable");
     assert.equal((await client.query("select count(*)::int as count from user_roles where user_id=$1 and role='mentor'", [ids[1]])).rows[0].count, 0);
     await restore(); await intercept(`/api/admin/users/${ids[1]}/roles`, "delay");
     await evaluate(`document.querySelector(${JSON.stringify(form)}).requestSubmit(); document.querySelector(${JSON.stringify(form)}).requestSubmit(); true`);

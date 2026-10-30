@@ -1,10 +1,11 @@
+import { Workspace as WorkspaceFrame } from "../packages/app/src/app/workspace";
 import assert from "node:assert/strict";
 import { test, vi } from "vitest";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { JSDOM } from "jsdom";
-import { WorkspaceFrame, AuthFrame } from "../packages/ui/src/backend/frames";
+import { AuthFrame } from "../packages/ui/src/backend/frames";
 import { AuthForm } from "../packages/app/src/app/(auth)/auth-form";
 import OperatorPage from "../packages/app/src/app/admin/workspace/page";
 const { scope, headers, resolve, list, replace, refresh } = vi.hoisted(() => ({ scope: vi.fn(), headers: vi.fn(), resolve: vi.fn(), list: vi.fn(), replace: vi.fn(), refresh: vi.fn() }));

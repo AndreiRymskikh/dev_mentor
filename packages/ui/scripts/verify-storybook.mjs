@@ -175,7 +175,7 @@ try {
   }
 
   const e01 = Object.values(index.entries).filter(entry => entry.type === 'story' && entry.title === 'Accounts/E01 screens');
-  assert.equal(e01.length, 17, 'E01 state inventory');
+  assert.equal(e01.length, 18, 'E01 state inventory');
   for (const theme of ['light', 'dark']) {
     for (const width of [320,390,768,1440]) {
       await page.setViewportSize({width,height:1000});
