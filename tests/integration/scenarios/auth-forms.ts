@@ -17,7 +17,7 @@ export async function testAuthForms({ baseUrl, artifacts, browser }: Integration
     await browser("set", "viewport", "1280", "1000");
     await browser("open", `${baseUrl}/register`);
     await browser("wait", "--fn", `(() => {
-      const main = document.querySelector('main');
+      const main = document.querySelector('.dm-auth-card');
       const form = document.querySelector('fieldset');
       if (!main || !form) return false;
       return main.getBoundingClientRect().width <= 520 && getComputedStyle(form).display === 'grid' && parseFloat(getComputedStyle(form).rowGap) >= 16;
@@ -36,14 +36,14 @@ export async function testAuthForms({ baseUrl, artifacts, browser }: Integration
     await click("Continue with GitHub"); await waitText("GitHub sign-in will be implemented soon.");
     assert.equal(messages.length, before);
     await click("Create account");
-    await waitText("Request accepted");
+    await waitText("Check your inbox");
     await waitText("Verify your email using the link, then sign in.");
     const acceptedVisible = `(() => {
       const heading = document.querySelector('h1');
       const next = document.querySelector('nav[aria-label="Registration next steps"]');
       if (!heading || !next || document.querySelector('form') || document.querySelector('input[type="password"]')) return false;
       const links = [...next.querySelectorAll('a')];
-      return document.activeElement === heading && heading.textContent === 'Request accepted' && links.length === 2 && links.every(link => {
+      return document.activeElement === heading && heading.textContent === 'Check your inbox' && links.length === 3 && links.every(link => {
         const box = link.getBoundingClientRect();
         return box.top >= 0 && box.bottom <= window.innerHeight && box.left >= 0 && box.right <= window.innerWidth;
       }) && next.querySelector('a[href="/login"]')?.textContent === 'Sign in' && next.querySelector('a[href="/verify-email"]')?.textContent === 'Request another verification email' && document.querySelectorAll('[role="status"]').length === 1;

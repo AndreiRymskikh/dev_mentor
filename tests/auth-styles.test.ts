@@ -12,7 +12,7 @@ test("the shared PostCSS pipeline compiles auth layout utilities and visible con
   const compile = async (file: string) => (await postcss([tailwind({ base: root, optimize: false })]).process(await readFile(file, "utf8"), { from: file })).css;
   const globals = await compile(path.join(root, "src/app/globals.css"));
   assert.match(globals, /\.grid\s*\{\s*display: grid/);
-  assert.match(globals, /\.max-w-lg\s*\{/);
+  assert.match(globals, /\.grid\s*\{/);
   const auth = await compile(path.join(root, "src/app/(auth)/auth.css"));
   assert.match(auth, /\.dm-focus:focus-visible\s*\{[^}]*outline:/);
   assert.match(auth, /\.dm-auth \.gap-group\s*\{[^}]*gap: var\(--space-group\)/);

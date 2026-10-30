@@ -13,8 +13,8 @@ import AdminPage from "../packages/app/src/app/admin/page";
 import { MentorButton } from "../packages/app/src/app/(auth)/account/mentor-button";
 import { ForbiddenError } from "@devmentor/core/http";
 import type { AdminUsersPage } from "@devmentor/core/validators/users";
-const { refresh, headers, scope, resolve, list, redirect } = vi.hoisted(() => ({ refresh: vi.fn(), headers: vi.fn(), scope: vi.fn(), resolve: vi.fn(), list: vi.fn(), redirect: vi.fn(() => { throw new Error("REDIRECT"); }) }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }), redirect }));
+const { replace, refresh, headers, scope, resolve, list, redirect } = vi.hoisted(() => ({ replace: vi.fn(), refresh: vi.fn(), headers: vi.fn(), scope: vi.fn(), resolve: vi.fn(), list: vi.fn(), redirect: vi.fn(() => { throw new Error("REDIRECT"); }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh, replace }), redirect }));
 vi.mock("next/headers", () => ({ headers }));
 vi.mock("@devmentor/core/container", () => ({ withScope: scope }));
 const id = "00000000-0000-4000-8000-000000000001";
@@ -85,8 +85,8 @@ test("mentor enrollment posts fixed empty payload, blocks duplicates and refresh
 
 test("account exposes mentor action and administrator navigation only for current memberships", async () => {
   scope.mockImplementation((run: (value: unknown) => unknown) => run({ sessionService: { resolve } })); headers.mockResolvedValue(new Headers());
-  resolve.mockResolvedValue({ id, displayName: "Member", roles: ["developer"] }); let html = renderToStaticMarkup(await AccountPage()); assert.match(html, /Become a mentor/); assert.doesNotMatch(html, /Manage users/);
-  resolve.mockResolvedValue({ id, displayName: "Member", roles: ["developer", "mentor", "administrator"] }); html = renderToStaticMarkup(await AccountPage()); assert.match(html, /Manage users/); assert.doesNotMatch(html, /Become a mentor/);
+  resolve.mockResolvedValue({ id, displayName: "Member", roles: ["developer"] }); let html = renderToStaticMarkup(await AccountPage()); assert.match(html, /Become a mentor/); assert.doesNotMatch(html, /Operator home/);
+  resolve.mockResolvedValue({ id, displayName: "Member", roles: ["developer", "mentor", "administrator"] }); html = renderToStaticMarkup(await AccountPage()); assert.match(html, /Operator home/); assert.doesNotMatch(html, /Become a mentor/);
 });
 test("unexpected list failure has a retry and delayed query cannot restore self-demoted private data", async () => {
   const mocked = vi.spyOn(api, "apiCall").mockRejectedValueOnce(new Error("unexpected")); const view = await mount();

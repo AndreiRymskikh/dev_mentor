@@ -1,7 +1,8 @@
 "use client";
+import { protectedRequest } from "../../../auth/protected-request";
 import { useState } from "react";
 import { mentorProfileUpdateSchema, type OwnerMentorProfile } from "@devmentor/core/validators/mentors";
-import { apiCall, useApiResource } from "@devmentor/ui/backend/api";
+import { useApiResource } from "@devmentor/ui/backend/api";
 import { CrudForm } from "@devmentor/ui/backend/forms";
 import { ResourcePanel } from "@devmentor/ui/backend/panels";
 import { ErrorMessage, ReadinessChecklist } from "@devmentor/ui/backend/feedback";
@@ -9,8 +10,8 @@ import { MentorPageView } from "@devmentor/ui/components/mentors";
 import { Button } from "@devmentor/ui/components/ui/button";
 import { Link } from "@devmentor/ui/components/ui/link";
 export function ProfileEditor({options,origin}:{options:readonly {value:string;label:string}[];origin:string}) {
-  const resource=useApiResource<OwnerMentorProfile>("/api/mentors/me");const [working,setWorking]=useState(false),[notice,setNotice]=useState(""),[error,setError]=useState("");
-  async function request(path:string,method:string,values:unknown) {setWorking(true);setNotice("");setError("");const result=await apiCall(path,{method,body:JSON.stringify(values)});setWorking(false);return result;}
+  const resource=useApiResource<OwnerMentorProfile>("/api/mentors/me", protectedRequest<OwnerMentorProfile>);const [working,setWorking]=useState(false),[notice,setNotice]=useState(""),[error,setError]=useState("");
+  async function request(path:string,method:string,values:unknown) {setWorking(true);setNotice("");setError("");const result=await protectedRequest(path,{method,body:JSON.stringify(values)});setWorking(false);return result;}
   async function copyLink(share:string) {setNotice("");setError("");try{await navigator.clipboard.writeText(origin?share:`${window.location.origin}${share}`);setNotice("Link copied.");}catch{setError("Unable to copy the link. Select and copy the link above.");}}
   return <ResourcePanel resource={resource}>{profile=>{
     const share=profile.slug?`${origin}/m/${profile.slug}`:null;

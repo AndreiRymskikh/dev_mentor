@@ -90,3 +90,21 @@ core adds pure validators/mentors exports. Existing form props/value conversion/
 remain supported while textarea, multiselect and additional submit actions are additive. Form actions
 now use the shared controls in secondary-then-primary order. Reputation, prices, slots and payments
 remain absent. Profile publication's best-effort observer cannot undo a committed transaction.
+
+## E01 v2 account and workspace presentation
+
+Authentication endpoints, session cookies, role values and /account remain compatible.
+/admin still redirects authorized administrators to /admin/users; /admin/workspace is
+an additive, identically guarded landing route. Developer and administrator are shown
+as Mentee and Operator without changing persisted membership. Navigation remains
+additive and never substitutes for server authorization. The users DTO is unchanged;
+payout cells describe absent integration instead of inferring provider status.
+
+Public auth cards retain recovery/resend and GitHub coming-soon feedback. Verification
+never creates a session. The expired-login reason is display-only. App-owned protected
+requests notify mounted private-content boundaries of a 401, clear private content and
+navigate to /login?reason=session-expired. A 403 remains denial; a 503 stays retryable.
+useApiResource adds an optional stable request adapter while retaining the existing
+default transport and cancellation behavior. Rollback removes these UI consumers and
+styles without schema changes or loss of authentication/profile data. Complete mentor
+home composition remains blocked until E02 price/slot contracts and policy approvals.

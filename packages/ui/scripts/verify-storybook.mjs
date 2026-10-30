@@ -174,6 +174,30 @@ try {
     }
   }
 
+  const e01 = Object.values(index.entries).filter(entry => entry.type === 'story' && entry.title === 'Accounts/E01 screens');
+  assert.equal(e01.length, 17, 'E01 state inventory');
+  for (const theme of ['light', 'dark']) {
+    for (const width of [320,390,768,1440]) {
+      await page.setViewportSize({width,height:1000});
+      for (const entry of e01) {
+        await page.goto(`${origin}/iframe.html?id=${entry.id}&viewMode=story&globals=theme:${theme}`);
+        await page.locator('.dm-auth h1, .dm-workspace h1').waitFor();
+        await page.evaluate(() => document.fonts.ready);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${entry.id} overflow at ${width}/${theme}`);
+        if (entry.id.endsWith('--multi-role') && width <= 768) {
+          const trigger = page.getByRole('button',{name:'Open navigation',exact:true});
+          await trigger.click(); await page.getByRole('link',{name:'Operator home',exact:true}).waitFor();
+          await page.keyboard.press('Escape'); await expectExpanded(false);
+          assert.equal(await trigger.evaluate(node=>node===document.activeElement),true);
+          async function expectExpanded(value) { assert.equal(await trigger.getAttribute('aria-expanded'),String(value)); }
+        }
+        if ([320,390,1440].includes(width)) await page.screenshot({path:path.join(artifacts,`${entry.id}-${theme}-${width}.png`),fullPage:true});
+      }
+    }
+  }
+  assert.deepEqual(errors, [], 'E01 runtime errors');
+  console.log(`Verified ${e01.length} E01 states in both themes at 320, 390, 768 and 1440px.`);
+
   await fs.writeFile(path.join(artifacts,'built-docs-report.json'),JSON.stringify({pages:docs.length,checks:results.length,batchResults,runtimeErrors:errors,results},null,2)+'\n');
   console.log(`Verified ${docs.length} built documentation pages in both themes at 320, 768 and 1440px (${results.length} checks). Local fonts, root themes, overflow, MDX tables and runtime errors checked.`);
 } finally {

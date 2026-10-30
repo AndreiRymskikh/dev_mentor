@@ -11,7 +11,7 @@ import AccountPage from "../packages/app/src/app/(auth)/account/page";
 import { LogoutButton } from "../packages/app/src/app/(auth)/account/logout-button";
 const { cookie, resolve, scope, redirect } = vi.hoisted(() => ({ cookie: vi.fn(), resolve: vi.fn(), scope: vi.fn(), redirect: vi.fn(() => { throw new Error("REDIRECT"); }) }));
 vi.mock("next/headers", () => ({ headers: cookie }));
-vi.mock("next/navigation", () => ({ redirect }));
+vi.mock("next/navigation", () => ({ redirect, useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("@devmentor/core/container", () => ({ withScope: scope }));
 const token = "a".repeat(43);
 async function mount(mode: "verify" | "reset" | "logout", suffix = `?discard=yes#token=${token}`, stripFailure = false) {
@@ -77,7 +77,7 @@ test("action errors distinguish validation, network and service outages without 
 test("account resolves once through scoped service, shows all roles, fails closed and offers outage retry", async () => {
   scope.mockImplementation((run: (value: unknown) => unknown) => run({ sessionService: { resolve } }));
   cookie.mockResolvedValue(new Headers({ cookie: "devmentor-session=opaque" })); resolve.mockResolvedValue({ id: "user-id", displayName: "Test Member", roles: ["developer", "mentor", "administrator"] });
-  const html = renderToStaticMarkup(await AccountPage()); assert.match(html, /Test Member/); for (const role of ["developer", "mentor", "administrator"]) assert.match(html, new RegExp(role)); assert.doesNotMatch(html, /opaque|user-id/); assert.deepEqual(resolve.mock.calls.at(-1), ["opaque"]);
+  const html = renderToStaticMarkup(await AccountPage()); assert.match(html, /Test Member/); for (const role of ["Mentee", "Mentor", "Operator"]) assert.match(html, new RegExp(role)); assert.doesNotMatch(html, /opaque|user-id/); assert.deepEqual(resolve.mock.calls.at(-1), ["opaque"]);
   for (const value of ["", "devmentor-session=a; devmentor-session=b"]) { cookie.mockResolvedValue(new Headers({ cookie: value })); resolve.mockResolvedValue(null); await assert.rejects(AccountPage(), /REDIRECT/); assert.deepEqual(resolve.mock.calls.at(-1), [null]); }
   cookie.mockResolvedValue(new Headers({ cookie: "devmentor-session=invalid" })); await assert.rejects(AccountPage(), /REDIRECT/); assert.deepEqual(redirect.mock.calls.at(-1), ["/login"]);
   resolve.mockRejectedValue(new Error("secret database detail")); const outage = renderToStaticMarkup(await AccountPage()); assert.match(outage, /Account temporarily unavailable/); assert.match(outage, /href="\/account"/); assert.doesNotMatch(outage, /secret database detail/);
