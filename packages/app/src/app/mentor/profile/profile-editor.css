@@ -1,4 +1,4 @@
-.dm-profile-page { width: 100%; max-width: var(--size-content-max); margin-inline: auto; padding: var(--space-section) var(--space-panel); color: var(--foreground); overflow-wrap: anywhere; }
+.dm-profile-page { width: 100%; max-width: var(--size-content-max); margin-inline: auto; padding: 0; color: var(--foreground); overflow-wrap: anywhere; }
 .dm-profile-editor { display: grid; gap: var(--space-panel); }
 .dm-profile-heading { display: grid; gap: var(--space-related); }
 .dm-profile-heading h1 { font-size: var(--font-size-section); font-weight: var(--weight-heading); line-height: var(--line-heading); }
@@ -23,4 +23,4 @@
 .dm-profile-preview-link { display: flex; align-items: center; justify-content: center; gap: var(--space-related); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-control); min-height: var(--size-control); }
 .dm-profile-preview { display: grid; gap: var(--space-group); }
 @media (max-width: 900px) { .dm-profile-columns { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 480px) { .dm-profile-page, .dm-profile-card { padding: var(--space-group); } .dm-profile-heading h1 { font-size: var(--font-size-section); } }
+@media (max-width: 480px) { .dm-profile-card { padding: var(--space-group); } .dm-profile-heading h1 { font-size: var(--font-size-section); } }
