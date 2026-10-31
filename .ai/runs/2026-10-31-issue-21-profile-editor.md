@@ -10,7 +10,7 @@ Validation: lint, typecheck, 100% coverage, build, disposable PostgreSQL/browser
 ## Progress
 
 ### Phase 1: Name persistence
-- [ ] 1.1 Extend schema/service/repository and meaningful unit/database tests.
+- [x] 1.1 Extend schema/service/repository and meaningful unit/database tests.
 ### Phase 2: Editor
 - [ ] 2.1 Match editor/share composition and topic chips; retain save/publication/error flows and test them.
 ### Phase 3: Verification
@@ -18,3 +18,5 @@ Validation: lint, typecheck, 100% coverage, build, disposable PostgreSQL/browser
 
 ## Activity
 - Read issue, spec, engineering rules, lessons and installed Next client-boundary guide. No competing implementation PR or claim found.
+
+- Name persistence: strict optional trimmed 1–100, protected fields denied, name omission preserved; PostgreSQL proves rollback, session/admin/public consumers and serialized role removal. Unit coverage is 100%.
