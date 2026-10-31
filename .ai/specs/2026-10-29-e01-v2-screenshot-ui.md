@@ -1,6 +1,6 @@
 # E01 v2 — Screenshot-driven account and workspace UI
 
-Date: 2026-10-29. Status: proposed; implementation not started.
+Date: 2026-10-29. Status: partially implemented in PR #26; S04 and final all-screen sign-off remain dependency-blocked.
 Source: all ten owner-supplied PNGs in `.ai/docs/designs/e01/`.
 
 ## 📝 TLDR
@@ -140,19 +140,19 @@ A literal static recreation loses real state/security; a new auth backend duplic
 Every slice includes its own meaningful tests and leaves the app working. Checkboxes represent implementation, not specification-writing completion.
 
 ### S01 — Shared frames and semantic feedback
-- [ ] Step 1: confirm the shared screenshot palette exists on the base; add contrast-tested success/warning (and danger only with a real destructive consumer) tokens and dark equivalents.
-- [ ] Step 2: add the smallest auth/workspace presentation primitives, semantic layout tokens and responsive navigation used by actual consumers; preserve exports and migrate one route in the same change.
-- [ ] Step 3: add frame/status stories and keyboard/mobile tests; validate production CSS and contrast.
+- [x] Step 1: confirm the shared screenshot palette exists on the base; add contrast-tested success/warning (and danger only with a real destructive consumer) tokens and dark equivalents.
+- [x] Step 2: add the smallest auth/workspace presentation primitives, semantic layout tokens and responsive navigation used by actual consumers; preserve exports and migrate one route in the same change.
+- [x] Step 3: add frame/status stories and keyboard/mobile tests; validate production CSS and contrast.
 
 ### S02 — Authentication and verification screens (depends on S01)
-- [ ] Step 4: migrate sign-in/register, GitHub explanation placement and recovery links; retain schemas/security.
-- [ ] Step 5: implement accepted-registration and verified-email presentations, token failure/retry/resend and focus transitions without creating a session.
-- [ ] Step 6: add deterministic E01-01–04 stories and real disposable email/HTTP/browser flow tests.
+- [x] Step 4: migrate sign-in/register, GitHub explanation placement and recovery links; retain schemas/security.
+- [x] Step 5: implement accepted-registration and verified-email presentations, token failure/retry/resend and focus transitions without creating a session.
+- [x] Step 6: add deterministic E01-01–04 stories and real disposable email/HTTP/browser flow tests.
 
 ### S03 — Mentee/operator homes and administrator users (depends on S01)
-- [ ] Step 7: migrate `/account` with truthful session availability, additive role navigation and retained enrollment; add protected `/admin/workspace` without changing `/admin`.
-- [ ] Step 8: migrate real users table, retain role management/search/pagination and allowlisted DTO; distinguish absent payout integration.
-- [ ] Step 9: test anonymous/non-admin/admin/multi-role/revoked access and logout; publish E01-05/07/08 stories and browser screenshots.
+- [x] Step 7: migrate `/account` with truthful session availability, additive role navigation and retained enrollment; add protected `/admin/workspace` without changing `/admin`.
+- [x] Step 8: migrate real users table, retain role management/search/pagination and allowlisted DTO; distinguish absent payout integration.
+- [x] Step 9: test anonymous/non-admin/admin/multi-role/revoked access and logout; publish E01-05/07/08 stories and browser screenshots.
 
 ### S04 — Complete mentor-home UI (depends on S01 and owning E02 services)
 - [ ] Step 10: verify S04 entry criteria: the E02 owner has recorded the accepted price policy/publication boundary in #6 and delivered tested owner API/DTO contracts. If absent, keep S04 blocked; consume these contracts without making domain policy decisions or implementing parallel services.
@@ -160,9 +160,9 @@ Every slice includes its own meaningful tests and leaves the app working. Checkb
 - [ ] Step 12: prove owner isolation, no optimistic false completion, correct UTC conversion, all lower-page content and desktop/narrow behavior; remain blocked if required backing capabilities are absent.
 
 ### S05 — Expiry/mobile (depends on S01–S03; independently shippable before S04)
-- [ ] Step 13: add safe expired-session transition, reason-specific warning and private-content cleanup; preserve 403/503 and safe invitation continuation.
-- [ ] Step 14: implement E01-10 responsive match and complete screen state stories; include auth helpers and password-manager/keyboard checks.
-- [ ] Step 15: capture E01-09/10 desktop/narrow comparisons and run slice-local gates; expiry/mobile can finish independently of mentor services.
+- [x] Step 13: add safe expired-session transition, reason-specific warning and private-content cleanup; preserve 403/503 and safe invitation continuation.
+- [x] Step 14: implement E01-10 responsive match and complete screen state stories; include auth helpers and password-manager/keyboard checks.
+- [x] Step 15: capture E01-09/10 desktop/narrow comparisons and run slice-local gates; expiry/mobile can finish independently of mentor services.
 
 ### Final integration milestone — all slices delivered
 - [ ] Step 16: after S01–S05, capture all ten 1440px/390px reference states plus 320/768px and dark-mode checks; run required gates/CI and record dependency gaps. E01 UI is complete only when every screen's bounded acceptance is met, including real prices/slots in S04. Explicit unavailable catalog/notes/payouts affordances remain documented deferred capabilities and cannot be claimed implemented.
@@ -183,3 +183,9 @@ Design-only specification PR: [#11](https://github.com/AndreiRymskikh/dev_mentor
 - [#17 — E01v2-S05: Implement expired-session recovery and mobile sign-in screens](https://github.com/AndreiRymskikh/dev_mentor/issues/17)
 
 S01 is #13; S02 is #14; S03 is #15; S04 is #16; S05 is #17. The parent #12 owns final all-screen sign-off. Existing #4/#6 remain linked dependencies and were not edited or closed.
+
+## Implementation progress — 2026-10-30
+
+[Implementation PR #26](https://github.com/AndreiRymskikh/dev_mentor/pull/26) delivers shared auth/workspace frames; real sign-in/registration/verification; current-role mentee/operator/users presentation; expiry recovery and mentor private-editor cleanup. See [run and exact validation limits](../runs/2026-10-29-e01-v2-ui.md). S01/S02/S03/S05 implementation and local automated verification are complete. All 172 unit tests have 100% coverage; the full disposable integration suite passes; all four CI jobs passed at implementation 0f23139; 18 Storybook states pass in both themes at four widths. Screenshot evidence is on PR #26. Independent human QA/formal approval, native password-manager behavior and manual 200% zoom are not claimed complete. Do not interpret checked implementation steps as final CI/QA sign-off.
+
+S04 remains blocked: #6 has not delivered prices/slots or accepted currency/bounds and publication-policy reconciliation. Existing mentor profile onboarding remains available. No parallel E02 implementation, fake price/slot data, optimistic readiness, booking/cancellation or payout setup was added. This specification stays active; final Step 16 is incomplete.

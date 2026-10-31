@@ -15,6 +15,8 @@ export function contrast(foreground: string, background: string): number {
 }
 
 export const colorPairs = [
+  ['text-success', 'surface-success', 4.5] as const,
+  ['text-warning', 'surface-warning', 4.5] as const,
   ...['background', 'surface-card', 'surface-support'].map(surface => ['foreground', surface, 4.5] as const),
   ...['background', 'surface-card'].map(surface => ['text-muted', surface, 4.5] as const),
   ['text-support', 'surface-support', 4.5] as const,

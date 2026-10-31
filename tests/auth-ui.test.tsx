@@ -57,7 +57,7 @@ test("registration validates, prevents duplicate submissions and focuses a termi
     assert.equal(view.host.querySelector('input[type="password"]'), null);
     assert.equal(view.host.querySelectorAll('[role="status"]').length, 1);
     assert.equal(view.dom.window.document.activeElement, view.host.querySelector("h1"));
-    assert.equal(view.host.querySelector("h1")?.textContent, "Request accepted");
+    assert.equal(view.host.querySelector("h1")?.textContent, "Check your inbox");
     const [url, options] = fetcher.mock.calls[0] as unknown as [string, RequestInit];
     assert.equal(url, "/api/auth/register"); assert.deepEqual(JSON.parse(String(options.body)), { displayName: "Alice", email: "alice@example.test", password: "safe password value" });
     assert.equal(new Headers(options.headers).get("X-DevMentor-CSRF"), "1");

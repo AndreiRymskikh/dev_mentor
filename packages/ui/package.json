@@ -11,7 +11,8 @@
     "./components/ui/*": "./src/components/ui/*.tsx",
     "./controls.css": "./src/controls.css",
     "./time": "./src/time/index.ts",
-    "./components/mentors": "./src/components/mentors/MentorPageView.tsx"
+    "./components/mentors": "./src/components/mentors/MentorPageView.tsx",
+    "./frames.css": "./src/frames.css"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -16,11 +16,15 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
   const roles = async (index: number, mentor: boolean, admin: boolean) => {
     stage = "roles-fixture-" + index; await search(email(index)); await wait(email(index));
     const form = `form[aria-label="Roles for ${email(index)}"]`;
+    stage = "roles-mentor-" + index; await browser("scrollintoview", `${form} [name="mentor"]`);
     await browser(mentor ? "check" : "uncheck", `${form} [name="mentor"]`);
+    stage = "roles-operator-" + index; await browser("scrollintoview", `${form} [name="administrator"]`);
     await browser(admin ? "check" : "uncheck", `${form} [name="administrator"]`);
+    stage = "roles-save-" + index; await browser("scrollintoview", `${form} button[type="submit"]`);
     await browser("click", `${form} button[type="submit"]`);
   };
   try {
+    await browser("set", "media", "light");
     await client.connect(); const passwordHash = await hash(password, 12);
     await client.query("delete from rate_limit_buckets");
     for (const [index, id] of ids.entries()) {
@@ -30,19 +34,37 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
       if (index < 2) await client.query("insert into user_roles(user_id,role) values($1,'administrator')", [id]);
     }
     stage = "anonymous-http";
-    for (const pathname of ["/admin", "/admin/users"]) {
+    for (const pathname of ["/admin", "/admin/users", "/admin/workspace"]) {
       const result = await fetch(`${internalBaseUrl}${pathname}`, { redirect: "manual" }); assert.equal(result.status, 307); assert.equal(result.headers.get("location"), "/login"); assert.match(result.headers.get("cache-control") ?? "", /no-store/);
     }
     await browser("cookies", "clear"); await browser("open", `${baseUrl}/admin`); await browser("wait", "--url", "**/login");
-    await login(2); stage = "mentor-enrollment"; await click("Become a mentor"); await wait("mentor");
+    await login(2); stage = "mentor-enrollment"; await click("Become a mentor"); await browser("wait", "--fn", "!!document.querySelector('a[href=\"/mentor\"]')");
     assert.equal((await client.query("select count(*)::int as count from user_roles where user_id=$1 and role='mentor'", [ids[2]])).rows[0].count, 1);
     stage = "nonadministrator-pages";
-    for (const pathname of ["/admin", "/admin/users"]) { await browser("open", `${baseUrl}${pathname}`); await wait("Access denied"); await browser("wait", "--fn", `!document.body.innerText.includes(${JSON.stringify(email(0))})`); }
-    await login(0); await browser("find", "role", "link", "click", "--name", "Manage users", "--exact"); await browser("wait", "--url", "**/admin/users"); await wait("Users");
+    for (const pathname of ["/admin", "/admin/users", "/admin/workspace"]) { await browser("open", `${baseUrl}${pathname}`); await wait("Access denied"); await browser("wait", "--fn", `!document.body.innerText.includes(${JSON.stringify(email(0))})`); }
+    await login(0);
+    stage = "mentee-workspace-layout";
+    for (const width of [320, 390, 768, 1440]) {
+      await browser("set", "viewport", String(width), "1000");
+      await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
+      await wait("Sessions are not available yet");
+      if (width <= 768) {
+        await click("Open navigation"); await wait("Operator home"); await browser("press", "Escape");
+        await browser("wait", "--fn", "document.activeElement?.getAttribute('aria-label') === 'Open navigation' && document.activeElement.getAttribute('aria-expanded') === 'false'");
+      }
+      await browser("screenshot", path.join(artifacts, `e01-05-mentee-${width}.png`));
+    }
+    await browser("set", "viewport", "1440", "1000");
+    stage = "operator-home";
+    await browser("open", `${baseUrl}/admin/workspace`); await wait("Manage workspace access");
+    await browser("screenshot", path.join(artifacts, "e01-07-operator.png"));
+    await browser("find", "role", "link", "click", "--name", "View users", "--exact");
+    await browser("wait", "--url", "**/admin/users");
+    await browser("find", "role", "link", "click", "--name", "Users", "--exact"); await browser("wait", "--url", "**/admin/users"); await wait("Users");
     await browser("open", `${baseUrl}/admin`); await browser("wait", "--url", "**/admin/users");
     stage = "pagination"; await search(prefix); await wait("Page 1 of 2"); await click("Next"); await wait("Page 2 of 2"); await click("Previous"); await wait("Page 1 of 2");
     stage = "responsive-screenshots";
-    for (const [width, height, name] of [[1280, 1000, "desktop"], [320, 900, "mobile"]] as const) {
+    for (const [width, height, name] of [[1440, 1000, "desktop"], [320, 900, "mobile"]] as const) {
       await browser("set", "viewport", String(width), String(height)); await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
       await browser("wait", "--fn", "getComputedStyle(document.querySelector('.users-table')).overflowX === 'auto'");
       if (width === 320) await browser("wait", "--fn", "document.querySelector('table').getBoundingClientRect().width > innerWidth && document.querySelector('.users-table').scrollWidth > document.querySelector('.users-table').clientWidth");
@@ -66,8 +88,14 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
     stage = "self-demoted-new-entry"; await browser("open", `${baseUrl}/admin/users`); await wait("Access denied");
     await login(1); await browser("open", `${baseUrl}/admin/users`); await wait("Users");
     stage = "revoked-session-search"; await client.query("update auth_sessions set revoked_at=now() where user_id=$1 and revoked_at is null", [ids[1]]);
-    await browser("fill", '[name="q"]', prefix); await click("Search"); await browser("wait", "--url", "**/login");
+    await browser("fill", '[name="q"]', prefix); await click("Search"); await browser("wait", "--url", "**/login?reason=session-expired");
     await browser("wait", "--fn", "!document.querySelector('table')");
+    await wait("Your session has expired");
+    for (const width of [320, 390, 768, 1440]) {
+      await browser("set", "viewport", String(width), "1000");
+      await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth && document.querySelector('[name=email]').value === '' && document.querySelector('[name=password]').value === ''");
+      await browser("screenshot", path.join(artifacts, `e01-09-expired-${width}.png`));
+    }
     console.log("Admin browser tests passed: anonymous/non-admin protection, mentor enrollment, admin navigation, search/paging/empty, grants/revocations, last-admin/self-demotion and responsive table.");
   } catch {
     throw new Error(`Admin browser scenario failed at safe stage: ${stage}.`);

@@ -8,6 +8,10 @@
  * This file defines values only; it does not style or import application UI.
  */
 :root {
+  --surface-success: #e3f7ec;
+  --text-success: #0b4627;
+  --surface-warning: #fff3eb;
+  --text-warning: #71330a;
   --raw-color-f7f7f7: #f7f7f7;
   --raw-color-ffffff: #ffffff;
   --raw-color-171717: #171717;
@@ -215,6 +219,10 @@
 }
 
 :root[data-theme="dark"] {
+  --surface-success: #123323;
+  --text-success: #9fe2bc;
+  --surface-warning: #392719;
+  --text-warning: #ffd0aa;
   /* Source: E01/E02 screenshot palette; colour-theme run above. */
   --background: var(--raw-color-141414);
   /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
@@ -245,6 +253,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --surface-success: #123323;
+    --text-success: #9fe2bc;
+    --surface-warning: #392719;
+    --text-warning: #ffd0aa;
     /* Source: E01/E02 screenshot palette; colour-theme run above. */
     --background: var(--raw-color-141414);
     /* Source: E01/E02 palette; dark adaptation and contrast documented in the run. */
@@ -293,3 +305,17 @@
 /* Breakpoint contract: --raw-size-breakpoint-mobile above documents the literal
  * media-query breakpoint; CSS variables cannot be used in media conditions.
  * F06: preserve the approved 650px boundary. */
+
+/* E01 account/workspace geometry and semantic feedback. */
+:root {
+  --font-size-screen-heading: 24px;
+  --size-auth-card: 520px;
+  --size-workspace-sidebar: 272px;
+  --size-workspace-topbar: 80px;
+  --space-auth-panel: 40px;
+  --space-workspace-content: 48px;
+  --space-mobile-gutter: 20px;
+}
+@media (max-width: 650px) {
+  :root { --space-auth-panel: 24px; --space-workspace-content: 20px; }
+}

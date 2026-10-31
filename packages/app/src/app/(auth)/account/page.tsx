@@ -1,3 +1,6 @@
+import { PrivateContent } from "../../../auth/private-content";
+import { Workspace } from "../../workspace";
+import { Button } from "@devmentor/ui/components/ui/button";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -14,8 +17,11 @@ export default async function AccountPage() {
     const token = readSessionCookie({ headers: await headers() });
     principal = await withScope(({ sessionService }) => sessionService.resolve(token));
   } catch {
-    return <div role="alert"><h1>Account temporarily unavailable</h1><p>We could not load your account. Please try again.</p><Link href="/account">Try again</Link></div>;
+    return <main role="alert"><h1>Account temporarily unavailable</h1><p>We could not load your account. Please try again.</p><Link href="/account">Try again</Link></main>;
   }
   if (!principal) redirect("/login");
-  return <div className="grid gap-group"><h1 className="text-3xl font-semibold">Your account</h1><p>{principal.displayName}</p><h2>Roles</h2><ul>{principal.roles.map((role) => <li key={role}>{role}</li>)}</ul>{!principal.roles.includes("mentor") && <MentorButton />}{principal.roles.includes("administrator") && <Link href="/admin/users">Manage users</Link>}{principal.roles.includes("mentor") && <Link href="/mentor">Your mentor home</Link>}<LogoutButton /></div>;
+  return <PrivateContent><Workspace identity={principal.displayName} roles={principal.roles} current="account" signOut={<LogoutButton />}>
+    <h1>My sessions</h1><section className="dm-workspace-panel dm-empty-sessions" aria-label="Session availability"><h2>Sessions are not available yet</h2><p>Find a mentor and choose a time when the mentor catalog becomes available.</p><Button disabled disabledReason="The mentor catalog is not available yet.">Find a mentor</Button></section>
+    <section className="dm-workspace-account" aria-label="Your account"><h2>Your account</h2><p>{principal.displayName}</p>{!principal.roles.includes("mentor") && <MentorButton />}</section>
+  </Workspace></PrivateContent>;
 }

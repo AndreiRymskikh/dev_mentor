@@ -19,12 +19,12 @@ export function UsersList({ actorId, initial }: { actorId: string; initial: Admi
   const request = useRef<{ sequence: number; controller?: AbortController }>({ sequence: 0 });
   const mutation = useRef(false);
   useEffect(() => () => { request.current.sequence++; request.current.controller?.abort(); }, []);
-  function clearAccess() {
-    request.current.sequence++; request.current.controller?.abort(); setData(null); router.refresh();
+  function clearAccess(expired = false) {
+    request.current.sequence++; request.current.controller?.abort(); setData(null); if (expired) router.replace("/login?reason=session-expired"); else router.refresh();
   }
   function denied(code: string) {
     if (code !== "UNAUTHORIZED" && code !== "FORBIDDEN") return false;
-    clearAccess(); return true;
+    clearAccess(code === "UNAUTHORIZED"); return true;
   }
   async function load(page: number, q = query.current.q) {
     request.current.controller?.abort();
@@ -49,17 +49,18 @@ export function UsersList({ actorId, initial }: { actorId: string; initial: Admi
       setMessage("Roles updated."); await load(query.current.page);
     } finally { mutation.current = false; setPending(false); }
   }
-  if (!data) return <main><h1>Access changed</h1><p>Your administrator session is no longer available.</p><Link href="/account">Your account</Link></main>;
-  return <main><nav aria-label="Administration"><Link href="/account">Your account</Link></nav><h1>Users</h1>
+  if (!data) return <section><h1>Access changed</h1><p>Your administrator session is no longer available.</p><Link href="/account">Your account</Link></section>;
+  return <div><h1>Users</h1>
     <form onSubmit={event => { event.preventDefault(); const q = String(new FormData(event.currentTarget).get("q")).trim().toLowerCase(); void load(1, q); }}>
       <FormField label="Search email or name">{control => <Input {...control} name="q" maxLength={100} />}</FormField><Button type="submit" disabled={pending}>Search</Button>
     </form>{message && <p role="status">{message}</p>}
-    <div className="users-table"><DataTable rows={data.items} columns={[
+    <div className="users-table dm-workspace-panel" role="region" aria-label="Users table" tabIndex={0}><DataTable rows={data.items} columns={[
       { key: "name", label: "Name", render: user => user.displayName },
       { key: "email", label: "Email", render: user => user.email },
+      { key: "payout", label: "Payout setup", render: user => user.roles.includes("mentor") ? "Not available" : "Not a mentor" },
       { key: "verified", label: "Verified", render: user => user.emailVerifiedAt ? "Yes" : "No" },
-      { key: "roles", label: "Roles", render: user => user.roles.join(", ") },
-    ]} rowKey={user => user.id} loading={loading} error={error} onRetry={() => { void load(query.current.page); }} page={data.page} pageSize={data.pageSize} total={data.total} onPageChange={page => { void load(page); }} actions={user => <form key={user.roles.join()} aria-label={`Roles for ${user.email}`} onSubmit={event => { void save(event, user); }}><fieldset disabled={pending || loading}><legend>Developer (always enabled)</legend><label><input type="checkbox" name="mentor" defaultChecked={user.roles.includes("mentor")} />Mentor</label><label><input type="checkbox" name="administrator" defaultChecked={user.roles.includes("administrator")} />Administrator</label><Button type="submit">Save roles</Button></fieldset></form>} /></div>
+      { key: "roles", label: "Roles", render: user => user.roles.map(role => role === "developer" ? "Mentee" : role === "administrator" ? "Operator" : "Mentor").join(", ") },
+    ]} rowKey={user => user.id} loading={loading} error={error} onRetry={() => { void load(query.current.page); }} page={data.page} pageSize={data.pageSize} total={data.total} onPageChange={page => { void load(page); }} actions={user => <form key={user.roles.join()} aria-label={`Roles for ${user.email}`} onSubmit={event => { void save(event, user); }}><fieldset disabled={pending || loading}><legend>Mentee (always enabled)</legend><label><input type="checkbox" name="mentor" defaultChecked={user.roles.includes("mentor")} />Mentor</label><label><input type="checkbox" name="administrator" defaultChecked={user.roles.includes("administrator")} />Operator</label><Button type="submit">Save roles</Button></fieldset></form>} /></div>
     {!loading && !error && data.items.length === 0 && data.page > 1 && <Button onClick={() => { void load(data.page - 1); }}>Previous page</Button>}
-  </main>;
+  </div>;
 }

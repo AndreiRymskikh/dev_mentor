@@ -6,7 +6,7 @@ import { readSessionCookie } from "../../auth/session-cookie";
 import { Link } from "@devmentor/ui/components/ui/link";
 import type { ReactNode } from "react";
 import type { AdminUsersPage } from "@devmentor/core/validators/users";
-export async function adminAccess(render: (id: string, users: AdminUsersPage) => ReactNode) {
+export async function adminAccess(render: (id: string, users: AdminUsersPage, identity: string, roles: readonly string[]) => ReactNode) {
   let result;
   try {
     const token = readSessionCookie({ headers: await headers() });
@@ -14,12 +14,12 @@ export async function adminAccess(render: (id: string, users: AdminUsersPage) =>
       const principal = await sessionService.resolve(token);
       if (!principal) return null;
       if (!principal.roles.includes("administrator")) throw new ForbiddenError();
-      return { id: principal.id, users: await adminUsersService.list(principal.id, {}) };
+      return { id: principal.id, identity: principal.displayName, roles: principal.roles, users: await adminUsersService.list(principal.id, {}) };
     });
   } catch (error) {
     if (error instanceof ForbiddenError) return <main><h1>Access denied</h1><p>Administrator access is required.</p><Link href="/account">Your account</Link></main>;
     return <main role="alert"><h1>Administration temporarily unavailable</h1><Link href="/admin/users">Try again</Link></main>;
   }
   if (!result) redirect("/login");
-  return render(result.id, result.users);
+  return render(result.id, result.users, result.identity, result.roles);
 }

@@ -10,5 +10,5 @@ test('WCAG contrast handles production-minified shorthand and computed RGB', () 
   assert.equal(contrast('#000','#fff'),21);
   assert.ok(contrast('#627069','#f6f7f2')>=4.5);
   assert.ok(contrast('#627069','#e9efdf')<4.5);
-  assert.equal(colorPairs.length,24);
+  assert.equal(colorPairs.length,26);
 });

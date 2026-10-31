@@ -1,13 +1,7 @@
 @import "@devmentor/ui/tokens.css";
 @import "@devmentor/ui/controls.css";
 
-.dm-auth {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-body);
-  line-height: var(--line-body);
-  padding: var(--space-section) var(--space-page-gutter);
-}
-.dm-auth > div { padding: var(--space-panel); border-radius: var(--radius-panel); background: var(--surface-card); border: var(--border-width) solid var(--border-subtle); }
+@import "@devmentor/ui/frames.css";
+@import "@fontsource-variable/inter";
 .dm-auth .gap-group { gap: var(--space-group); }
 .dm-auth .mt-group { margin-top: var(--space-group); }

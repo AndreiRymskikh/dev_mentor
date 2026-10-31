@@ -3,6 +3,7 @@
 @import "@fontsource-variable/jetbrains-mono";
 @import "./tokens.css";
 @import "./controls.css";
+@import "./frames.css";
 @source "./**/*.{ts,tsx}";
 @source "../.storybook/**/*.{ts,tsx,mdx}";
 

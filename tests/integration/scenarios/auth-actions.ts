@@ -24,13 +24,13 @@ export async function testAuthActions({ baseUrl, artifacts, browser }: Integrati
     await browser("wait", "--fn", `!document.querySelector('input[name="token"]') && sessionStorage.length === 0 && localStorage.length === 0`);
   };
   const screenshots = async (name: string) => {
-    await browser("set", "viewport", "1280", "1000");
+    await browser("set", "viewport", "1440", "1000");
     await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
     await browser("screenshot", path.join(artifacts, `${name}-desktop.png`));
     await browser("set", "viewport", "320", "900");
     await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
     await browser("screenshot", path.join(artifacts, `${name}-mobile.png`));
-    await browser("set", "viewport", "1280", "1000");
+    await browser("set", "viewport", "1440", "1000");
   };
   try {
     await client.connect(); await client.query("delete from rate_limit_buckets");
@@ -50,6 +50,7 @@ export async function testAuthActions({ baseUrl, artifacts, browser }: Integrati
     assert.equal((await client.query("select email_verified_at from users where id=$1", [user.id])).rows[0].email_verified_at, null);
     await screenshots("auth-verify-email");
     await click("Verify email"); await wait("Email verified. Sign in to continue.");
+    await screenshots("e01-04-verified");
     assert.ok((await actionState(verification)).consumed_at);
     assert.equal((await client.query("select count(*)::int as count from auth_sessions where user_id=$1", [user.id])).rows[0].count, 0);
     await openToken("/verify-email", verification); await click("Verify email"); await wait("The link may be invalid, expired or already used.");
@@ -57,7 +58,7 @@ export async function testAuthActions({ baseUrl, artifacts, browser }: Integrati
     await fill("email", "unknown-browser-actions@example.test"); const beforeResend = messages.length; await click("Send verification email"); await wait("If this address has an eligible account"); assert.equal(messages.length, beforeResend);
     // Current role rows are loaded by the account's server-side service.
     await client.query("insert into user_roles(user_id,role) values($1,'mentor')", [user.id]);
-    await browser("open", `${baseUrl}/login`); await fill("email", email); await fill("password", password); await click("Sign in"); await browser("wait", "--url", "**/account"); await wait("Your account"); await wait("Action Browser"); await wait("developer"); await wait("mentor"); await screenshots("auth-account");
+    await browser("open", `${baseUrl}/login`); await fill("email", email); await fill("password", password); await click("Sign in"); await browser("wait", "--url", "**/account"); await wait("Your account"); await wait("Action Browser"); await wait("Mentee"); await wait("Mentor"); await screenshots("auth-account");
     await browser("open", `${baseUrl}/forgot-password`); await fill("email", email); await click("Send reset email"); await wait("If this address has an eligible account");
     const reset = tokenFromMail("reset-password");
     await openToken("/reset-password", reset); assert.equal((await actionState(reset)).consumed_at, null);
