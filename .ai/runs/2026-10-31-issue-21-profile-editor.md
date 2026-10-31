@@ -12,7 +12,7 @@ Validation: lint, typecheck, 100% coverage, build, disposable PostgreSQL/browser
 ### Phase 1: Name persistence
 - [x] 1.1 Extend schema/service/repository and meaningful unit/database tests.
 ### Phase 2: Editor
-- [ ] 2.1 Match editor/share composition and topic chips; retain save/publication/error flows and test them.
+- [x] 2.1 Match editor/share composition and topic chips; retain save/publication/error flows and test them.
 ### Phase 3: Verification
 - [ ] 3.1 Verify consumers, browser/story evidence, full validation and review; report limits.
 
@@ -20,3 +20,8 @@ Validation: lint, typecheck, 100% coverage, build, disposable PostgreSQL/browser
 - Read issue, spec, engineering rules, lessons and installed Next client-boundary guide. No competing implementation PR or claim found.
 
 - Name persistence: strict optional trimmed 1–100, protected fields denied, name omission preserved; PostgreSQL proves rollback, session/admin/public consumers and serialized role removal. Unit coverage is 100%.
+
+- Editor implemented in 17e7330: two columns, status, name/help, mentoring/work fields, selected icon chips, Cancel/Save/publication controls, readable selectable share URL and private preview. App stories live outside ui to preserve dependency direction.
+- Lint/typecheck/Storybook typecheck pass; all 174 unit tests and 100% statements/branches/functions/lines pass. Eight light/dark editor stories pass accessibility and interactions. Clean standard Turbopack build passes after preserving a stale sandbox build cache.
+- Full integration passed database/auth/invitation checks, then caught icon text changing checkbox accessible names. Corrected decorative spans to aria-hidden and rerunning profile flow; do not treat first full run as passed.
+- Mandatory npm audit fails: 25 moderate, zero high/critical; no dependency/lock changes. Proposed automated direct fixes are breaking downgrades (Storybook/Testcontainers/ESLint/Next lint). No downgrade or suppression applied; full gate remains blocked.
