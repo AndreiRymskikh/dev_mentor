@@ -8,6 +8,7 @@ import { ErrorMessage } from "@devmentor/ui/backend/feedback";
 import { Input } from "@devmentor/ui/components/ui/input";
 import { Button } from "@devmentor/ui/components/ui/button";
 import { Link } from "@devmentor/ui/components/ui/link";
+import { useInvitationReturn } from "../../auth/invitation-return";
 import { useActionToken } from "./use-action-token";
 
 function ResendVerification() {
@@ -23,6 +24,7 @@ function ResendVerification() {
 }
 export function ActionForm({ mode }: { mode: "verify" | "reset" }) {
   const verify = mode === "verify";
+  const invitation = useInvitationReturn();
   const token = useActionToken(verify ? "/verify-email" : "/reset-password");
   const heading = useRef<HTMLHeadingElement>(null);
   const [done, setDone] = useState(false);
@@ -38,11 +40,11 @@ export function ActionForm({ mode }: { mode: "verify" | "reset" }) {
   });
   useEffect(() => { form.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus(); }, [state.errors]);
   return <div className="grid gap-group"><h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold">{verify ? done ? "Your email is verified" : "Verify your email" : "Choose a new password"}</h1>
-    {done ? <div role="status" className="dm-status dm-status-success"><p>{verify ? "Email verified. Sign in to continue." : "Password changed. Your existing sessions have been signed out. Sign in with your new password."}</p>{verify && <Link className="dm-button dm-button-primary dm-size-default dm-primary-link" href="/account">Open my workspace</Link>}<Link href="/login">Sign in</Link></div> : token ? <form ref={form} noValidate aria-busy={state.pending} onSubmit={(event) => { event.preventDefault(); void state.submit(verify ? { token } : { token, newPassword: new FormData(event.currentTarget).get("newPassword") }); }}>
+    {done ? <div role="status" className="dm-status dm-status-success"><p>{verify ? "Email verified. Sign in to continue." : "Password changed. Your existing sessions have been signed out. Sign in with your new password."}</p>{verify && <Link className="dm-button dm-button-primary dm-size-default dm-primary-link" href="/account">Open my workspace</Link>}<Link href={invitation.href("/login")}>Sign in</Link></div> : token ? <form ref={form} noValidate aria-busy={state.pending} onSubmit={(event) => { event.preventDefault(); void state.submit(verify ? { token } : { token, newPassword: new FormData(event.currentTarget).get("newPassword") }); }}>
       <fieldset disabled={state.pending} className="grid gap-group">{verify ? <p>Confirm to verify the email address for this account.</p> : <FormField label="New password" required hint="Use 12–72 UTF-8 bytes." error={state.errors.newPassword?.join(" ")}>{(control) => <Input {...control} name="newPassword" type="password" autoComplete="new-password" />}</FormField>}
       {state.message && <ErrorMessage message={state.message} />}<Button type="submit" loading={state.pending}>{verify ? "Verify email" : "Change password"}</Button></fieldset>
     </form> : <p role="status">Open the link from your email to continue. If the link is missing or no longer works, request a new email.</p>}
     <Link className="dm-auth-home" href="/">Back to home</Link>
-    {!done && (verify ? <ResendVerification /> : <Link href="/forgot-password">Request a new reset email</Link>)}
+    {!done && (verify ? <ResendVerification /> : <Link href={invitation.href("/forgot-password")}>Request a new reset email</Link>)}
   </div>;
 }

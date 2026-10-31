@@ -47,3 +47,32 @@
 .dm-workspace .dm-logout { background: var(--surface-card); border: var(--border-width) solid var(--border-subtle); color: var(--text-muted); }
 .dm-primary-link.dm-link { color: var(--text-on-action); text-decoration: none; display: flex; justify-content: center; width: 100%; }
 .dm-status-success { display: grid; gap: var(--space-group); }
+
+/* Public invitation composition, using the shared semantic palette in both themes. */
+.dm-invitation { min-height: 100vh; background: var(--surface-card); color: var(--foreground); font-family: var(--font-body); line-height: var(--line-body); overflow-wrap: anywhere; }
+.dm-public-header { border-bottom: var(--border-width) solid var(--border-subtle); padding: var(--space-group) max(var(--space-mobile-gutter), calc((100% - var(--size-content-max)) / 2)); display: flex; align-items: center; justify-content: space-between; gap: var(--space-group); flex-wrap: wrap; }
+.dm-public-header .dm-brand { display: flex; align-items: center; gap: var(--space-related); }
+.dm-public-header svg, .dm-invitation-card > svg, .dm-invitation-note svg { color: var(--text-accent); width: var(--size-icon-standalone); height: var(--size-icon-standalone); flex-shrink: 0; }
+.dm-invitation-main { max-width: var(--size-content-max); margin: auto; padding: var(--space-section) var(--space-mobile-gutter); display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--space-section); align-items: center; min-height: 70vh; }
+.dm-invitation-hero { display: grid; gap: var(--space-group); }
+.dm-invitation-eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: var(--font-size-metadata); font-weight: var(--weight-heading); color: var(--text-muted); }
+.dm-invitation h1 { font-size: var(--font-size-page); line-height: var(--line-heading); font-weight: var(--weight-heading); }
+.dm-invitation h2 { font-size: var(--font-size-screen-heading); line-height: var(--line-heading); font-weight: var(--weight-heading); }
+.dm-invitation p { color: var(--text-muted); }
+.dm-invitation-chips { display: flex; flex-wrap: wrap; gap: var(--space-related); list-style: none; padding: 0; }
+.dm-invitation-chips li { padding: var(--space-related) var(--space-inline); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-panel); font-size: var(--font-size-metadata); }
+.dm-invitation-note { display: flex; gap: var(--space-control-inline); margin-top: var(--space-group); font-size: var(--font-size-label); }
+.dm-invitation-card { min-width: 0; border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-panel); padding: var(--space-auth-panel); display: grid; gap: var(--space-group); }
+.dm-invitation-expiry, .dm-invitation-policy { font-size: var(--font-size-metadata); }
+.dm-public-footer { max-width: var(--size-content-max); margin: auto; padding: var(--space-group) var(--space-mobile-gutter); border-top: var(--border-width) solid var(--border-subtle); display: flex; justify-content: space-between; gap: var(--space-group); flex-wrap: wrap; font-size: var(--font-size-metadata); }
+@media (max-width: 768px) { .dm-invitation-main { grid-template-columns: minmax(0, 1fr); gap: var(--space-group); } .dm-invitation h1 { font-size: var(--font-size-section); } }
+
+.dm-public-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-group); font-size: var(--font-size-label); }
+
+.dm-public-header .dm-brand { font-size: var(--font-size-screen-heading); font-weight: var(--weight-heading); color: var(--foreground); text-decoration: none; }
+.dm-public-header nav .dm-link { color: var(--text-muted); text-decoration: none; }
+.dm-public-header nav > span { color: var(--text-muted); }
+.dm-invitation-card { gap: var(--space-control-inline); }
+.dm-invitation-card > p { font-size: var(--font-size-label); }
+.dm-invitation-card > .dm-invitation-expiry, .dm-invitation-card > .dm-invitation-policy { font-size: var(--font-size-metadata); }
+@media (min-width: 769px) { .dm-invitation-main { align-items: start; padding-top: calc(var(--space-section) * 2); } .dm-invitation-hero { padding-top: var(--space-group); } }

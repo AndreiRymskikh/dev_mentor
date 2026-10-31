@@ -1,6 +1,6 @@
 # E02 v2 — Screenshot implementation audit and delivery contract
 
-Date: 2026-10-29. Status: proposed; implementation not started. Full release is gated on the decisions below.
+Date: 2026-10-29. Status: implementation in progress; V2-S01 is implemented on [PR #27](https://github.com/AndreiRymskikh/dev_mentor/pull/27), with dependency audit and independent approval outstanding. Other slices are not implemented by that PR. Full release is gated on the decisions below.
 Authority: all seven owner-supplied `.ai/docs/designs/e02/` PNGs; source audit at `19a59ba`.
 
 ## 📝 TLDR
@@ -116,8 +116,8 @@ If an approval gate is rejected, the feature remains incomplete against these re
 Each issue includes tests and a working incremental route. Gates block dependent capabilities, not independent invitation/editor work.
 
 ### V2-S01 — Invitation screen
-- [ ] Step 1: consume public framing and implement complete screenshot01 without replacing invitation services.
-- [ ] Step 2: preserve anonymous/register/verify/login return, matching/mismatch/invalid/used/pending/failure states; exercise same-cookie acceptance and configured deadline in isolated tests.
+- [x] Step 1: consume public framing and implement complete screenshot01 without replacing invitation services.
+- [x] Step 2: preserve anonymous/register/verify/login return, matching/mismatch/invalid/used/pending/failure states; exercise same-cookie acceptance and configured deadline in isolated tests.
 
 ### Existing E01 #16 — First and completed mentor workspace
 - [ ] Step 3: add screenshot02 as an additional state/acceptance target to #16, link this spec; do not file a second mentor-home issue.

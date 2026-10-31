@@ -108,3 +108,17 @@ useApiResource adds an optional stable request adapter while retaining the exist
 default transport and cancellation behavior. Rollback removes these UI consumers and
 styles without schema changes or loss of authentication/profile data. Complete mentor
 home composition remains blocked until E02 price/slot contracts and policy approvals.
+
+## E02 v2 invitation presentation
+
+The invitation route adds responsive public framing through the standalone UI invitation view;
+lookup/acceptance HTTP DTOs, matching verified identity, additive live roles and original session
+remain unchanged. Only an exact `/invitation/<43-character-token>` continuation is retained by
+authentication pages. First-party local storage carries it across email navigations for at most
+30 minutes, successful login consumes it, and invalid explicit destinations clear it. Storage
+failure preserves explicit valid query continuation and otherwise falls back to `/account`;
+users can reopen the original invitation link. No analytics/logging of this transient state is added.
+Before acceptance the page shows persisted link expiry and the configured publication window;
+the actual publication deadline is created on acceptance and displayed in the mentor workspace.
+Invitations remain optional alongside verified self-service enrollment. Catalog navigation remains
+unavailable until its owning feature delivers a destination.
