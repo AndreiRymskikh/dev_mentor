@@ -1,5 +1,5 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": { "types": ["vite/client", "node"] },
-  "include": ["./**/*.ts", "./**/*.tsx", "../src/**/*.ts", "../src/**/*.tsx"]
+  "include": ["./**/*.ts", "./**/*.tsx", "../../app/.storybook/**/*.tsx", "../src/**/*.ts", "../src/**/*.tsx"]
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useEffect } from "react";
+import { useId, useRef, useEffect, type ReactNode } from "react";
 import type { ZodType } from "zod";
 import type { ApiResult } from "../api";
 import { useFormState } from "./useFormState";
@@ -11,7 +11,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Button } from "../../components/ui/button";
 
-interface Field { name: string; label: string; hint?: string; type?: "text" | "email" | "password" | "number" | "checkbox" | "textarea" | "multiselect"; options?: readonly {value:string;label:string}[] }
+interface Field { name: string; label: string; hint?: string; required?: boolean; type?: "text" | "email" | "password" | "number" | "checkbox" | "textarea" | "multiselect"; options?: readonly {value:string;label:string;icon?:ReactNode}[] }
 interface Props<T> {
   schema: ZodType<T>;
   fields: Field[];
@@ -39,7 +39,7 @@ export function CrudForm<T>({ schema, fields, initialValues = {}, onSubmit, onCa
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); event.currentTarget.requestSubmit(); }
   }} aria-busy={pending}>
     <fieldset disabled={pending} className="dm-crud-fields">
-      {fields.map((field) => field.type==="multiselect" ? <fieldset key={field.name} aria-describedby={errors[field.name]?`${id}-${field.name}-error`:undefined}><legend className="dm-label">{field.label}</legend>{(field.options??[]).map(option=><label key={option.value} className="dm-choice"><Checkbox name={field.name} value={option.value} defaultChecked={selected(initialValues[field.name],option.value)} aria-invalid={Boolean(errors[field.name])}/><span>{option.label}</span></label>)}{errors[field.name]&&<p id={`${id}-${field.name}-error`} role="alert">{errors[field.name].join(" ")}</p>}</fieldset> : <FormField key={field.name} id={`${id}-${field.name}`} label={field.label} hint={field.hint} error={errors[field.name]?.join(" ")}>
+      {fields.map((field) => field.type==="multiselect" ? <fieldset key={field.name} aria-describedby={errors[field.name]?`${id}-${field.name}-error`:undefined}><legend className="dm-label">{field.label}</legend>{(field.options??[]).map(option=><label key={option.value} className="dm-choice" data-value={option.value}><Checkbox name={field.name} value={option.value} defaultChecked={selected(initialValues[field.name],option.value)} aria-invalid={Boolean(errors[field.name])}/>{option.icon&&<span aria-hidden="true">{option.icon}</span>}<span>{option.label}</span></label>)}{field.hint&&<p className="dm-hint">{field.hint}</p>}{errors[field.name]&&<p id={`${id}-${field.name}-error`} role="alert">{errors[field.name].join(" ")}</p>}</fieldset> : <FormField key={field.name} id={`${id}-${field.name}`} label={field.label} required={field.required} hint={field.hint} error={errors[field.name]?.join(" ")}>
         {control=>field.type==="textarea"?<Textarea {...control} name={field.name} defaultValue={String(initialValues[field.name]??"")}/>:field.type==="checkbox"?<input {...control} name={field.name} type="checkbox" defaultChecked={Boolean(initialValues[field.name])}/>:<Input {...control} name={field.name} type={field.type??"text"} defaultValue={String(initialValues[field.name]??"")}/>}
       </FormField>)}
       {message && <ErrorMessage message={message} />}

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const config: StorybookConfig = {
   framework: '@storybook/react-vite',
-  stories: ['./docs/**/*.mdx', './**/*.stories.tsx'],
+  stories: ['./docs/**/*.mdx', './**/*.stories.tsx', '../../app/.storybook/**/*.stories.tsx'],
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-vitest', '@storybook/addon-themes', 'msw-storybook-addon'],
   staticDirs: ['./public'],
   core: { disableTelemetry: true, disableWhatsNewNotifications: true },
