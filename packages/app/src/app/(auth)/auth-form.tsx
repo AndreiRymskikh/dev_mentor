@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useInvitationReturn } from "../../auth/invitation-return";
 import { CodeXml } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { registerSchema, loginSchema, passwordForgotSchema } from "@devmentor/core/validators/users";
@@ -26,6 +27,7 @@ const definitions = {
 export function AuthForm({ mode }: { mode: keyof typeof definitions }) {
   const definition = definitions[mode];
   const router = useRouter();
+  const invitation = useInvitationReturn();
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const [success, setSuccess] = useState(false);
@@ -39,7 +41,7 @@ export function AuthForm({ mode }: { mode: keyof typeof definitions }) {
       if (!result.ok && result.error.code === "UNAUTHORIZED") return { ...result, error: { ...result.error, message: "Unable to sign in. Check your email and password, and verify your email before signing in." } };
       return result;
     },
-    onSuccess: () => { setSuccess(true); if (mode === "login") { const returnTo = new URLSearchParams(window.location.search).get("returnTo"); router.replace(returnTo && /^\/invitation\/[A-Za-z0-9_-]{43}$/.test(returnTo) ? returnTo : "/account"); } },
+    onSuccess: () => { setSuccess(true); if (mode === "login") { router.replace(invitation.complete() ?? "/account"); } },
   });
   useEffect(() => { form.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus(); }, [errors]);
   const accepted = mode === "register" && success;
@@ -60,7 +62,7 @@ export function AuthForm({ mode }: { mode: keyof typeof definitions }) {
     {accepted ? <div role="status" className="grid gap-group">
       <p>Check your email. If this address can be registered, a verification email will arrive shortly. Check your inbox and spam folder.</p>
       <p>Verify your email using the link, then sign in.</p>
-      <nav aria-label="Registration next steps" className="flex flex-wrap gap-group"><Link href="/register">Change email</Link><Link href="/login">Sign in</Link><Link href="/verify-email">Request another verification email</Link></nav>
+      <nav aria-label="Registration next steps" className="flex flex-wrap gap-group"><Link href={invitation.href("/register")}>Change email</Link><Link href={invitation.href("/login")}>Sign in</Link><Link href={invitation.href("/verify-email")}>Request another verification email</Link></nav>
     </div> : <form ref={form} noValidate aria-busy={pending} onSubmit={(event) => { event.preventDefault(); setSuccess(false); const data = new FormData(event.currentTarget); void submit(Object.fromEntries(fields.map((field) => [field.name, data.get(field.name)]))); }} onKeyDown={(event) => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); event.currentTarget.requestSubmit(); } }}>
       <fieldset disabled={pending} className="grid gap-group">
         {fields.map((field) => <FormField key={field.name} label={field.label} hint={field.hint} required error={errors[field.name]?.join(" ")}>
@@ -74,9 +76,9 @@ export function AuthForm({ mode }: { mode: keyof typeof definitions }) {
     </form>}
     {success && !accepted && <div role="status"><p>{definition.success}</p></div>}
     {!accepted && <nav aria-label="Account help" className="flex flex-wrap gap-group">
-      {mode !== "login" && <Link href="/login">Sign in</Link>}
-      {mode !== "register" && <><span>New to DevMentor?</span><Link href="/register">Create account</Link></>}
-      {mode === "login" && <><Link href="/forgot-password">Forgot password?</Link><Link href="/verify-email">Resend verification email</Link></>}
+      {mode !== "login" && <Link href={invitation.href("/login")}>Sign in</Link>}
+      {mode !== "register" && <><span>New to DevMentor?</span><Link href={invitation.href("/register")}>Create account</Link></>}
+      {mode === "login" && <><Link href={invitation.href("/forgot-password")}>Forgot password?</Link><Link href={invitation.href("/verify-email")}>Resend verification email</Link></>}
     </nav>}
     <Link className="dm-auth-home" href="/">Back to home</Link>
   </div>;
