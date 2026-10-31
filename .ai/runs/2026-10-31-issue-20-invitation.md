@@ -21,14 +21,18 @@ Affected areas: invitation route, auth UI, shared invitation presentation, stori
 
 PR: #27
 
+> Convention: `- [ ]` pending, `- [x]` done.
+
+### Phase 1: Invitation landing and continuation
+
 - [x] 1.1 Complete invitation presentation and safe states — 6d20af0
 - [x] 1.2 Preserve exact invitation auth continuation — cdbd421
-- [ ] 1.3 Add unit, story and isolated browser coverage
+- [x] 1.3 Add unit, story and isolated browser coverage — a3723f3, fef101c
 - [ ] 1.4 Validate, review and publish evidence
 
 ## Validation
 
-Passed: lint, workspace/test typecheck, Storybook typecheck, production build, all 174 unit tests with 100% lines/statements/functions/branches across 145 measured executable files; 16 invitation story checks across light/dark Chromium. Full disposable PostgreSQL/browser suite is running against the final immutable build.
+Passed: lint, workspace/test typecheck, Storybook typecheck, production build, all 174 unit tests with 100% lines/statements/functions/branches across 145 measured executable files; 16 invitation story checks across light/dark Chromium. Full disposable PostgreSQL/browser suite passed; the final presentation refinement additionally passed a sequential build plus invitation-only suite.
 
 Audit failed: 25 moderate findings from glob/minimatch in existing Storybook/ESLint/Testcontainers chains (GHSA-3g3m-2fjr-6pw4, GHSA-g3hv-75wg-m249). Forced recommended fixes downgrade major tooling; no blanket overrides/downgrades or threshold changes applied. This blocks a complete gate/approving verdict.
 
@@ -39,3 +43,13 @@ Changed files: invitation route; shared InvitationView/export/frames CSS; auth f
 Final independent review and human QA remain required; no approval or merge is claimed.
 
 First full integration passed DB and HTTP suites, then browser navigation could not load after an overlapping rebuild changed the served `.next` assets. This run is not counted as passing. Final full rerun uses an immutable completed build; no threshold/assertion was weakened. Non-default 9-day publication configuration is now asserted in browser and against the persisted deadline.
+
+## Final code and evidence
+
+Presentation refinement fef101c restores brand/nav styling, uses truthful unavailable-catalog copy, aligns the desktop hero with the card and captures complete pages. Visual inspection checked full desktop and 320px pages including footer and safe long-email wrapping. The final screenshot capture explicitly sets light media before the light variants and verifies dark media for the dark variant.
+
+Full integration passed: database migration/guarded rollback/constraints, registration/verification/recovery SMTP and HTTP, all auth browser forms/actions, invitation interruption/deadline/session checks, mentor profile, admin, independent auth QA, outage recovery and installer/resource cleanup. Final invitation-only run passed against the refined production build. Final explicit light/dark invitation-only run also passed, with full-page screenshots at desktop/tablet/390/320px.
+
+Local author review found no additional code findings; mandatory audit remains a blocker. This is not second-person approval. The PR stays draft/in-progress; complete-gate step 1.4 remains unchecked. No merge, QA approval, whole-spec completion or all-green CI is claimed. Final PR CI remains separately reported rather than inferred from local results. Latest head CI was queued at the final status check; no CI completion is claimed.
+
+Evidence: [production screenshots](https://github.com/AndreiRymskikh/dev_mentor/tree/qa-evidence-issue20-20261031/issue20). [Author review and gate findings](https://github.com/AndreiRymskikh/dev_mentor/pull/27#issuecomment-6542570994). Final outcome: implementation and local functional/UI validation complete; audit remediation and independent review/QA block readiness. Issue and PR work locks released at handoff; no merge performed.
