@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 
 const key = "devmentor.invitation-return";
 const ttl = 30 * 60 * 1000;
-const allowed = /^\/invitation\/[A-Za-z0-9_-]{43}$/;
+// A negative lookahead enforces the actual end, including terminal newlines.
+const allowed = /^\/invitation\/[A-Za-z0-9_-]{43}(?![\s\S])/;
 
 /** Only the invitation route is allowed. First-party storage expires across tabs. */
 export function readInvitationReturn(): string | null {

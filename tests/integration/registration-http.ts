@@ -43,7 +43,7 @@ export async function registrationFixture() {
     return {
       tls: { key: await readFile(keyPath), cert: await readFile(certificatePath) },
       messages,
-      environment: { INVITATION_TTL_DAYS: "14", MENTOR_PUBLISH_WINDOW_DAYS: "14", NODE_EXTRA_CA_CERTS: certificatePath, APP_ORIGIN: "https://fixture.example.test", EMAIL_FROM: "fixture@example.test", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(address.port), SMTP_USER: "fixture", SMTP_PASSWORD: password, SMTP_LOCAL_SINK: "false", JWT_SECRET: randomBytes(32).toString("hex"), RATE_LIMIT_SECRET: randomBytes(32).toString("hex") },
+      environment: { INVITATION_TTL_DAYS: "14", MENTOR_PUBLISH_WINDOW_DAYS: "9", NODE_EXTRA_CA_CERTS: certificatePath, APP_ORIGIN: "https://fixture.example.test", EMAIL_FROM: "fixture@example.test", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(address.port), SMTP_USER: "fixture", SMTP_PASSWORD: password, SMTP_LOCAL_SINK: "false", JWT_SECRET: randomBytes(32).toString("hex"), RATE_LIMIT_SECRET: randomBytes(32).toString("hex") },
       async test(baseUrl: string, databaseUrl: string) {
         const client = new Client({ connectionString: databaseUrl });
         const input = { email: "http-registration@example.test", displayName: "HTTP Registration", password: "http fixture password" };

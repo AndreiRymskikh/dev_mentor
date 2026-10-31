@@ -16,7 +16,7 @@ test("only exact single invitation paths are retained; poisoned, expired or malf
     for (const stored of ["broken", "null", "false", "4", '"text"', "[]", JSON.stringify({path}), JSON.stringify({path:4}), JSON.stringify({path:"https://evil.test"}), JSON.stringify({path,expires:"forever"}), JSON.stringify({path,expires:Date.now()-1}), JSON.stringify({path,expires:Date.now()+3600000})]) {
       dom.window.localStorage.setItem(key, stored); expect(readInvitationReturn()).toBeNull(); expect(dom.window.localStorage.getItem(key)).toBeNull();
     }
-    for (const value of ["https://evil.test", "//evil.test", "/account", `${path}?x=1`, `${path}/`, "/invitation/short", `${path}#fragment`]) {
+    for (const value of ["https://evil.test", "//evil.test", "/account", `${path}?x=1`, `${path}/`, "/invitation/short", `${path}#fragment`, `${path}\n`, `${path}\r\n`]) {
       dom.window.history.replaceState(null,"",`/login?returnTo=${encodeURIComponent(value)}`); expect(readInvitationReturn()).toBeNull();
     }
     dom.window.history.replaceState(null,"",`/login?returnTo=${encodeURIComponent(path)}&returnTo=${encodeURIComponent(path)}`);expect(readInvitationReturn()).toBeNull();

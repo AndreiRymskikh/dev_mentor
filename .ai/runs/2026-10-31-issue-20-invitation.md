@@ -19,11 +19,23 @@ Affected areas: invitation route, auth UI, shared invitation presentation, stori
 
 ## Progress
 
-- [ ] 1.1 Complete invitation presentation and safe states
-- [ ] 1.2 Preserve exact invitation auth continuation
+PR: #27
+
+- [x] 1.1 Complete invitation presentation and safe states — 6d20af0
+- [x] 1.2 Preserve exact invitation auth continuation — cdbd421
 - [ ] 1.3 Add unit, story and isolated browser coverage
 - [ ] 1.4 Validate, review and publish evidence
 
 ## Validation
 
-Not run yet.
+Passed: lint, workspace/test typecheck, Storybook typecheck, production build, all 174 unit tests with 100% lines/statements/functions/branches across 145 measured executable files; 16 invitation story checks across light/dark Chromium. Full disposable PostgreSQL/browser suite is running against the final immutable build.
+
+Audit failed: 25 moderate findings from glob/minimatch in existing Storybook/ESLint/Testcontainers chains (GHSA-3g3m-2fjr-6pw4, GHSA-g3hv-75wg-m249). Forced recommended fixes downgrade major tooling; no blanket overrides/downgrades or threshold changes applied. This blocks a complete gate/approving verdict.
+
+Sandbox-localhost failures in initial coverage/story runs passed on authorized elevated retry. Initial sandbox build stalled and was stopped; authorized normal production build passed without pipeline changes. Developer primary checkout and database were not modified.
+
+Changed files: invitation route; shared InvitationView/export/frames CSS; auth form/action form and bounded invitation-return helper; unit/security regression tests; invitation story variants; disposable browser scenario/runner; compatibility notes and lessons.
+
+Final independent review and human QA remain required; no approval or merge is claimed.
+
+First full integration passed DB and HTTP suites, then browser navigation could not load after an overlapping rebuild changed the served `.next` assets. This run is not counted as passing. Final full rerun uses an immutable completed build; no threshold/assertion was weakened. Non-default 9-day publication configuration is now asserted in browser and against the persisted deadline.
