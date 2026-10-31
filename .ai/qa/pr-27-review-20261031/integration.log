@@ -1,0 +1,25 @@
+npm notice run devmentor@0.1.0 test:integration
+npm notice run tsx --tsconfig tsconfig.base.json tests/integration/run.mts
+Registration email passed: real SMTP delivery, persisted digest, collision, failure invalidation, recovery and stalled delivery cancellation.
+Verification DB passed: atomic replacement, concurrent replay and issuance/consume races, expiry/purpose and conditional cleanup.
+Sessions DB passed: current roles, verification, revocation, expiry and stale hash serialized against credential replacement.
+Password recovery DB passed: replacement/replay, conditional cleanup, expiry/purpose, existing credentials only, unchanged verification, all-session revocation and observed reset/login races in both orders.
+Mentor profile DB passed: virtual self-service drafts, ownership, readiness, fresh-transaction slug collision retry, stable links, publish/unpublish serialization and private projection.
+Roles DB passed: mentor idempotence, operator subprocess, current sessions, usable-last-admin and observed stale-actor serialization.
+Admin DB passed: actual parameterized literal search, stable UUID ties, bounded DTO projection and persisted authorization.
+Auth maintenance passed: bounded expiry-only cleanup, locked-row preservation, concurrency, identity/active-record retention and real operator command.
+Database passed: migrations, guarded rollback, constraints, request isolation and transaction rollback.
+Verification HTTP passed: same-account failed-email resend recovery, replacement, generic outcomes, CSRF POST-only, single-use replay, expiry and purpose.
+Registration HTTP passed: secure SMTP, generic202, strict fields, CSRF, real bcrypt/digest/developer persistence, no session, delivery invalidation and spoof-resistant shared429.
+Admin HTTP passed: bounded literal stable paging, safe DTO, current authorization, strict mutation/CSRF and last-admin protection.
+Recovery HTTP passed: generic timed unknown/credentialless/SMTP failure, same-account retry, TLS fragment/digest/TTL, strict CSRF fields, credential replacement, old-password/session denial, no auto-login, replay and expiry/purpose.
+Auth browser forms passed: native HTTPS CSRF, generic registration/recovery, real SMTP/database/session, unverified denial, GitHub feedback and login rate error.
+Auth action browser tests passed: fragment privacy, explicit verification/reset, replay, account roles and reset/logout session revocation.
+Invitation browser/HTTP passed: operator digest, denials, login continuation, one-time acceptance, preserved session/deadline and optional self-service.
+Mentor profile HTTP/browser passed: self-service draft, ownership/CSRF, partial save/readiness, publish, clipboard success/failure, resource retry, public privacy, stable republish and responsive light/dark screenshots.
+Admin browser tests passed: anonymous/non-admin protection, mentor enrollment, admin navigation, search/paging/empty, grants/revocations, last-admin/self-demotion and responsive table.
+Independent QA passed: real login/roles/CSRF/reset/replay/logout, missing links, synthetic loading/error/retry, duplicate-submit protection, long content, keyboard and desktop/320px states.
+Real database outage passed: session/admin/mutations fail closed, no cookie/private UI, health/static independence and same-process recovery.
+Installer integration passed: fresh checkout, verified server reuse, unchanged credentials/dependencies and preserved SQL data.
+Installer fixture resources cleaned up.
+Integration passed: ephemeral PostgreSQL, home page and protected administration.

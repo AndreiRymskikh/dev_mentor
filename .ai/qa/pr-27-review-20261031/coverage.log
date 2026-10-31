@@ -1,0 +1,29 @@
+npm notice run devmentor@0.1.0 test:coverage
+npm notice run vitest run --coverage
+
+ RUN  v5.0.5 /Users/andreyrimskikh/Repos/dev_mentor/.ai/tmp/pr-27-review
+      Coverage enabled with v8
+
+{"level":50,"time":1793445831523,"pid":33575,"hostname":"Mac.lan","event":"api.unexpected_failure","method":"POST","msg":"Unexpected API failure"}
+{"level":50,"time":1793445832021,"pid":33575,"hostname":"Mac.lan","event":"api.unexpected_failure","method":"POST","msg":"Unexpected API failure"}
+{"level":50,"time":1793445832951,"pid":33597,"hostname":"Mac.lan","event":"api.unexpected_failure","method":"GET","msg":"Unexpected API failure"}
+
+ Test Files  37 passed (37)
+      Tests  174 passed (174)
+   Start at  12:23:49
+   Duration  4.58s (tests 53%, import 40%, transform 3%, worker 2%, environment 2%)
+
+    Isolate  37 workers spawned · ~214ms startup each (spawn + environment, per file)
+             at least ~505ms faster with isolate: false — reuses workers across files instead of one per file
+
+ % Coverage report from v8
+No files with missing coverage.
+145 files fully covered.
+20 empty files skipped.
+
+=============================== Coverage summary ===============================
+Statements   : 100% ( 2044/2044 )
+Branches     : 100% ( 1216/1216 )
+Functions    : 100% ( 566/566 )
+Lines        : 100% ( 1431/1431 )
+================================================================================

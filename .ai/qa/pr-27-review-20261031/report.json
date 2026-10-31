@@ -1,0 +1,48 @@
+{
+  "runId": "pr-27-review-20261031",
+  "mode": "pr",
+  "target": {
+    "prNumber": 27,
+    "branch": "codex/issue-20-invitation",
+    "headSha": "2727c231bdf287ec2aeb70910c755586890a6577"
+  },
+  "verdict": "PASS",
+  "environment": {
+    "role": "disposable anonymous/matching/mismatching verified fixtures",
+    "startedByThisRepo": true,
+    "browserProvider": "agent-browser"
+  },
+  "scenario": [
+    {
+      "step": 1,
+      "priority": "P1",
+      "action": "Registration/email verification/login invitation round trip",
+      "expected": "Return to exact invitation and accept",
+      "observed": "Returned and accepted; original persisted session retained",
+      "result": "PASS"
+    },
+    {
+      "step": 2,
+      "priority": "P1",
+      "action": "Identity, token and optional enrollment boundaries",
+      "expected": "401/403 and generic invalid 404; self-service retained",
+      "observed": "All boundary assertions passed",
+      "result": "PASS"
+    },
+    {
+      "step": 3,
+      "priority": "P2",
+      "action": "Responsive light/dark presentation",
+      "expected": "No overflow and complete content",
+      "observed": "1440/768/390/320 checks passed; desktop/light and 320/dark images visually inspected",
+      "result": "PASS",
+      "screenshot": "invitation-dark-mobile.png"
+    }
+  ],
+  "hasUiTest": true,
+  "notes": [
+    "Full integration exited 0; 16 invitation story checks passed.",
+    "Audit remains a blocker: 25 moderate findings.",
+    "No human QA approval; detailed production coverage limits in report.md."
+  ]
+}
