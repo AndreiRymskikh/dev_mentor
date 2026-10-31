@@ -122,3 +122,7 @@ Before acceptance the page shows persisted link expiry and the configured public
 the actual publication deadline is created on acceptance and displayed in the mentor workspace.
 Invitations remain optional alongside verified self-service enrollment. Catalog navigation remains
 unavailable until its owning feature delivers a destination.
+
+## Profile editor display name (E02 v2 S02)
+
+`PUT /api/mentors/me` adds optional strict `displayName` (trimmed, 1–100 characters). Omission preserves the account name. The existing current-mentor user-lock transaction persists User and profile together; rejected published-profile edits roll back both. Account/session, admin and public projections read that same User name. No email, role, identity, slug or public DTO shape changes. UI explains the account-wide effect; existing callers remain valid. Rollback may remove the editor field without reverting saved names or schema.

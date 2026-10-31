@@ -17,6 +17,7 @@ export class MentorProfileService {
   async update(actorId:string|null,input:unknown) {
     const actor=this.actor(actorId),parsed=mentorProfileUpdateSchema.safeParse(input);if(!parsed.success)throw new ValidationError("Check your profile fields.",z.flattenError(parsed.error).fieldErrors);
     return this.owned(await this.available(()=>this.repository.mutate(actor,profile=>{
+      if(parsed.data.displayName!==undefined)profile.displayName=parsed.data.displayName;
       if(parsed.data.publicWorkUrl!==undefined)profile.publicWorkUrl=parsed.data.publicWorkUrl||null;
       if(parsed.data.bio!==undefined)profile.bio=parsed.data.bio||null;
       if(parsed.data.stackTags!==undefined)profile.stackTags=parsed.data.stackTags;
