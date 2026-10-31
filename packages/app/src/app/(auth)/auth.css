@@ -1,7 +1,0 @@
-@import "@devmentor/ui/tokens.css";
-@import "@devmentor/ui/controls.css";
-
-@import "@devmentor/ui/frames.css";
-@import "@fontsource-variable/inter";
-.dm-auth .gap-group { gap: var(--space-group); }
-.dm-auth .mt-group { margin-top: var(--space-group); }

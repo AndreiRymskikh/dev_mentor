@@ -1,1 +1,0 @@
-export function ErrorMessage({ message, onRetry }: { message: string; onRetry?: () => void }) { return <div role="alert"><p>{message}</p>{onRetry && <button type="button" onClick={onRetry}>Try again</button>}</div>; }
