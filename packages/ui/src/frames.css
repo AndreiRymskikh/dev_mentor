@@ -68,3 +68,11 @@
 @media (max-width: 768px) { .dm-invitation-main { grid-template-columns: minmax(0, 1fr); gap: var(--space-group); } .dm-invitation h1 { font-size: var(--font-size-section); } }
 
 .dm-public-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-group); font-size: var(--font-size-label); }
+
+.dm-public-header .dm-brand { font-size: var(--font-size-screen-heading); font-weight: var(--weight-heading); color: var(--foreground); text-decoration: none; }
+.dm-public-header nav .dm-link { color: var(--text-muted); text-decoration: none; }
+.dm-public-header nav > span { color: var(--text-muted); }
+.dm-invitation-card { gap: var(--space-control-inline); }
+.dm-invitation-card > p { font-size: var(--font-size-label); }
+.dm-invitation-card > .dm-invitation-expiry, .dm-invitation-card > .dm-invitation-policy { font-size: var(--font-size-metadata); }
+@media (min-width: 769px) { .dm-invitation-main { align-items: start; padding-top: calc(var(--space-section) * 2); } .dm-invitation-hero { padding-top: var(--space-group); } }

@@ -1,12 +1,11 @@
 import type { ReactNode } from "react";
 import { CalendarDays, Mail, Sparkles } from "lucide-react";
-import { Button } from "../ui/button";
 import { Link } from "../ui/link";
 
 /** Presentation only: account authorization and invitation lookup stay in app/core. */
 export function InvitationView({ account, children }: { account: ReactNode; children: ReactNode }) {
   return <div className="dm-invitation">
-    <header className="dm-public-header"><Link className="dm-brand" href="/">DevMentor <Sparkles aria-hidden="true" /></Link><nav aria-label="Public navigation"><Button variant="text" disabled disabledReason="The mentor catalog is not available yet.">Mentors</Button>{account}</nav></header>
+    <header className="dm-public-header"><Link className="dm-brand" href="/">DevMentor <Sparkles aria-hidden="true" /></Link><nav aria-label="Public navigation"><span aria-disabled="true">Mentors <small>(coming soon)</small></span>{account}</nav></header>
     <main className="dm-invitation-main">
       <section className="dm-invitation-hero" aria-labelledby="invitation-hero">
         <p className="dm-invitation-eyebrow">An invitation to mentor</p>
