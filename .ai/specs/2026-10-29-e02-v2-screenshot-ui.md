@@ -126,7 +126,7 @@ Each issue includes tests and a working incremental route. Gates block dependent
 ### V2-S02 — Profile editor
 - [x] Step 5: migrate two-column form/share composition and technology chips; retain all publication controls.
 - [x] Step 6: extend strict owner schema/repository transaction for explicit account-wide display-name edit; preserve old callers/slug, tests and privacy boundaries.
-- [ ] Step 7: prove save failure/input retention, publish/unpublish, copy success→denial and role revocation; full stories/browser comparisons.
+- [x] Step 7: prove save failure/input retention, publish/unpublish, copy success→denial and role revocation; full stories/browser comparisons.
 
 ### V2-S03a / V2-S03b — Public content/layout and gated reviews
 - [ ] Step 8: implement approved companion content sources, optional bounded fields and owner authoring; no canned public data.

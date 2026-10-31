@@ -9,6 +9,8 @@ Validation: lint, typecheck, 100% coverage, build, disposable PostgreSQL/browser
 
 ## Progress
 
+PR: #28
+
 ### Phase 1: Name persistence
 - [x] 1.1 Extend schema/service/repository and meaningful unit/database tests.
 ### Phase 2: Editor
@@ -27,3 +29,14 @@ Validation: lint, typecheck, 100% coverage, build, disposable PostgreSQL/browser
 - Mandatory npm audit fails: 25 moderate, zero high/critical; no dependency/lock changes. Proposed automated direct fixes are breaking downgrades (Storybook/Testcontainers/ESLint/Next lint). No downgrade or suppression applied; full gate remains blocked.
 
 - Final visual inspection found the editor route had inherited no workspace frame. Reused existing Workspace/current-role navigation and LogoutButton, added current profile state, and moved editor stories to app-owned harness paths. Unit coverage, lint/typecheck/story typecheck, all eight story checks and production build pass again. Full production integration rerun now uses this immutable build.
+
+## Final verification and outcome
+
+Source implementation: 2142156 (heading refinement), prior full-suite source 8076471.
+- Passed: lint, workspace/tests typecheck, Storybook typecheck, clean production build, 174 unit tests with 100% lines/statements/functions/branches across all measured source, eight light/dark editor stories with accessibility checks.
+- Passed: full disposable PostgreSQL/production browser integration on 8076471; final heading-only correction reverified by the complete database plus profile/invitation browser scenario. Both runners cleaned up owned resources. No developer database resets.
+- Visually inspected full desktop/light and mobile/dark screenshots. Captured 1440/768/390/320 in both themes and corrected broad workspace topbar styles affecting nested editor headings.
+- Audit: FAIL, 25 moderate / 0 high / 0 critical on unchanged dependencies. Full mandatory gate remains blocked. Independent approving review and QA are NOT completed; no self approval or QA approval claimed.
+- CI: all four jobs passed on 8076471. Subsequent final-source and metadata pushes require fresh CI; no final-head CI success is inferred.
+
+Outcome: implementation and evidence delivered in draft PR #28. Phase 3 remains unchecked because audit and independent review/QA remain outstanding. Do not mark the whole spec implemented or merge this PR until required gates pass.
