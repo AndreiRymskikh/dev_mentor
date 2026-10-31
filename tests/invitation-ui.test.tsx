@@ -6,6 +6,8 @@ import { renderToString, renderToStaticMarkup } from "react-dom/server";
 import { JSDOM } from "jsdom";
 import { InvitationService } from "../packages/core/src/services/invitations/invitation.service";
 import { SessionService } from "../packages/core/src/services/users/session.service";
+import { readEnv } from "@devmentor/core/config";
+import * as configModule from "@devmentor/core/config";
 import { AppError, NotFoundError } from "@devmentor/core/http";
 import { LocalTime, formatInstant } from "../packages/ui/src/time";
 import InvitationPage from "../packages/app/src/app/invitation/[token]/page";
@@ -17,8 +19,9 @@ vi.mock("next/headers",()=>({headers:async()=>new Headers()}));
 const token="a".repeat(43), id="00000000-0000-4000-8000-000000000001",date="2026-11-09T12:00:00.000Z";
 function setup(html="<div id='root'></div>") {const dom=new JSDOM(html,{url:"http://localhost"});for(const [key,value]of Object.entries({window:dom.window,document:dom.window.document,IS_REACT_ACT_ENVIRONMENT:true}))vi.stubGlobal(key,value);return {dom,host:dom.window.document.getElementById("root")!};}
 test("invitation page shows identical invalid states, safe infrastructure errors and verified identity controls",async()=>{
+  const settings=readEnv();vi.spyOn(configModule,"readEnv").mockReturnValue({...settings,MENTOR_PUBLISH_WINDOW_DAYS:9});
   const lookup=vi.spyOn(InvitationService.prototype,"lookup").mockResolvedValue({email:"invited@example.test",stackTags:["react"],expiresAt:date});const resolve=vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue(null);const identity=vi.spyOn(InvitationService.prototype,"identity").mockResolvedValue("invited@example.test");const render=async()=>renderToStaticMarkup(await InvitationPage({params:Promise.resolve({token})}));
-  expect(await render()).toContain("returnTo=");expect(await render()).not.toContain("Accept invitation");
+  expect(await render()).toContain("within 9 days");expect(await render()).toContain(date);expect(await render()).toContain("Invitations are optional");expect(await render()).toContain("returnTo=");expect(await render()).not.toContain("Accept invitation");
   resolve.mockResolvedValue({id,displayName:"Invited",roles:["developer"]});expect(await render()).toContain("Accept invitation");
   identity.mockResolvedValue("wrong@example.test");expect(await render()).toContain("wrong@example.test");expect(await render()).not.toContain("Accept invitation");
   for(const error of [new NotFoundError(),new AppError("MISSING","missing",404)]){lookup.mockRejectedValueOnce(error);expect(await render()).toContain("This invitation is not valid");}
