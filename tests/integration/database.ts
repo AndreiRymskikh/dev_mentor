@@ -1,3 +1,4 @@
+import { testMentorDetails } from "./mentor-details";
 import { testMentorProfiles } from "./mentor-profile";
 import { testInvitations } from "./invitations";
 import { testAuthMaintenance } from "./auth-maintenance";
@@ -109,6 +110,7 @@ export async function testDatabase(clientUrl: string) {
     await testPasswordRecovery(runtime);
     await testInvitations(runtime);
     await testMentorProfiles(runtime);
+    await testMentorDetails(runtime);
     await testRoles(runtime, clientUrl);
     await testAdminUsersDatabase(runtime);
     await testAuthMaintenance(runtime, clientUrl);

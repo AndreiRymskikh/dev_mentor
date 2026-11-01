@@ -23,13 +23,18 @@ Public/private separation, role revocation and rollback data loss are material r
 > Convention: `- [ ]` pending, `- [x]` done. Append commit SHA when completed.
 
 ### Phase 1: Persistence and APIs
-- [ ] 1.1 Strict details contract and additive persistence
-- [ ] 1.2 Owner/public routes and privacy tests
+- [x] 1.1 Strict details contract and additive persistence
+- [x] 1.2 Owner/public routes and privacy tests
 
 ### Phase 2: Authoring and public page
-- [ ] 2.1 Owner editing and public non-review layout
+- [x] 2.1 Owner editing and public non-review layout
 - [ ] 2.2 Unit, migration and browser evidence
 
 ### Phase 3: Verification and delivery
 - [ ] 3.1 Full configured validation
 - [ ] 3.2 Review, evidence and handoff
+
+## Implementation and initial validation
+Separate MentorDetails repository/service and explicit public projection retain existing five-key DTO and core readiness. Optional details editor uses shared useFormState with native repeated rows because CrudForm supports flat fields; no generic form framework was added. A native details/summary disclosure keeps the sample keyboard-accessible without client JavaScript. No review/offer/booking data is invented.
+
+Passed: lint; workspace/test typecheck; 184 unit tests and 100% all four coverage measures (elevated rerun needed for existing localhost test servers). Sandboxed build stalled and was terminated; elevated build in progress. Audit returns 25 moderate dependency entries through glob/minimatch, zero high/critical; no dependencies changed or forced downgrades applied. Integration and visual QA still pending.

@@ -1,4 +1,5 @@
 import { defineEntity, p } from "@mikro-orm/postgresql";
+import type { MentorDetails } from "../../repositories/mentors/mentor-details.repository";
 import { User } from "../users/user.entity";
 
 export const MentorProfile = defineEntity({
@@ -9,6 +10,11 @@ export const MentorProfile = defineEntity({
     { name: "mentor_profiles_stack_tags_check", expression: "stack_tags <@ ARRAY['typescript','react','python','ai-agents']::text[] and array_position(stack_tags, null) is null" },
   ],
   properties: {
+    sessionLanguage: p.string().length(35).nullable(),
+    mentorTimeZone: p.string().length(100).nullable(),
+    helpTopics: p.json<MentorDetails["helpTopics"]>().default([]),
+    sampleAnswer: p.json<NonNullable<MentorDetails["sampleAnswer"]>>().nullable(),
+    sessionSteps: p.json<MentorDetails["sessionSteps"]>().default([]),
     publicWorkUrl: p.text().nullable(),
     bio: p.text().nullable(),
     stackTags: p.array<string>().default([]),

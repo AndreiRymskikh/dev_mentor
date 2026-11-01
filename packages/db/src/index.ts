@@ -1,3 +1,4 @@
+export { MentorDetailsRepository, detailsDto, type MentorDetails } from "./repositories/mentors/mentor-details.repository";
 export type EntityId = string;
 
 export { databaseOptions } from "./config";

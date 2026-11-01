@@ -28,7 +28,7 @@ export async function testMentorProfiles(runtime:ReturnType<typeof createDatabas
   const removal=runtime.transaction(async em=>{await em.findOneOrFail(User,{id:ids[0]},{lockMode:LockMode.PESSIMISTIC_WRITE});await em.nativeDelete(UserRole,{userId:ids[0],role:"mentor"});acquired();await unlock;});
   await locked;const deniedUpdate=assert.rejects(service.update(ids[0],{displayName:"Concurrent denied name"}),{status:403});release();await Promise.all([removal,deniedUpdate]);await assert.rejects(service.getPublicBySlug(slug),{status:404});await assert.rejects(service.getMine(ids[0]),{status:403});await assert.rejects(service.update(ids[0],{displayName:"Denied"}),{status:403});await runtime.withEntityManager(async em=>assert.equal((await em.findOneOrFail(User,{id:ids[0]})).displayName,"Renamed mentor"));
   await assert.rejects(runtime.transaction(async em=>{await em.execute("update mentor_profiles set stack_tags = ARRAY['unknown']::text[] where user_id = ?",[ids[1]]);}),/check constraint/);
-  await assert.rejects((await runtime.getOrm()).migrator.down(),/Refusing destructive profile rollback/);
+  await assert.rejects((await runtime.getOrm()).migrator.down({to:"Migration202610260001"}),/Refusing destructive profile rollback/);
   console.log("Mentor profile DB passed: virtual self-service drafts, ownership, readiness, fresh-transaction slug collision retry, stable links, publish/unpublish serialization and private projection.");
  }finally{await runtime.transaction(async em=>{await em.nativeDelete(AuthSession,{userId:{$in:ids}});await em.nativeDelete(MentorProfile,{userId:{$in:ids}});await em.nativeDelete(UserRole,{userId:{$in:ids}});await em.nativeDelete(User,{id:{$in:ids}});});}
 }

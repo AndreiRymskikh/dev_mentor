@@ -1,3 +1,5 @@
+import { MentorDetailsService } from "../packages/core/src/services/mentors/mentor-details.service";
+import { detailsDto } from "@devmentor/db";
 import MentorHome from "../packages/app/src/app/mentor/page";
 import { InvitationService } from "../packages/core/src/services/invitations/invitation.service";
 import {test,expect,vi} from "vitest";
@@ -36,6 +38,7 @@ async function mount(element:ReactNode){
 }
 test("profile page guards each entry and public pages expose only the shared approved view",async()=>{
  const resolve=vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue(null);await expect(ProfilePage()).rejects.toThrow("redirect:/login");resolve.mockResolvedValue({id,displayName:"Mentor",roles:["developer"]});expect(renderToStaticMarkup(await ProfilePage())).toContain("Mentor access is required");resolve.mockResolvedValue({id,displayName:"Mentor",roles:["mentor"]});expect(renderToStaticMarkup(await ProfilePage())).toContain('aria-current="page"');expect(renderToStaticMarkup(await ProfilePage())).toContain("Workspace navigation");vi.stubEnv("APP_ORIGIN",undefined);expect((await ProfilePage()).props.children.props.children.props.origin).toBe("");vi.stubEnv("APP_ORIGIN","https://site.test/");expect((await ProfilePage()).props.children.props.children.props.origin).toBe("https://site.test");vi.unstubAllEnvs();
+ vi.spyOn(MentorDetailsService.prototype,"getPublicBySlug").mockResolvedValue(detailsDto({}));
  const get=vi.spyOn(MentorProfileService.prototype,"getPublicBySlug").mockResolvedValue(toPublicDto({...record,slug:"mentor-1"}));const render=async()=>renderToStaticMarkup(await PublicPage({params:Promise.resolve({slug:"mentor-1"})}));expect(await render()).toContain("Public experience");expect(await render()).toContain("React");expect(await render()).not.toContain("TypeScript");get.mockRejectedValueOnce(new NotFoundError());await expect(render()).rejects.toThrow("not-found");for(const error of [new Error("secret"),new AppError("OFFLINE","private",503)]){get.mockRejectedValueOnce(error);const html=await render();expect(html).toContain("temporarily unavailable");expect(html).not.toContain("secret");}
 });
 test("shared profile view, badges and readiness show accessible text without private or ranking fields",()=>{
