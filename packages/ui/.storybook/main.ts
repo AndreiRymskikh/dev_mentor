@@ -1,6 +1,7 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const config: StorybookConfig = {
   framework: '@storybook/react-vite',
@@ -13,7 +14,7 @@ const config: StorybookConfig = {
   features: { sidebarOnboardingChecklist: false, menuOnboardingChecklist: false },
   async viteFinal(config) {
     const { mergeConfig } = await import('vite');
-    return mergeConfig(config, { plugins: [tailwindcss()], optimizeDeps: { include: ['storybook/internal/core-events', '@storybook/addon-docs/blocks'] } });
+    return mergeConfig(config, { plugins: [tailwindcss()], resolve: { alias: { 'next/navigation': fileURLToPath(new URL('../../app/.storybook/navigation-mock.ts', import.meta.url)) } }, optimizeDeps: { include: ['storybook/internal/core-events', '@storybook/addon-docs/blocks'] } });
   },
 };
 export default config;

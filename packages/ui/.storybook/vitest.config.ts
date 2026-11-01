@@ -8,6 +8,7 @@ export default defineConfig({
   test: {
     projects: ['light', 'dark'].map(theme => ({
       plugins: [storybookTest({ configDir, initialGlobals: { theme } })],
+      resolve: { alias: { 'next/navigation': fileURLToPath(new URL('../../app/.storybook/navigation-mock.ts', import.meta.url)) } },
       optimizeDeps: { include: ['storybook/internal/core-events', '@storybook/addon-docs/blocks'] },
       test: {
         name: theme,
