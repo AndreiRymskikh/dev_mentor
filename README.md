@@ -671,3 +671,18 @@ feedback. Pure validator exports keep schemas on the client without importing th
 Focused disposable database/browser verification: `npm run test:integration -- --scenario=profiles`.
 The default `npm run test:integration` remains the complete authoritative regression suite. Clipboard
 permission and resource failures are injected only by tests, never by product UI controls.
+
+### Optional public mentor content
+
+Mentors can open **Edit optional public details** from `/mentor/profile` to author a session language,
+IANA timezone, up to six help topics, a sample answer and up to five session-process steps. All content is
+optional and public once the core profile is published; it does not affect publication readiness. Sample
+ownership/privacy confirmation is required on each sample save. Never paste private session answers or secrets.
+
+Apply the additive `Migration202611010001` with the existing `npm run db:migrate` workflow before deploying
+the details routes. The original public profile API is unchanged; details use separate `/details` endpoints.
+Rollback removes consumers and retains schema/data. Migration down refuses saved optional content rather
+than deleting it. See [compatibility contract](BACKWARD_COMPATIBILITY.md#optional-public-profile-details-e02-v2-s03a-partial).
+
+The public page includes the non-review content sections and a truthful unavailable offer. Prices, future
+slots and an accepted booking destination remain dependencies; reviews and payouts are separate capabilities.

@@ -1,6 +1,6 @@
 # E02 v2 — Rich public mentor profile and verified reviews
 
-Date: 2026-10-29. Status: proposed; review capability blocked on approval gate G1 and completion-source delivery.
+Date: 2026-10-29. Status: C1 optional-content code delivered on [PR #29](https://github.com/AndreiRymskikh/dev_mentor/pull/29); C2 is partial pending real #6 offer data and #25 booking destination. Mandatory dependency audit and independent review/QA remain outstanding. Review capability remains blocked on G1 and completion-source delivery.
 Parent contract: [E02 v2 screenshot audit](2026-10-29-e02-v2-screenshot-ui.md), screen `04-public-mentor-profile.png`.
 
 ## 📝 TLDR
@@ -59,10 +59,10 @@ Additive migrations require up/down/schema parity and refusal to drop saved publ
 
 ## ✅ Acceptance and Implementation Plan
 
-- [ ] Phase C1: define strict optional content schema, owner fields, additive migrations and separately allowlisted detail reads; preserve the five-key public DTO and slug.
+- [x] Phase C1: define strict optional content schema, owner fields, additive migrations and separately allowlisted detail reads; preserve the five-key public DTO and slug.
 - [ ] Phase C2: implement owner authoring and every non-review public section with real values, E02 offer dependencies and full-page/mobile stories/browser checks. Public content can ship independently of reviews.
 - [ ] Phase R1: obtain recorded G1 decisions; finalize real engagement FK/completion adapter, consent, report/moderation/edit/withdrawal/retention contracts and required author/moderator UI.
 - [ ] Phase R2: implement Review persistence/API/aggregate with unique race protection and tested denied paths, then live summary/rows in screenshot04.
 - [ ] Phase R3: verify spam/duplicate/self-review/incomplete/wrong-user/moderation/withdrawal and public privacy paths; mandatory 100% meaningful production coverage, lint/typecheck/build/audit/disposable integration, four CI jobs and independent QA.
 
-No review implementation or live content correctness is claimed by this design. Final screenshot04 feature completion requires approved live reviews and real offer/booking dependencies; a C2-only release is labelled partial.
+C1 implementation and evidence are tracked in [the issue-22 run](../runs/2026-11-01-issue-22-public-content.md). Optional content/authoring and the non-review layout are delivered on PR #29; no review backend is delivered. This specification remains active because C2 offer/booking dependencies, R1–R3 and release gates are unfinished. Final screenshot04 feature completion requires approved live reviews and real offer/booking dependencies; a C2-only release is labelled partial.

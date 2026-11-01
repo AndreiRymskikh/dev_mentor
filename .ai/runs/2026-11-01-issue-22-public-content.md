@@ -20,6 +20,8 @@ Public/private separation, role revocation and rollback data loss are material r
 
 ## Progress
 
+PR: #29
+
 > Convention: `- [ ]` pending, `- [x]` done. Append commit SHA when completed.
 
 ### Phase 1: Persistence and APIs
@@ -38,3 +40,13 @@ Public/private separation, role revocation and rollback data loss are material r
 Separate MentorDetails repository/service and explicit public projection retain existing five-key DTO and core readiness. Optional details editor uses shared useFormState with native repeated rows because CrudForm supports flat fields; no generic form framework was added. A native details/summary disclosure keeps the sample keyboard-accessible without client JavaScript. No review/offer/booking data is invented.
 
 Passed: lint; workspace/test typecheck; 184 unit tests and 100% all four coverage measures (elevated rerun needed for existing localhost test servers). Sandboxed build stalled and was terminated; elevated build in progress. Audit returns 25 moderate dependency entries through glob/minimatch, zero high/critical; no dependencies changed or forced downgrades applied. Integration and visual QA still pending.
+
+## Database, browser and review progress
+Full production integration passed at a50f1ee: disposable migrations up/down and empty schema diff; every saved details field blocks destructive down; draft/unpublish/role-removal denies public reads; strict owner/CSRF/32KiB and public allowlist checks; owner-authored content reloads; escaped sample and real disclosure; full public desktop/390px/320px light/dark captures. Existing auth/admin/outage/installer suites also passed and cleaned up. Eight deterministic public-profile Storybook browser checks pass in light/dark (rich, empty optional content and long code). Story typecheck passes.
+
+Review found global header/footer selector overlap with invitation framing; scoped the new rules to the public-profile root and restored white/neutral light surfaces. Final focused production run is checking that revision. Replaced raw nested field paths in the custom form's error list with human-readable validation messages and an explicit ownership instruction; regression checks prevent exposing the internal confirmation key. Native browser keyboard activation verifies disclosure; synthetic Storybook keyboard events do not perform Chromium's default details action, so stories use click and the production browser covers Enter.
+
+The author account cannot independently approve its own PR. Independent review and risk-high QA sign-off remain required. The mandatory npm audit gate fails on unchanged glob/minimatch advisories (25 moderate, zero high/critical). No dependency override/downgrade or policy waiver is claimed.
+
+## Final correction verification
+Kept mobile process numbers on one line; a computed-style browser assertion covers 320px. Optional repeated fields now reuse shared FormField/Input/Textarea controls and focus invalid input, with a regression checking ownership-confirmation focus. Final lint/typecheck and all 184 unit tests pass with 100% lines/statements/functions/branches (2207 statements, 1339 branches, 634 functions, 1521 lines). A final production build/profile-browser run is in progress; no further production changes are planned.

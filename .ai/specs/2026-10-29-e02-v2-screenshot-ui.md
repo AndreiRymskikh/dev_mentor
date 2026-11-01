@@ -129,8 +129,8 @@ Each issue includes tests and a working incremental route. Gates block dependent
 - [x] Step 7: prove save failure/input retention, publish/unpublish, copy success→denial and role revocation; full stories/browser comparisons.
 
 ### V2-S03a / V2-S03b — Public content/layout and gated reviews
-- [ ] Step 8: implement approved companion content sources, optional bounded fields and owner authoring; no canned public data.
-- [ ] Step 9: compose every section of 04, integrate actual E02 offer data and owning booking destination when available.
+- [x] Step 8: implement approved companion content sources, optional bounded fields and owner authoring; no canned public data. Delivered on [PR #29](https://github.com/AndreiRymskikh/dev_mentor/pull/29); dependency audit and independent review/QA remain outstanding.
+- [ ] Step 9: compose every section of 04, integrate actual E02 offer data and owning booking destination when available. PR #29 delivers the non-review content/layout with a disabled offer; #6/#25 dependencies and #23 reviews remain incomplete.
 - [ ] Step 10: only after G1/completion dependency, implement live reviews and tested public projection; until then record the page as incomplete for full screenshot delivery.
 
 ### V2-S04 — Live payout onboarding/status
