@@ -1,4 +1,8 @@
 import "../../mentor.css";
+import "./profile-editor.css";
+import "@devmentor/ui/frames.css";
+import { Workspace } from "../../workspace";
+import { LogoutButton } from "../../(auth)/account/logout-button";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { withScope } from "@devmentor/core/container";
@@ -13,5 +17,5 @@ export default async function MentorProfilePage() {
   const principal=await withScope(({sessionService})=>sessionService.resolve(readSessionCookie({headers:requestHeaders})));
   if(!principal)redirect("/login");
   if(!principal.roles.includes("mentor"))return <ErrorMessage message="Mentor access is required."/>;
-  return <main className="dm-mentor mx-auto grid max-w-3xl gap-group"><ProfileEditor options={StackTags.options} origin={process.env.APP_ORIGIN?new URL(process.env.APP_ORIGIN).origin:""}/></main>;
+  return <Workspace identity={principal.displayName} roles={principal.roles} current="profile" signOut={<LogoutButton/>}><div className="dm-profile-page"><ProfileEditor options={StackTags.options} origin={process.env.APP_ORIGIN?new URL(process.env.APP_ORIGIN).origin:""}/></div></Workspace>;
 }

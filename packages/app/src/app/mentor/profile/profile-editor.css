@@ -1,0 +1,26 @@
+.dm-profile-page { width: 100%; max-width: var(--size-content-max); margin-inline: auto; padding: 0; color: var(--foreground); overflow-wrap: anywhere; }
+.dm-profile-editor { display: grid; gap: var(--space-panel); }
+.dm-profile-heading { display: grid; gap: var(--space-related); }
+.dm-profile-heading h1 { font-size: var(--font-size-section); font-weight: var(--weight-heading); line-height: var(--line-heading); }
+.dm-profile-heading p { max-width: var(--size-body-measure); color: var(--text-muted); }
+.dm-profile-eyebrow { display: flex; align-items: center; justify-content: space-between; gap: var(--space-related); font-size: var(--font-size-metadata); font-weight: var(--weight-heading); }
+.dm-profile-columns { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: var(--space-panel); align-items: start; }
+.dm-profile-card { min-width: 0; padding: var(--space-panel); background: var(--surface-card); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-panel); }
+.dm-profile-card .dm-crud-fields { gap: var(--space-panel); }
+.dm-profile-card textarea { min-height: calc(var(--size-textarea-min) + var(--space-panel)); }
+.dm-profile-card fieldset fieldset { display: flex; flex-wrap: wrap; gap: var(--space-related); }
+.dm-profile-card legend { margin-bottom: var(--space-related); }
+.dm-profile-card .dm-choice { display: inline-flex; padding: var(--space-related) var(--space-group); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-control); font-size: var(--font-size-label); }
+.dm-profile-card .dm-choice:has([data-state="checked"]) { color: var(--text-accent); border-color: var(--action-primary); background: var(--surface-support); }
+.dm-profile-card .dm-choice > [aria-hidden] { font-weight: var(--weight-heading); }
+.dm-profile-card .dm-hint { flex-basis: 100%; color: var(--text-muted); font-size: var(--font-size-label); }
+.dm-profile-card .dm-form-actions { padding-top: var(--space-related); border-top: var(--border-width) solid var(--border-subtle); }
+.dm-profile-share, .dm-profile-share .dm-profile-card { display: grid; gap: var(--space-panel); }
+.dm-profile-share h2, .dm-profile-preview h2 { font-weight: var(--weight-heading); }
+.dm-profile-share p { font-size: var(--font-size-label); color: var(--text-muted); }
+.dm-profile-share svg { width: var(--size-icon-standalone); height: var(--size-icon-standalone); color: var(--action-primary); }
+.dm-profile-share button svg, .dm-profile-preview-link svg { width: var(--size-icon-inline); height: var(--size-icon-inline); }
+.dm-profile-preview-link { display: flex; align-items: center; justify-content: center; gap: var(--space-related); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-control); min-height: var(--size-control); }
+.dm-profile-preview { display: grid; gap: var(--space-group); }
+@media (max-width: 900px) { .dm-profile-columns { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 480px) { .dm-profile-card { padding: var(--space-group); } .dm-profile-heading h1 { font-size: var(--font-size-section); } }

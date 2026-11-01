@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { WorkspaceFrame, type WorkspaceNavigationItem } from "@devmentor/ui/backend/frames";
-interface WorkspaceProps { identity: string; roles: readonly string[]; current: "account" | "mentor" | "operator" | "users"; signOut: ReactNode; children: ReactNode }
+interface WorkspaceProps { identity: string; roles: readonly string[]; current: "account" | "mentor" | "operator" | "users" | "profile"; signOut: ReactNode; children: ReactNode }
 /** Server composition supplies current-role navigation; the frame only presents it. */
 export function Workspace({ identity, roles, ...props }: WorkspaceProps) {
   const navigation: WorkspaceNavigationItem[] = [

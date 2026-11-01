@@ -24,6 +24,7 @@ export class MentorProfileRepository {
       if(!profile)profile=em.create(MentorProfile,{userId,stackTags:[]});
       const record:MentorProfileRecord={userId,displayName:user.displayName,publicWorkUrl:profile.publicWorkUrl??null,bio:profile.bio??null,stackTags:profile.stackTags,slug:profile.slug??null,publishedAt:profile.publishedAt??null};
       work(record);
+      user.displayName=record.displayName;
       profile.publicWorkUrl=record.publicWorkUrl;profile.bio=record.bio;profile.stackTags=record.stackTags;profile.slug=record.slug;profile.publishedAt=record.publishedAt;
       await em.flush();return record;
     });}catch(error){if(error instanceof UniqueConstraintViolationException && "constraint" in error && error.constraint==="mentor_profiles_slug_unique")throw new SlugCollisionError();throw error;}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { StackTags } from "../../domain/vocabularies/stack-tags";
 export const mentorProfileUpdateSchema=z.object({
+  displayName:z.string().trim().min(1).max(100).optional(),
   publicWorkUrl:z.union([z.literal(""),z.url().max(2048).refine(value=>/^https?:\/\//.test(value),"Use an HTTP or HTTPS URL.")]).optional(),
   bio:z.string().trim().max(2000).optional(),
   stackTags:z.array(StackTags.schema).max(4).refine(values=>new Set(values).size===values.length,"Choose each tag once.").optional(),

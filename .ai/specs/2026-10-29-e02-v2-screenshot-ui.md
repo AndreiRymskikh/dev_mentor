@@ -1,6 +1,6 @@
 # E02 v2 — Screenshot implementation audit and delivery contract
 
-Date: 2026-10-29. Status: implementation in progress; V2-S01 is implemented on [PR #27](https://github.com/AndreiRymskikh/dev_mentor/pull/27), with dependency audit and independent approval outstanding. Other slices are not implemented by that PR. Full release is gated on the decisions below.
+Date: 2026-10-29. Status: implementation in progress; V2-S01 is implemented on [PR #27](https://github.com/AndreiRymskikh/dev_mentor/pull/27), with dependency audit and independent approval outstanding. V2-S02 code is delivered on [PR #28](https://github.com/AndreiRymskikh/dev_mentor/pull/28), with its mandatory dependency-audit gate and independent review/QA outstanding. Other slices are not implemented by those PRs. Full release is gated on the decisions below.
 Authority: all seven owner-supplied `.ai/docs/designs/e02/` PNGs; source audit at `19a59ba`.
 
 ## 📝 TLDR
@@ -124,9 +124,9 @@ Each issue includes tests and a working incremental route. Gates block dependent
 - [ ] Step 4: owner of #6 delivers approved price/slot contracts; #16 consumes them and verifies 0/partial/3-step and empty/list/share states.
 
 ### V2-S02 — Profile editor
-- [ ] Step 5: migrate two-column form/share composition and technology chips; retain all publication controls.
-- [ ] Step 6: extend strict owner schema/repository transaction for explicit account-wide display-name edit; preserve old callers/slug, tests and privacy boundaries.
-- [ ] Step 7: prove save failure/input retention, publish/unpublish, copy success→denial and role revocation; full stories/browser comparisons.
+- [x] Step 5: migrate two-column form/share composition and technology chips; retain all publication controls.
+- [x] Step 6: extend strict owner schema/repository transaction for explicit account-wide display-name edit; preserve old callers/slug, tests and privacy boundaries.
+- [x] Step 7: prove save failure/input retention, publish/unpublish, copy success→denial and role revocation; full stories/browser comparisons.
 
 ### V2-S03a / V2-S03b — Public content/layout and gated reviews
 - [ ] Step 8: implement approved companion content sources, optional bounded fields and owner authoring; no canned public data.
