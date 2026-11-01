@@ -1,6 +1,6 @@
 # Issue 22 — optional public content and profile layout
 
-Start: 2026-11-01. Status: in-progress.
+Start: 2026-11-01. Status: implementation delivered; validation blocked on dependency audit; independent review/QA outstanding.
 Source doc: .ai/specs/2026-10-29-e02-v2-public-profile-and-reviews.md
 Issue: #22. Design: #18 (merged). Engine: om-auto-create-pr (steps: 6, --loop: no).
 
@@ -25,16 +25,16 @@ PR: #29
 > Convention: `- [ ]` pending, `- [x]` done. Append commit SHA when completed.
 
 ### Phase 1: Persistence and APIs
-- [x] 1.1 Strict details contract and additive persistence
-- [x] 1.2 Owner/public routes and privacy tests
+- [x] 1.1 Strict details contract and additive persistence — a50f1ee
+- [x] 1.2 Owner/public routes and privacy tests — a50f1ee
 
 ### Phase 2: Authoring and public page
-- [x] 2.1 Owner editing and public non-review layout
-- [ ] 2.2 Unit, migration and browser evidence
+- [x] 2.1 Owner editing and public non-review layout — a50f1ee, 52c82f6
+- [x] 2.2 Unit, migration and browser evidence — 52c82f6
 
 ### Phase 3: Verification and delivery
 - [ ] 3.1 Full configured validation
-- [ ] 3.2 Review, evidence and handoff
+- [x] 3.2 Review, evidence and handoff — request changes for audit; independent approval/QA pending
 
 ## Implementation and initial validation
 Separate MentorDetails repository/service and explicit public projection retain existing five-key DTO and core readiness. Optional details editor uses shared useFormState with native repeated rows because CrudForm supports flat fields; no generic form framework was added. A native details/summary disclosure keeps the sample keyboard-accessible without client JavaScript. No review/offer/booking data is invented.
@@ -50,3 +50,14 @@ The author account cannot independently approve its own PR. Independent review a
 
 ## Final correction verification
 Kept mobile process numbers on one line; a computed-style browser assertion covers 320px. Optional repeated fields now reuse shared FormField/Input/Textarea controls and focus invalid input, with a regression checking ownership-confirmation focus. Final lint/typecheck and all 184 unit tests pass with 100% lines/statements/functions/branches (2207 statements, 1339 branches, 634 functions, 1521 lines). A final production build/profile-browser run is in progress; no further production changes are planned.
+
+## Final outcome
+Final source 52c82f6: lint/typecheck PASS; 184 unit tests with 100% all four measures PASS; production build PASS; final focused disposable DB/invitation/profile/browser suite PASS, including native Enter disclosure, owner wrong-scope read, human-readable ownership errors/focus, field persistence, escaped script text, disabled offer, full-page desktop/390px/320px light/dark and single-line step markers. Full auth/admin/outage/installer integration passed before the final local presentation corrections. Eight Storybook light/dark interaction/accessibility checks and Storybook typecheck PASS. Diff whitespace check PASS.
+
+Audit FAIL: 25 moderate dependency entries rooted in glob/minimatch (unchanged lockfile), zero high/critical. No gate waived or thresholds changed. Review verdict REQUEST CHANGES for this gate; no remaining actionable source defect identified in the implementation pass. The author cannot independently approve their own PR; risk-high review/QA remain outstanding. Latest CI was in progress when inspected; no final CI success claimed.
+
+Evidence: [desktop light](https://raw.githubusercontent.com/AndreiRymskikh/dev_mentor/qa-evidence-pr29/issue22/mentor-public-light-desktop.png), [320px dark](https://raw.githubusercontent.com/AndreiRymskikh/dev_mentor/qa-evidence-pr29/issue22/mentor-public-dark-mobile.png), [390px light](https://raw.githubusercontent.com/AndreiRymskikh/dev_mentor/qa-evidence-pr29/issue22/mentor-public-light-phone.png), [owner editor](https://raw.githubusercontent.com/AndreiRymskikh/dev_mentor/qa-evidence-pr29/issue22/mentor-details-owner.png). Seven images retained on the separate qa-evidence-pr29 branch. Local verification logs remain outside repository in /tmp/issue22-*.
+
+Changed files span mentor entity/migration/config and new details repository; pure details validator/service and explicit DI; separate owner/public detail routes; owner details page/form/styles and editor link; public page/component/styles; deterministic app stories; unit/route/UI and disposable DB/browser tests; compatibility/README/spec status/lessons/run metadata. Existing MentorPageView and five-key public API are unchanged.
+
+PR #29 stays draft and #22 stays open: actual offer/booking remains owned by #6/#25. No reviews, payouts or booking system were introduced. Specifications remain active, not moved to implemented. Owned test resources were cleaned up; the isolated worktree will be removed after the final metadata push.
