@@ -2,8 +2,9 @@
 
 Date: 2026-09-08
 Status: active
-Issue: [#17](https://github.com/open-mercato/ai_techleaders_project/issues/17) (epic #8)
-Depends on: E02-S01 (#15), E02-S02 (#16); E01 Slices 1, 2 and 4
+Issue: [#31](https://github.com/AndreiRymskikh/dev_mentor/issues/31) (epic #6)
+Historical provenance: external open-mercato issue #17 (epic #8)
+Depends on: merged invitation/profile slices; owner-approved availability policy from #30 (recorded below)
 Design authority for architecture, data model and the occupancy rule:
 `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 3, and the "occupancy rule" section)
 

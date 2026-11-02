@@ -13,7 +13,7 @@ export async function testAvailability(runtime:ReturnType<typeof createDatabaseR
   await runtime.withEntityManager(async em=>assert.equal(await em.count(MentorProfile,{userId:ids[0]}),0));
   await assert.rejects(service.getMine(ids[2]),{status:403});await assert.rejects(service.publish(ids[2],{startsAt:"2026-08-31T18:00:00Z"}),{status:403});
   const input={startsAt:"2026-08-31T18:00:00.000Z"};
-  const attempts=await Promise.allSettled(Array.from({length:8},()=>service.publish(ids[0],input)));
+  const attempts=await Promise.allSettled(Array.from({length:8},(_,index)=>service.publish(ids[0],index%2?{startsAt:"2026-08-31T20:00:00+02:00"}:input)));
   assert.equal(attempts.filter(result=>result.status==="fulfilled").length,1);for(const result of attempts)if(result.status==="rejected")assert.equal(result.reason.status,409);
   const owner=await service.getMine(ids[0]);assert.equal(owner.availabilityComplete,true);assert.equal(owner.lastPublishedAvailabilityAt,now.toISOString());const slotId=owner.slots[0].id;
   await assert.rejects(service.remove(ids[1],slotId),{status:404});assert.equal((await service.getMine(ids[1])).slots.length,0);

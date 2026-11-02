@@ -36,3 +36,17 @@ Pending implementation. No tests claimed passed.
 - Local production browser suite cannot launch Chromium: macOS sandbox denies MachPortRendezvousServer bootstrap registration. Workspace-local browser socket resolved the separate home-directory write restriction; both installed Chromium and headless shell still fail at the OS process boundary. No browser pass is claimed. GitHub's unrestricted Linux integration job will exercise the committed browser suite.
 - npm audit reports 27 moderate findings in existing tooling chains, no high/critical findings. package-lock.json is unchanged. No available safe automated fix for the direct affected tooling; no overrides/downgrades/suppressions introduced. Audit remains a merge blocker, separate from availability.
 - Independent high-risk review/QA remains required before merge. No merge, approval or issue closure is claimed.
+
+
+### Final regression refinements
+
+- Draft [PR #33](https://github.com/AndreiRymskikh/dev_mentor/pull/33), implementation c7808e0. Initial CI build, lint/types and unit-coverage jobs passed; full integration pending at this entry.
+- Strengthened the public refresh test to assert the eligible-to-disabled transition, rather than merely counting refetches. Concurrent database publication now includes equivalent explicit offsets; a fresh disposable run passed this case and the migration/ownership/time-boundary checks.
+- Final local lint/typecheck and all 199 unit tests pass with 100% production metrics (2,416 statements, 1,425 branches, 711 functions, 1,657 lines). Production build passes. Browser execution remains blocked locally as described above.
+- A temporary standalone ESM probe loaded ORM entity metadata through mixed module paths and failed before the fixture; the same probe using the existing test suite's CommonJS module path passed. No production change was made for this harness-only issue. Prefer the canonical integration runner; keep standalone ORM probes consistent with its module loading.
+
+### CI evidence and outcome
+
+All four CI jobs passed on implementation c7808e0 in [run 41424891610](https://github.com/AndreiRymskikh/dev_mentor/actions/runs/41424891610): lint/types, production build, 100% unit coverage, and the full disposable PostgreSQL/SMTP/HTTPS/production HTTP/browser/outage/installer suite. Availability browser acceptance passed for UTC publication, ownership/CSRF/revocation, duplicate conflict, remove/republish, resource/public retry, eligible/disabled/empty states and narrow light/dark layouts. [Integration evidence](https://github.com/AndreiRymskikh/dev_mentor/actions/runs/41424891610/artifacts/13131439127) includes the ten availability screenshots.
+
+The following handoff adds only regression assertions and documentation, with unchanged production code. Its own CI must be checked separately; the implementation run does not certify a later head. Feature implementation and automated acceptance are delivered; audit remediation and independent high-risk review/QA remain pre-merge gates. Keep the PR draft and the issue open.
