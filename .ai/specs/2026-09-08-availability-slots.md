@@ -87,3 +87,10 @@ D22/R14, R13, R18. R09 is handed to E03 above.
   reading of D22. Recurrence needs an expansion engine and a DST policy and is a later story if D22 is
   superseded.
 - **How the mentor learns a slot was booked** — #23 owns the notification. Non-blocking.
+
+
+## Accepted availability policy — 2026-11-02 (#30 / #31)
+
+Owner confirmed in the #31 implementation chat: mentors may publish any strictly future instant up to six UTC calendar months ahead (inclusive upper bound; preserve UTC time and clamp month-end days). Publication does not require a two-hour lead. Public future, unremoved slots qualify at exactly two hours ahead and become disabled immediately afterward. Past slots are excluded publicly. Qualification and owner availability progress are computed from server time on every read; at least one eligible, unremoved slot is required. No persisted checklist flag and no booking/payment launch claim. This supersedes stricter screenshot publication hints and any unbounded future-publication wording above. Money-policy reconciliation remains separate for #32.
+
+See [availability implementation log](../runs/2026-11-02-issue-31-availability.md).

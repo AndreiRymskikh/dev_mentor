@@ -189,3 +189,10 @@ S01 is #13; S02 is #14; S03 is #15; S04 is #16; S05 is #17. The parent #12 owns 
 [Implementation PR #26](https://github.com/AndreiRymskikh/dev_mentor/pull/26) delivers shared auth/workspace frames; real sign-in/registration/verification; current-role mentee/operator/users presentation; expiry recovery and mentor private-editor cleanup. See [run and exact validation limits](../runs/2026-10-29-e01-v2-ui.md). S01/S02/S03/S05 implementation and local automated verification are complete. All 172 unit tests have 100% coverage; the full disposable integration suite passes; all four CI jobs passed at implementation 0f23139; 18 Storybook states pass in both themes at four widths. Screenshot evidence is on PR #26. Independent human QA/formal approval, native password-manager behavior and manual 200% zoom are not claimed complete. Do not interpret checked implementation steps as final CI/QA sign-off.
 
 S04 remains blocked: #6 has not delivered prices/slots or accepted currency/bounds and publication-policy reconciliation. Existing mentor profile onboarding remains available. No parallel E02 implementation, fake price/slot data, optimistic readiness, booking/cancellation or payout setup was added. This specification stays active; final Step 16 is incomplete.
+
+
+## Accepted availability policy — 2026-11-02 (#30 / #31)
+
+Owner confirmed in the #31 implementation chat: mentors may publish any strictly future instant up to six UTC calendar months ahead (inclusive upper bound; preserve UTC time and clamp month-end days). Publication does not require a two-hour lead. Public future, unremoved slots qualify at exactly two hours ahead and become disabled immediately afterward. Past slots are excluded publicly. Qualification and owner availability progress are computed from server time on every read; at least one eligible, unremoved slot is required. No persisted checklist flag and no booking/payment launch claim. This supersedes stricter screenshot publication hints and any unbounded future-publication wording above. Money-policy reconciliation remains separate for #32.
+
+See [availability implementation log](../runs/2026-11-02-issue-31-availability.md).

@@ -19,6 +19,7 @@ export const MentorProfile = defineEntity({
     bio: p.text().nullable(),
     stackTags: p.array<string>().default([]),
     slug: p.string().length(60).unique().nullable(),
+    lastPublishedAvailabilityAt: p.datetime().nullable(),
     publishedAt: p.datetime().nullable(),
     userId: p.manyToOne(User).fieldName("user_id").mapToPk().primary().deleteRule("restrict"),
     initialPublishDueAt: p.datetime().nullable(),

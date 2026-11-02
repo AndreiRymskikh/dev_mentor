@@ -834,3 +834,10 @@ across the whole epic:
   the existing one should be fixed under its own issue.
 
 2026-10-27: slices 1 and 2 implemented in local PRs #9/#10 (stories #7/#8), with full CI green and independent review/QA pending. Slice 2 verification and local SMTP limitation: [run](../runs/2026-10-26-e02-mentor-profile.md). Slices 3/4 remain active.
+
+
+## Accepted availability policy — 2026-11-02 (#30 / #31)
+
+Owner confirmed in the #31 implementation chat: mentors may publish any strictly future instant up to six UTC calendar months ahead (inclusive upper bound; preserve UTC time and clamp month-end days). Publication does not require a two-hour lead. Public future, unremoved slots qualify at exactly two hours ahead and become disabled immediately afterward. Past slots are excluded publicly. Qualification and owner availability progress are computed from server time on every read; at least one eligible, unremoved slot is required. No persisted checklist flag and no booking/payment launch claim. This supersedes stricter screenshot publication hints and any unbounded future-publication wording above. Money-policy reconciliation remains separate for #32.
+
+See [availability implementation log](../runs/2026-11-02-issue-31-availability.md).

@@ -1,0 +1,74 @@
+import {test, expect, vi} from "vitest";
+import {randomUUID} from "node:crypto";
+import {UniqueConstraintViolationException} from "@mikro-orm/postgresql";
+import {SlotRepository, DuplicateSlotError, createDatabaseRuntime, User, UserRole, MentorProfile, Slot, type AvailabilityRecord} from "@devmentor/db";
+import {SlotService, availabilityDto, publicationLimit} from "../packages/core/src/services/availability/slot.service";
+import {slotPublishSchema, slotUtcFormSchema} from "../packages/core/src/validators/availability/slot.schema";
+import {AppError} from "@devmentor/core/http";
+import {Migration202611020001} from "../packages/db/src/migrations/Migration202611020001";
+const actor=randomUUID(),slotId=randomUUID(),now=new Date("2026-08-31T16:00:00.000Z"),start=new Date("2026-08-31T18:00:00.000Z");
+const slot={id:slotId,startsAt:start};
+test("explicit ISO instants, UTC wall-clock conversion, strict writes and calendar-month boundaries",()=>{
+ for(const startsAt of ["2026-08-31T18:00:00Z","2026-08-31T20:00:00.000+02:00"])expect(slotPublishSchema.safeParse({startsAt}).success).toBe(true);
+ for(const input of [{startsAt:"2026-08-31T18:00"},{startsAt:"2026-02-30T18:00:00Z"},{startsAt:"tomorrow"},{startsAt:"2026-08-31T18:00:00.1234Z"},{startsAt:start.toISOString(),userId:actor}])expect(slotPublishSchema.safeParse(input).success).toBe(false);
+ expect(slotUtcFormSchema.parse({startsAt:"2026-12-15T14:30"})).toEqual({startsAt:"2026-12-15T14:30:00.000Z"});
+ for(const startsAt of ["2026-02-30T14:30","2026-12-15 14:30","2026-12-15T25:00"])expect(slotUtcFormSchema.safeParse({startsAt}).success).toBe(false);
+ expect(publicationLimit(now).toISOString()).toBe("2027-02-28T16:00:00.000Z");
+ expect(publicationLimit(new Date("2027-08-31T16:00:00.123Z")).toISOString()).toBe("2028-02-29T16:00:00.123Z");
+ expect(publicationLimit(new Date("2026-11-02T09:00:00Z")).toISOString()).toBe("2027-05-02T09:00:00.000Z");
+});
+test("public allowlist, exact eligibility cutoff, future filtering and next read-time expiration",()=>{
+ const source={...slot,mentorProfileId:actor,email:"private"};
+ expect(availabilityDto([source],now,false)).toEqual({serverNow:now.toISOString(),refreshAt:"2026-08-31T16:00:00.001Z",slots:[{id:slotId,startsAt:start.toISOString(),eligible:true}]});
+ expect(availabilityDto([slot],new Date(now.getTime()+1),false).slots[0].eligible).toBe(false);
+ expect(availabilityDto([slot],start,false)).toMatchObject({slots:[],refreshAt:null});
+ expect(availabilityDto([slot],new Date(start.getTime()+1),true).slots).toEqual([{id:slotId,startsAt:start.toISOString(),eligible:false}]);
+ expect(availabilityDto([],now,false).refreshAt).toBeNull();
+});
+test("service rechecks locked publication clock, maps conflicts/outages, denies ownership and projects authoritative progress",async()=>{
+ let time=now;const record:AvailabilityRecord={slots:[slot],lastPublishedAvailabilityAt:null};
+ const repo={read:vi.fn(async()=>record as AvailabilityRecord|null),publish:vi.fn(async(_id:string,_start:Date,validate:()=>Date)=>{expect(validate()).toEqual(time);return true;}),remove:vi.fn(async()=>"removed" as "removed"|"missing"|"forbidden"),publicBySlug:vi.fn(async()=>[slot] as typeof slot[]|null)},service=new SlotService(repo,()=>time);
+ for(const work of [()=>service.getMine(null),()=>service.publish("bad",{}),()=>service.remove(null,slotId)])await expect(work()).rejects.toMatchObject({status:401});
+ expect((await new SlotService(repo).getMine(actor)).serverNow).toMatch(/^\d{4}-/);
+ expect(await service.getMine(actor.toUpperCase())).toMatchObject({availabilityComplete:true,lastPublishedAvailabilityAt:null,policy:{latestPublishAt:"2027-02-28T16:00:00.000Z"}});expect(repo.read).toHaveBeenCalledWith(actor);
+ record.lastPublishedAvailabilityAt=now;expect(await service.getMine(actor)).toMatchObject({lastPublishedAvailabilityAt:now.toISOString()});
+ for(const startsAt of [new Date(now.getTime()+1),publicationLimit(now)])await expect(service.publish(actor,{startsAt:startsAt.toISOString()})).resolves.toMatchObject({availabilityComplete:true});
+ for(const startsAt of [now,new Date(now.getTime()-1),new Date(publicationLimit(now).getTime()+1)])await expect(service.publish(actor,{startsAt:startsAt.toISOString()})).rejects.toMatchObject({status:422});
+ await expect(service.publish(actor,{startsAt:"bad"})).rejects.toMatchObject({status:422});
+ repo.publish.mockResolvedValueOnce(false);await expect(service.publish(actor,{startsAt:start.toISOString()})).rejects.toMatchObject({status:403});
+ repo.publish.mockRejectedValueOnce(new DuplicateSlotError());await expect(service.publish(actor,{startsAt:start.toISOString()})).rejects.toMatchObject({status:409});
+ for(const error of [new Error("secret"),new AppError("DENIED","Denied",403)]){repo.read.mockRejectedValueOnce(error);await expect(service.getMine(actor)).rejects.toMatchObject({status:error instanceof AppError?403:503});}
+ repo.read.mockResolvedValueOnce(null);await expect(service.getMine(actor)).rejects.toMatchObject({status:403});
+ await expect(service.remove(actor,"bad")).rejects.toMatchObject({status:404});
+ repo.remove.mockResolvedValueOnce("forbidden");await expect(service.remove(actor,slotId)).rejects.toMatchObject({status:403});repo.remove.mockResolvedValueOnce("missing");await expect(service.remove(actor,slotId)).rejects.toMatchObject({status:404});
+ await expect(service.remove(actor,slotId.toUpperCase())).resolves.toMatchObject({availabilityComplete:true});expect(repo.remove).toHaveBeenCalledWith(actor,slotId,expect.any(Function));
+ await expect(service.getPublicBySlug("../private")).rejects.toMatchObject({status:404});expect(await service.getPublicBySlug("mentor")).toEqual(availabilityDto([slot],time,false));repo.publicBySlug.mockResolvedValueOnce(null);await expect(service.getPublicBySlug("mentor")).rejects.toMatchObject({status:404});
+ time=new Date(now.getTime()+1);expect(await service.getMine(actor)).toMatchObject({availabilityComplete:false});
+});
+test("repository locks current user before ownership/profile/slot reads, keeps history and timestamps, and rechecks public visibility",async()=>{
+ const runtime=createDatabaseRuntime(),findOne=vi.fn(),find=vi.fn(async()=>[slot]),create=vi.fn((_entity,values)=>({...values})),flush=vi.fn(),em={findOne,find,create,flush};
+ vi.spyOn(runtime,"transaction").mockImplementation(async run=>run(em as never));
+ let user:{emailVerifiedAt:Date|null}|null={emailVerifiedAt:now},role=true,profile:{userId:string;lastPublishedAvailabilityAt?:Date|null}|null=null,stored:{removedAt?:Date}|null={};
+ findOne.mockImplementation(async(entity,query)=>entity===User?user:entity===UserRole?(role?{}:null):entity===Slot?stored:query.publishedAt?profile:profile);
+ const repo=new SlotRepository(runtime),clock=vi.fn(()=>now);
+ expect(await repo.read(actor)).toEqual({slots:[slot],lastPublishedAvailabilityAt:null});
+ expect(await repo.publish(actor,start,clock)).toBe(true);expect(create).toHaveBeenCalledWith(MentorProfile,{userId:actor,stackTags:[]});expect(create).toHaveBeenCalledWith(Slot,{id:expect.any(String),mentorProfileId:actor,startsAt:start});
+ profile={userId:actor,lastPublishedAvailabilityAt:now};expect(await repo.publish(actor,start,()=>new Date(now.getTime()+1))).toBe(true);expect(profile.lastPublishedAvailabilityAt).toEqual(new Date(now.getTime()+1));
+ await repo.publish(actor,start,()=>now);expect(profile.lastPublishedAvailabilityAt).toEqual(new Date(now.getTime()+1));
+ expect(await repo.read(actor)).toEqual({slots:[slot],lastPublishedAvailabilityAt:profile.lastPublishedAvailabilityAt});
+ expect(await repo.remove(actor,slotId,clock)).toBe("removed");expect(stored!.removedAt).toEqual(now);expect(findOne).toHaveBeenCalledWith(Slot,{id:slotId,mentorProfileId:actor,removedAt:null},expect.any(Object));
+ stored=null;expect(await repo.remove(actor,slotId,clock)).toBe("missing");
+ expect(await repo.publicBySlug("mentor")).toEqual([slot]);expect(findOne).toHaveBeenCalledWith(MentorProfile,{userId:actor,slug:"mentor",publishedAt:{$ne:null}},{refresh:true});
+ findOne.mockImplementationOnce(async()=>profile).mockImplementationOnce(async()=>user).mockImplementationOnce(async()=>({})).mockImplementationOnce(async()=>null);expect(await repo.publicBySlug("mentor")).toBeNull();
+ profile=null;expect(await repo.publicBySlug("mentor")).toBeNull();profile={userId:actor};role=false;expect(await repo.publicBySlug("mentor")).toBeNull();expect(await repo.read(actor)).toBeNull();expect(await repo.publish(actor,start,clock)).toBe(false);expect(await repo.remove(actor,slotId,clock)).toBe("forbidden");
+ user=null;expect(await repo.read(actor)).toBeNull();user={emailVerifiedAt:null};expect(await repo.read(actor)).toBeNull();
+ user={emailVerifiedAt:now};role=true;
+ const duplicate=new UniqueConstraintViolationException(new Error('duplicate key violates slots_active_start_unique'));
+ flush.mockRejectedValueOnce(duplicate);await expect(repo.publish(actor,start,clock)).rejects.toBeInstanceOf(DuplicateSlotError);
+ flush.mockRejectedValueOnce(new UniqueConstraintViolationException(new Error('other_unique')));await expect(repo.publish(actor,start,clock)).rejects.toBeInstanceOf(UniqueConstraintViolationException);
+ flush.mockRejectedValueOnce(new Error('outage'));await expect(repo.publish(actor,start,clock)).rejects.toThrow('outage');
+});
+test("availability migration is additive and protects both slots and retained publication history on down",()=>{
+ const migration=Object.create(Migration202611020001.prototype) as Migration202611020001,sql=vi.fn();migration.addSql=sql;migration.up();migration.down();
+ expect(sql.mock.calls[0][0]).toContain("last_published_availability_at");expect(sql.mock.calls[3][0]).toContain("where removed_at is null");expect(sql.mock.calls[5][0]).toContain("lock table");expect(sql.mock.calls[6][0]).toContain("availability history exists");expect(sql.mock.calls[7][0]).toContain('drop table "slots"');
+});

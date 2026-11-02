@@ -1,0 +1,23 @@
+import {test,expect,vi} from "vitest";
+import {randomUUID} from "node:crypto";
+import {createAppContainer} from "@devmentor/core/container";
+import {SessionService} from "../packages/core/src/services/users/session.service";
+import {SlotService} from "../packages/core/src/services/availability/slot.service";
+import {GET,POST,dynamic} from "../packages/app/src/app/api/availability/route";
+import {DELETE,dynamic as removeDynamic} from "../packages/app/src/app/api/availability/[id]/route";
+import {GET as publicGet,dynamic as publicDynamic} from "../packages/app/src/app/api/mentors/[slug]/slots/route";
+import type {OwnerAvailability} from "@devmentor/core/validators/availability";
+export const empty:OwnerAvailability={serverNow:"2026-11-02T12:00:00.000Z",refreshAt:null,slots:[],lastPublishedAvailabilityAt:null,availabilityComplete:false,policy:{publicationMonths:6,eligibilityLeadHours:2,latestPublishAt:"2027-05-02T12:00:00.000Z"}};
+const actor=randomUUID(),id=randomUUID(),request=(method="GET",body?:string,csrf="1")=>new Request("https://site.test/api/availability",{method,headers:{"Content-Type":"application/json","X-DevMentor-CSRF":csrf},...(body===undefined?{}:{body})});
+test("availability routes authorize before parsing, use session ownership, protect mutations and return no-store",async()=>{
+ const resolve=vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue(null),read=vi.spyOn(SlotService.prototype,"getMine").mockResolvedValue(empty),publish=vi.spyOn(SlotService.prototype,"publish").mockResolvedValue(empty),remove=vi.spyOn(SlotService.prototype,"remove").mockResolvedValue(empty),publicRead=vi.spyOn(SlotService.prototype,"getPublicBySlug").mockResolvedValue(empty),params={params:Promise.resolve({id})};
+ expect(dynamic).toBe("force-dynamic");expect(removeDynamic).toBe(dynamic);expect(publicDynamic).toBe(dynamic);
+ expect((await GET(request())).status).toBe(401);expect((await POST(request("POST","{"))).status).toBe(401);expect((await DELETE(request("DELETE"),params)).status).toBe(401);expect(read).not.toHaveBeenCalled();expect(remove).not.toHaveBeenCalled();
+ resolve.mockResolvedValue({id:actor,displayName:"Developer",roles:["developer"]});expect((await GET(request())).status).toBe(403);expect((await POST(request("POST","{}"))).status).toBe(403);expect((await DELETE(request("DELETE"),params)).status).toBe(403);
+ resolve.mockResolvedValue({id:actor,displayName:"Mentor",roles:["mentor"]});expect((await GET(request())).headers.get("cache-control")).toBe("no-store");expect(read).toHaveBeenCalledWith(actor);
+ expect((await POST(request("POST","{}","0"))).status).toBe(403);expect((await DELETE(request("DELETE",undefined,"0"),params)).status).toBe(403);
+ expect((await POST(request("POST","{"))).status).toBe(400);expect((await POST(request("POST",'"'+"x".repeat(1024)+'"'))).status).toBe(400);
+ const input={startsAt:"2026-12-01T14:30:00Z"};expect((await POST(request("POST",JSON.stringify(input)))).status).toBe(200);expect(publish).toHaveBeenCalledWith(actor,input);expect((await DELETE(request("DELETE"),params)).status).toBe(200);expect(remove).toHaveBeenCalledWith(actor,id);
+ resolve.mockResolvedValue(null);const response=await publicGet(request(),{params:Promise.resolve({slug:"mentor"})});expect(response.status).toBe(200);expect(response.headers.get("cache-control")).toBe("no-store");expect(publicRead).toHaveBeenCalledWith("mentor");
+ const container=createAppContainer(),a=container.createScope(),b=container.createScope();expect(a.cradle.slotService).not.toBe(b.cradle.slotService);expect(a.cradle.slotRepository).not.toBe(b.cradle.slotRepository);await a.dispose();await b.dispose();await container.dispose();
+});
