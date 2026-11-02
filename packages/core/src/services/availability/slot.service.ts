@@ -17,7 +17,7 @@ export function availabilityDto(records: SlotRecord[], now: Date, includePast: b
   return { serverNow: now.toISOString(), refreshAt: changes.length ? new Date(Math.min(...changes)).toISOString() : null, slots };
 }
 export class SlotService {
-  constructor(private readonly repository: Pick<SlotRepository, "read" | "publish" | "remove" | "publicBySlug">, private readonly clock: () => Date = () => new Date()) {}
+  constructor(private readonly repository: Pick<SlotRepository, "read" | "publish" | "remove" | "publicBySlug">, private readonly clock: () => Date = () => new Date(), private readonly emit: (event: "availability.slot.published") => void = () => undefined) {}
   private actor(input: string | null) { const parsed = userIdSchema.safeParse(input); if (!parsed.success) throw new UnauthorizedError(); return parsed.data; }
   private async available<T>(work: () => Promise<T>) {
     try { return await work(); } catch (error) {
@@ -42,7 +42,12 @@ export class SlotService {
       return now;
     }));
     if (!saved) throw new ForbiddenError();
-    return this.getMine(actor);
+    const dto = await this.getMine(actor);
+    try { this.emit("availability.slot.published"); } catch {
+      // Notification observers are best effort; the publication transaction already committed.
+      return dto;
+    }
+    return dto;
   }
   async remove(actorId: string | null, input: unknown) {
     const actor = this.actor(actorId), parsed = slotIdSchema.safeParse(input);

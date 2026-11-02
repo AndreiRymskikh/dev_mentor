@@ -55,3 +55,8 @@ The following handoff adds only regression assertions and documentation, with un
 ### Screenshot-driven narrow table correction
 
 Downloaded and inspected CI evidence at 1440px and 320px in both themes. Public availability is readable and contained. Owner table inherited overflow-wrap:anywhere and split column labels/actions into fragments at 320px despite passing the document-width assertion. Added a table minimum width and normal word wrapping within the existing labelled scroll region; the production browser scenario now scrolls to and successfully invokes a row action on the narrow layout and retains an action-visible screenshot. This is a CSS correction; production TypeScript is unchanged. Final CI will validate this revision separately.
+
+
+Aligned owner endpoints with the source specification's `/api/availability/slots` resource before finalization. Public slots remain a separate `/api/mentors/[slug]/slots` projection to preserve the existing protected profile DTO. Added the specified best-effort `availability.slot.published` observer via scoped DI, matching the existing profile-publication pattern; throwing observers cannot undo committed publication. Final gates cover this production revision separately.
+
+Final local source gate after endpoint/observer alignment: lint, typecheck, production build and 199 unit tests pass with all production metrics at 100% (2,423 statements; 1,426 branches; 713 functions; 1,660 lines). Throwing publication observers and absent optional observers are covered. The initial successful full CI run is historical evidence only; check the new head's four jobs before merge.

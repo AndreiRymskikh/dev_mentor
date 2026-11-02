@@ -1,14 +1,15 @@
 import {test,expect,vi} from "vitest";
 import {randomUUID} from "node:crypto";
+import {SlotRepository} from "@devmentor/db";
 import {createAppContainer} from "@devmentor/core/container";
 import {SessionService} from "../packages/core/src/services/users/session.service";
 import {SlotService} from "../packages/core/src/services/availability/slot.service";
-import {GET,POST,dynamic} from "../packages/app/src/app/api/availability/route";
-import {DELETE,dynamic as removeDynamic} from "../packages/app/src/app/api/availability/[id]/route";
+import {GET,POST,dynamic} from "../packages/app/src/app/api/availability/slots/route";
+import {DELETE,dynamic as removeDynamic} from "../packages/app/src/app/api/availability/slots/[id]/route";
 import {GET as publicGet,dynamic as publicDynamic} from "../packages/app/src/app/api/mentors/[slug]/slots/route";
 import type {OwnerAvailability} from "@devmentor/core/validators/availability";
 export const empty:OwnerAvailability={serverNow:"2026-11-02T12:00:00.000Z",refreshAt:null,slots:[],lastPublishedAvailabilityAt:null,availabilityComplete:false,policy:{publicationMonths:6,eligibilityLeadHours:2,latestPublishAt:"2027-05-02T12:00:00.000Z"}};
-const actor=randomUUID(),id=randomUUID(),request=(method="GET",body?:string,csrf="1")=>new Request("https://site.test/api/availability",{method,headers:{"Content-Type":"application/json","X-DevMentor-CSRF":csrf},...(body===undefined?{}:{body})});
+const actor=randomUUID(),id=randomUUID(),request=(method="GET",body?:string,csrf="1")=>new Request("https://site.test/api/availability/slots",{method,headers:{"Content-Type":"application/json","X-DevMentor-CSRF":csrf},...(body===undefined?{}:{body})});
 test("availability routes authorize before parsing, use session ownership, protect mutations and return no-store",async()=>{
  const resolve=vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue(null),read=vi.spyOn(SlotService.prototype,"getMine").mockResolvedValue(empty),publish=vi.spyOn(SlotService.prototype,"publish").mockResolvedValue(empty),remove=vi.spyOn(SlotService.prototype,"remove").mockResolvedValue(empty),publicRead=vi.spyOn(SlotService.prototype,"getPublicBySlug").mockResolvedValue(empty),params={params:Promise.resolve({id})};
  expect(dynamic).toBe("force-dynamic");expect(removeDynamic).toBe(dynamic);expect(publicDynamic).toBe(dynamic);
@@ -19,5 +20,5 @@ test("availability routes authorize before parsing, use session ownership, prote
  expect((await POST(request("POST","{"))).status).toBe(400);expect((await POST(request("POST",'"'+"x".repeat(1024)+'"'))).status).toBe(400);
  const input={startsAt:"2026-12-01T14:30:00Z"};expect((await POST(request("POST",JSON.stringify(input)))).status).toBe(200);expect(publish).toHaveBeenCalledWith(actor,input);expect((await DELETE(request("DELETE"),params)).status).toBe(200);expect(remove).toHaveBeenCalledWith(actor,id);
  resolve.mockResolvedValue(null);const response=await publicGet(request(),{params:Promise.resolve({slug:"mentor"})});expect(response.status).toBe(200);expect(response.headers.get("cache-control")).toBe("no-store");expect(publicRead).toHaveBeenCalledWith("mentor");
- const container=createAppContainer(),a=container.createScope(),b=container.createScope();expect(a.cradle.slotService).not.toBe(b.cradle.slotService);expect(a.cradle.slotRepository).not.toBe(b.cradle.slotRepository);await a.dispose();await b.dispose();await container.dispose();
+ const container=createAppContainer(),a=container.createScope(),b=container.createScope();expect(a.cradle.slotService).not.toBe(b.cradle.slotService);expect(a.cradle.slotRepository).not.toBe(b.cradle.slotRepository);publish.mockRestore();vi.spyOn(SlotRepository.prototype,"publish").mockResolvedValue(true);vi.spyOn(SlotRepository.prototype,"read").mockResolvedValue({slots:[],lastPublishedAvailabilityAt:null});vi.spyOn(a.cradle.logger,"info").mockImplementation(()=>undefined);await a.cradle.slotService.publish(actor,input);expect(a.cradle.logger.info).toHaveBeenCalledWith({event:"availability.slot.published"},"Availability published");await a.dispose();await b.dispose();await container.dispose();
 });

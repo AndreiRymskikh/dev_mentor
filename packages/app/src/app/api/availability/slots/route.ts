@@ -1,6 +1,6 @@
 import { ownedAction, readJsonBody } from "@devmentor/core/http";
 import { withScope } from "@devmentor/core/container";
-import { authorizeMentorSession } from "../../../mentors/route";
+import { authorizeMentorSession } from "../../../../mentors/route";
 export const dynamic = "force-dynamic";
 export function GET(request: Request) {
   return withScope(({sessionService, slotService}) => ownedAction({

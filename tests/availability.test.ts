@@ -27,9 +27,11 @@ test("public allowlist, exact eligibility cutoff, future filtering and next read
 });
 test("service rechecks locked publication clock, maps conflicts/outages, denies ownership and projects authoritative progress",async()=>{
  let time=now;const record:AvailabilityRecord={slots:[slot],lastPublishedAvailabilityAt:null};
- const repo={read:vi.fn(async()=>record as AvailabilityRecord|null),publish:vi.fn(async(_id:string,_start:Date,validate:()=>Date)=>{expect(validate()).toEqual(time);return true;}),remove:vi.fn(async()=>"removed" as "removed"|"missing"|"forbidden"),publicBySlug:vi.fn(async()=>[slot] as typeof slot[]|null)},service=new SlotService(repo,()=>time);
+ const emit=vi.fn();
+ const repo={read:vi.fn(async()=>record as AvailabilityRecord|null),publish:vi.fn(async(_id:string,_start:Date,validate:()=>Date)=>{expect(validate()).toEqual(time);return true;}),remove:vi.fn(async()=>"removed" as "removed"|"missing"|"forbidden"),publicBySlug:vi.fn(async()=>[slot] as typeof slot[]|null)},service=new SlotService(repo,()=>time,emit);
  for(const work of [()=>service.getMine(null),()=>service.publish("bad",{}),()=>service.remove(null,slotId)])await expect(work()).rejects.toMatchObject({status:401});
  expect((await new SlotService(repo).getMine(actor)).serverNow).toMatch(/^\d{4}-/);
+ repo.publish.mockResolvedValueOnce(true);const defaultResult=await new SlotService(repo).publish(actor,{startsAt:start.toISOString()});expect(defaultResult.slots[0].startsAt).toBe(start.toISOString());
  expect(await service.getMine(actor.toUpperCase())).toMatchObject({availabilityComplete:true,lastPublishedAvailabilityAt:null,policy:{latestPublishAt:"2027-02-28T16:00:00.000Z"}});expect(repo.read).toHaveBeenCalledWith(actor);
  record.lastPublishedAvailabilityAt=now;expect(await service.getMine(actor)).toMatchObject({lastPublishedAvailabilityAt:now.toISOString()});
  for(const startsAt of [new Date(now.getTime()+1),publicationLimit(now)])await expect(service.publish(actor,{startsAt:startsAt.toISOString()})).resolves.toMatchObject({availabilityComplete:true});
@@ -43,6 +45,7 @@ test("service rechecks locked publication clock, maps conflicts/outages, denies 
  repo.remove.mockResolvedValueOnce("forbidden");await expect(service.remove(actor,slotId)).rejects.toMatchObject({status:403});repo.remove.mockResolvedValueOnce("missing");await expect(service.remove(actor,slotId)).rejects.toMatchObject({status:404});
  await expect(service.remove(actor,slotId.toUpperCase())).resolves.toMatchObject({availabilityComplete:true});expect(repo.remove).toHaveBeenCalledWith(actor,slotId,expect.any(Function));
  await expect(service.getPublicBySlug("../private")).rejects.toMatchObject({status:404});expect(await service.getPublicBySlug("mentor")).toEqual(availabilityDto([slot],time,false));repo.publicBySlug.mockResolvedValueOnce(null);await expect(service.getPublicBySlug("mentor")).rejects.toMatchObject({status:404});
+ emit.mockImplementationOnce(()=>{throw new Error("observer failed");});await expect(service.publish(actor,{startsAt:start.toISOString()})).resolves.toMatchObject({availabilityComplete:true});expect(emit).toHaveBeenCalledWith("availability.slot.published");
  time=new Date(now.getTime()+1);expect(await service.getMine(actor)).toMatchObject({availabilityComplete:false});
 });
 test("repository locks current user before ownership/profile/slot reads, keeps history and timestamps, and rechecks public visibility",async()=>{

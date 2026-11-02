@@ -1,6 +1,6 @@
 import { ownedAction } from "@devmentor/core/http";
 import { withScope } from "@devmentor/core/container";
-import { authorizeMentorSession } from "../../../../mentors/route";
+import { authorizeMentorSession } from "../../../../../mentors/route";
 export const dynamic = "force-dynamic";
 export function DELETE(request: Request, {params}: {params: Promise<{id: string}>}) {
   return withScope(({sessionService, slotService}) => ownedAction({

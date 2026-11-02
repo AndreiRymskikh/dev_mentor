@@ -697,7 +697,7 @@ nearer starts explain why they are unavailable. Removed and past starts are priv
 progress is server-calculated on each read and expires when no qualifying start remains. Prices,
 bookings and payments are separate work; publishing availability does not launch booking.
 
-The owner API is GET/POST `/api/availability` and DELETE `/api/availability/[id]`; public reads use
+The owner API is GET/POST `/api/availability/slots` and DELETE `/api/availability/slots/[id]`; public reads use
 GET `/api/mentors/[slug]/slots`. See `BACKWARD_COMPATIBILITY.md` for DTOs, errors and data-preserving
 rollback. Run `npm run test:integration -- --scenario=availability` for disposable database, production
 HTTP and responsive browser acceptance. The full integration suite also exercises this scenario.

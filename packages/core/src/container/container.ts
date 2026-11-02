@@ -30,7 +30,7 @@ export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
     slotRepository: asFunction(() => new SlotRepository()).scoped(),
-    slotService: asFunction(({slotRepository}: Cradle) => new SlotService(slotRepository)).scoped(),
+    slotService: asFunction(({slotRepository, logger}: Cradle) => new SlotService(slotRepository, undefined, event => { logger.info({event}, "Availability published"); })).scoped(),
     mentorDetailsRepository: asFunction(() => new MentorDetailsRepository()).scoped(),
     mentorDetailsService: asFunction(({mentorDetailsRepository}:Cradle)=>new MentorDetailsService(mentorDetailsRepository)).scoped(),
     mentorProfileRepository: asFunction(() => new MentorProfileRepository()).scoped(),
