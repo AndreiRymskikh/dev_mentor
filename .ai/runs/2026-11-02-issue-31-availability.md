@@ -50,3 +50,8 @@ Pending implementation. No tests claimed passed.
 All four CI jobs passed on implementation c7808e0 in [run 41424891610](https://github.com/AndreiRymskikh/dev_mentor/actions/runs/41424891610): lint/types, production build, 100% unit coverage, and the full disposable PostgreSQL/SMTP/HTTPS/production HTTP/browser/outage/installer suite. Availability browser acceptance passed for UTC publication, ownership/CSRF/revocation, duplicate conflict, remove/republish, resource/public retry, eligible/disabled/empty states and narrow light/dark layouts. [Integration evidence](https://github.com/AndreiRymskikh/dev_mentor/actions/runs/41424891610/artifacts/13131439127) includes the ten availability screenshots.
 
 The following handoff adds only regression assertions and documentation, with unchanged production code. Its own CI must be checked separately; the implementation run does not certify a later head. Feature implementation and automated acceptance are delivered; audit remediation and independent high-risk review/QA remain pre-merge gates. Keep the PR draft and the issue open.
+
+
+### Screenshot-driven narrow table correction
+
+Downloaded and inspected CI evidence at 1440px and 320px in both themes. Public availability is readable and contained. Owner table inherited overflow-wrap:anywhere and split column labels/actions into fragments at 320px despite passing the document-width assertion. Added a table minimum width and normal word wrapping within the existing labelled scroll region; the production browser scenario now scrolls to and successfully invokes a row action on the narrow layout and retains an action-visible screenshot. This is a CSS correction; production TypeScript is unchanged. Final CI will validate this revision separately.
