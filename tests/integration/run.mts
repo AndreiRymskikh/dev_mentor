@@ -120,7 +120,7 @@ async function main() {
   const context = { baseUrl, artifacts, browser };
   if (!adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
   await mail.test(baseUrl, database.getConnectionUri());
-  await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
+  await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, mail.environment.RATE_LIMIT_SECRET);
   await testAuthActions({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, baseUrl);
   await testHome(context);
   }

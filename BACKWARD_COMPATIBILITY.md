@@ -126,3 +126,24 @@ unavailable until its owning feature delivers a destination.
 ## Profile editor display name (E02 v2 S02)
 
 `PUT /api/mentors/me` adds optional strict `displayName` (trimmed, 1–100 characters). Omission preserves the account name. The existing current-mentor user-lock transaction persists User and profile together; rejected published-profile edits roll back both. Account/session, admin and public projections read that same User name. No email, role, identity, slug or public DTO shape changes. UI explains the account-wide effect; existing callers remain valid. Rollback may remove the editor field without reverting saved names or schema.
+
+## Optional public profile details (E02 v2 S03a, partial)
+
+The original `/api/mentors/[slug]` response remains exactly displayName/publicWorkUrl/bio/stackTags/slug.
+Separate GET/PUT `/api/mentors/me/details` and GET `/api/mentors/[slug]/details` expose only
+sessionLanguage/mentorTimeZone/helpTopics/sampleAnswer/sessionSteps. Owner reads require a current verified
+mentor; public reads additionally require publication. Owner updates use the existing user lock and CSRF,
+32KiB JSON limit and strict nested schemas. Unknown fields return 422; malformed/oversize JSON returns 400.
+Omission preserves values; null clears language/zone/sample; arrays replace in order, with [] hiding sections.
+A supplied non-null sample requires sampleOwnershipConfirmed:true; this confirmation is neither persisted
+nor public. All content is owner-authored plain text, including code; no private session records are copied.
+The language display allowlist is explicit in the pure mentor-details validator; zones are validated without
+browser inference. Optional content never changes core readiness or slug allocation.
+
+Migration202611010001 adds nullable language/zone/sample and default-empty JSONB topic/process arrays to
+mentor_profiles. It uses the existing MikroORM migration list and schema-parity checks. Down locks the table
+and refuses any nonempty optional content. Roll back UI/API consumers while retaining schema and user data;
+never clear content merely to make down succeed. Existing MentorPageView owner-preview callers are unchanged.
+The public page composes the existing core DTO and separate details; optional empty sections disappear.
+The offer CTA remains disabled because #6 prices/slots and #25 booking destination are not delivered. This
+slice neither closes #22 nor claims full screenshot04 completion. Public reviews remain separately gated.

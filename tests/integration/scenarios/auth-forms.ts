@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import path from "node:path";
 import { Client } from "pg";
 import type { IntegrationContext } from "../context";
 
-export async function testAuthForms({ baseUrl, artifacts, browser }: IntegrationContext, databaseUrl: string, messages: string[]) {
+export async function testAuthForms({ baseUrl, artifacts, browser }: IntegrationContext, databaseUrl: string, messages: string[], rateLimitSecret: string) {
   const client = new Client({ connectionString: databaseUrl });
   const email = "browser-auth@example.test";
   const password = "browser fixture password";
@@ -82,7 +83,11 @@ export async function testAuthForms({ baseUrl, artifacts, browser }: Integration
     assert.equal(messages.length, beforeRecovery + 1); assert.match(messages.at(-1)!, /reset-password#token=/);
     await browser("screenshot", path.join(artifacts, "auth-forgot-password.png"));
     await browser("open", `${baseUrl}/login`); await fill("email", email); await fill("password", "wrong password");
-    for (let i = 0; i < 3; i++) { await click("Sign in"); await waitText("Unable to sign in. Check your email and password"); }
+    await click("Sign in"); await waitText("Unable to sign in. Check your email and password");
+    // Earlier login attempts can belong to the previous 15-minute bucket. Seed only
+    // this disposable account's pair bucket so this UI assertion is clock-independent.
+    const pairDigest=createHmac("sha256",rateLimitSecret).update(JSON.stringify(["login:pair",JSON.stringify([email,"shared-untrusted-peer"])])).digest("hex");
+    await client.query("insert into rate_limit_buckets(key_digest,window_start,attempt_count,expires_at) select $1,to_timestamp((floor(extract(epoch from statement_timestamp())/900)+n)*900),5,to_timestamp((floor(extract(epoch from statement_timestamp())/900)+n+1)*900) from generate_series(0,1) n on conflict(key_digest,window_start) do update set attempt_count=5",[pairDigest]);
     await click("Sign in"); await waitText("Too many requests");
     await browser("screenshot", path.join(artifacts, "auth-login-rate-limit.png"));
     console.log("Auth browser forms passed: native HTTPS CSRF, generic registration/recovery, real SMTP/database/session, unverified denial, GitHub feedback and login rate error.");

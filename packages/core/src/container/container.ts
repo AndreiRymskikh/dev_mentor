@@ -1,3 +1,5 @@
+import { MentorDetailsRepository } from "@devmentor/db";
+import { MentorDetailsService } from "../services/mentors/mentor-details.service";
 import { MentorProfileRepository } from "@devmentor/db";
 import { MentorProfileService } from "../services/mentors/mentor-profile.service";
 import { InvitationRepository } from "@devmentor/db";
@@ -25,6 +27,8 @@ import type { Cradle } from "./cradle";
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
+    mentorDetailsRepository: asFunction(() => new MentorDetailsRepository()).scoped(),
+    mentorDetailsService: asFunction(({mentorDetailsRepository}:Cradle)=>new MentorDetailsService(mentorDetailsRepository)).scoped(),
     mentorProfileRepository: asFunction(() => new MentorProfileRepository()).scoped(),
     mentorProfileService: asFunction(({mentorProfileRepository,logger}:Cradle)=>new MentorProfileService(mentorProfileRepository,undefined,event=>{logger.info({event},"Mentor profile published");})).scoped(),
     invitationRepository: asFunction(() => new InvitationRepository()).scoped(),

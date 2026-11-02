@@ -1,0 +1,10 @@
+.dm-details-page { max-width: 780px; margin-inline: auto; }
+.dm-details-form, .dm-details-form fieldset, .dm-details-row { display: grid; gap: var(--space-group); }
+.dm-details-form { margin-top: var(--space-panel); }
+.dm-details-form fieldset { border-top: 1px solid var(--border-subtle); padding-top: var(--space-panel); }
+.dm-details-form legend { font-weight: var(--weight-heading); }
+.dm-details-field { display: grid; gap: var(--space-related); }
+.dm-details-field input, .dm-details-field textarea, .dm-details-field select { min-width: 0; width: 100%; padding: var(--space-related); border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-card); color: var(--foreground); }
+.dm-details-field textarea { min-height: 100px; }
+.dm-details-form p { color: var(--text-muted); }
+.dm-details-row { border-left: 2px solid var(--border-subtle); padding-left: var(--space-group); }
