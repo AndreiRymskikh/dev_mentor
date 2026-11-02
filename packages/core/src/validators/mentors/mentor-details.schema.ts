@@ -3,7 +3,7 @@ export const SessionLanguages = [{value:"en",label:"English"},{value:"pl",label:
 const text=(max:number)=>z.string().trim().min(1).max(max);
 const item=z.strictObject({title:text(100),description:text(500)});
 const ordered=(max:number)=>z.array(item).max(max).refine(items=>new Set(items.map(item=>item.title.toLowerCase())).size===items.length,"Use distinct titles.");
-export function validTimeZone(value:string):boolean {try{new Intl.DateTimeFormat("en",{timeZone:value});return true;}catch{return false;}}
+export function validTimeZone(value:string):boolean {try{const zone=new Intl.DateTimeFormat("en",{timeZone:value}).resolvedOptions().timeZone;return !/^[+-]/.test(zone);}catch{return false;}}
 export const mentorDetailsUpdateSchema=z.strictObject({
   sessionLanguage:z.enum(SessionLanguages.map(option=>option.value)).nullable().optional(),
   mentorTimeZone:text(100).refine(validTimeZone,"Use a valid IANA timezone, such as Europe/Warsaw.").nullable().optional(),

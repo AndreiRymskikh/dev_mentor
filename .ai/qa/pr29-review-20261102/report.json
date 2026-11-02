@@ -1,0 +1,57 @@
+{
+  "runId": "pr29-review-20261102",
+  "mode": "local",
+  "target": {
+    "prNumber": 29,
+    "baseHead": "f6cb827",
+    "branch": "codex/issue-22-public-content"
+  },
+  "verdict": "PARTIAL",
+  "environment": {
+    "browserProvider": "agent-browser",
+    "role": "disposable mentor and public visitor",
+    "startedByThisRepo": true
+  },
+  "scenario": [
+    {
+      "step": 1,
+      "result": "PASS",
+      "action": "owner/public access"
+    },
+    {
+      "step": 2,
+      "result": "PASS",
+      "action": "invalid sample focus and persistence"
+    },
+    {
+      "step": 3,
+      "result": "PASS",
+      "action": "IANA zone validation"
+    },
+    {
+      "step": 4,
+      "result": "PASS",
+      "action": "native sample disclosure and safe text"
+    },
+    {
+      "step": 5,
+      "result": "PASS",
+      "action": "responsive full-page light/dark"
+    },
+    {
+      "step": 6,
+      "result": "PASS",
+      "action": "empty/long story states"
+    },
+    {
+      "step": 7,
+      "result": "PASS",
+      "action": "clock-independent auth quota UI"
+    }
+  ],
+  "hasUiTest": true,
+  "notes": [
+    "Automated changed-flow checks pass; independent risk-high QA sign-off remains required.",
+    "Mandatory dependency audit remains red."
+  ]
+}

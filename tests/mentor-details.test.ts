@@ -40,3 +40,5 @@ test("details persistence uses current verified mentor checks, locked explicit w
 test("additive details migration refuses to destroy any saved content",()=>{
  const migration=Object.create(Migration202611010001.prototype) as Migration202611010001,sql=vi.fn();migration.addSql=sql;migration.up();migration.down();expect(sql.mock.calls[0][0]).toContain('"help_topics" jsonb');expect(sql.mock.calls[1][0]).toContain("lock table");expect(sql.mock.calls[2][0]).toContain("Refusing destructive details rollback");expect(sql.mock.calls[3][0]).toContain("drop column sample_answer");
 });
+
+test("mentor timezone must name an IANA zone rather than a fixed numeric offset",()=>{expect(validTimeZone("+02:00")).toBe(false);expect(mentorDetailsUpdateSchema.safeParse({mentorTimeZone:"+02:00"}).success).toBe(false);});
