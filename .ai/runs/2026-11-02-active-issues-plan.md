@@ -1,0 +1,57 @@
+# Active issue implementation plan — 2026-11-02
+
+## Goal and audit basis
+
+Review every open issue, remove delivered implementation work from the active queue, and schedule every remaining issue without losing acceptance or approval gates. Snapshot: 15 open issues before audit, 12 after closing #13/#14/#15. All open issues, bodies, comments, labels and assignees were read; all 11 PRs were enumerated with merge state/base/SHA/closing references. No active claim or protected hold was found. Remote default/base is develop. No open PR remains at this snapshot.
+
+This supersedes the narrow #30 → #31 → #32 → #16 plan as the project-wide ordering; that chain remains valid within it. Relevant [E01 specification](../specs/2026-10-29-e01-v2-screenshot-ui.md), [E02 v2 specification](../specs/2026-10-29-e02-v2-screenshot-ui.md), [E02 domain specification](../specs/2026-09-08-mentors-become-bookable.md), [authentication specification](../specs/2026-10-16-users-auth-application-primitives.md), [reviews design](../specs/2026-10-29-e02-v2-public-profile-and-reviews.md), [payout design](../specs/2026-10-29-e02-v2-payouts.md), and [compatibility contract](../../BACKWARD_COMPATIBILITY.md) remain the authorities. This plan approves no new product/money/provider policy.
+
+## Completed issue cleanup
+
+Closed #13 (frames), #14 (auth screens), and #15 (mentee/operator/users screens), each with an evidence comment. PR #26 merged into develop on 2026-10-31 as a1e45a4f6350f7cb83cb08acc773e378274a0087. Current source and checked E01 slice steps substantiate completion. Its Refs mentions are not automatic closing links; these closures were manual scope reconciliation authorized by the user. Preserve verification limits on #17/#12 rather than pretending fresh QA occurred.
+
+No duplicate was identified among the remaining issues. #6/#12/#19 are distinct domain/E01/E02 tracking epics, not duplicate implementation tasks. #30 is a policy decision prerequisite; #25 owns a different booking/completion design dependency. #23/#24 remain requested capabilities behind explicit owner gates, not disposable tickets. #4's stale original OAuth ask is superseded by its recorded owner deferral; remaining acceptance still needs evidence.
+
+## All remaining active issues
+
+| Issue | Current state / prerequisite | Next deliverable |
+| --- | --- | --- |
+| [#4](https://github.com/AndreiRymskikh/dev_mentor/issues/4) — Implement: users, roles, and GitHub or email/password login | Acceptance only; credential implementation merged in PR #5; GitHub OAuth explicitly deferred | Reconcile owner manual auth/SMTP/admin/HTTPS/operations evidence and refresh current security/audit evidence; do not reopen the entire auth implementation. |
+| [#17](https://github.com/AndreiRymskikh/dev_mentor/issues/17) — E01v2-S05: Implement expired-session recovery and mobile sign-in screens | Implementation merged in PR #26; residual manual QA | Verify native password-manager/autofill, manual 200% zoom, keyboard/focus and logout/Back/expiry matrix; fix only concrete gaps. No E02 dependency. |
+| [#30](https://github.com/AndreiRymskikh/dev_mentor/issues/30) — E02 prerequisite: Reconcile money policy and slot publication/readiness boundaries | Decision/documentation work can start; production policy unresolved | Record owner-approved money, publication/eligibility and readiness qualification; align contradictory active specs. |
+| [#31](https://github.com/AndreiRymskikh/dev_mentor/issues/31) — E02-S03: Implement owned availability slots and public eligibility | Blocked on #30 time decisions | Deliver slots/persistence/owner-public APIs and minimal real consumers; preserve server-clock boundaries and owner isolation. |
+| [#32](https://github.com/AndreiRymskikh/dev_mentor/issues/32) — E02-S04: Implement atomic mentor prices and authoritative offer readiness | Blocked on #30 money decisions and #31 integrated readiness | Deliver exact money, atomic dual-price saves, current policy and authoritative offer readiness plus minimal consumers. |
+| [#16](https://github.com/AndreiRymskikh/dev_mentor/issues/16) — E01v2-S04: Implement the complete mentor-home screen using E02 services | Blocked on #31/#32 accepted contracts | Compose full initial/partial/ready mentor home, real forms/table/share panel and persisted 0/1/2/3-step states; no duplicate backend. |
+| [#25](https://github.com/AndreiRymskikh/dev_mentor/issues/25) — E02v2-D01: Specify the booking destination and trusted service-completion contract | Design discovery can start; runtime capability unapproved | Accept booking destination and trusted completion authority; produce reviewed spec plus a separately scoped owning implementation issue. Discovery can overlap the E02 chain. |
+| [#23](https://github.com/AndreiRymskikh/dev_mentor/issues/23) — E02v2-S03b: Implement approved completion-backed public ratings and reviews | Blocked on G1 and #25 plus actual completion implementation | Owner-approved N02 replacement, privacy/moderation/retention/eligibility; then real engagement-backed reviews and public aggregates. No fake bookings. |
+| [#24](https://github.com/AndreiRymskikh/dev_mentor/issues/24) — E02v2-S04: Implement live payout setup, enabled and restricted screens | Blocked on G2 | Approve payment boundary and Stripe controller/liability/country/currency/capabilities/API/operations choices; then real payout-onboarding/status UI/backend. Live enablement needs explicit authorization. |
+| [#6](https://github.com/AndreiRymskikh/dev_mentor/issues/6) — Implement: E02 — Mentors Become Bookable | Epic; keep open through #30/#31/#32 | Slices 1/2 merged via #9/#10; validate slices 3/4 and combined public offer readiness before closing. Preparation readiness is not booking/payment launch. |
+| [#12](https://github.com/AndreiRymskikh/dev_mentor/issues/12) — E01 v2: Implement all screenshot-defined account and workspace screens | Epic; keep open through #16/#17 | After final slices, verify all ten E01 references in required widths/themes, integration and CI. Preserve unavailable non-goal capabilities honestly. |
+| [#19](https://github.com/AndreiRymskikh/dev_mentor/issues/19) — E02 v2: Implement all seven screenshot-defined mentor screens | Epic; keep open through #16/#23/#24/#25 and owning booking implementation | Invitation/editor/non-review layout merged via #27/#28/#29. Integrate real offer data; enable booking CTA only when owning destination exists. Close only after all seven required screens and real gated capabilities pass or owner explicitly revises acceptance. |
+
+## Delivery order
+
+1. **Acceptance cleanup now:** #4 and #17. Refresh evidence and record owner results; do not treat historical audit failures as current findings without rerunning audit. Keep GitHub OAuth deferred. #17 is no longer a request to rebuild the already-delivered expiry/mobile implementation. These checks need not delay unrelated E02 policy/design work.
+2. **Decisions before dependent code:** #30 first on the mentor-offer critical path. Work #25 design discovery alongside this path when the decision owner is available. Record G1/G2 questions on #23/#24; their proposals remain gated. A merged design PR (#18) does not approve the underlying live policies.
+3. **Availability:** #31 after accepted time/readiness rules. Separate additive migration/service/API/UI-consumer PR, real clock/isolation/concurrency tests and owner/public boundary verification.
+4. **Prices and readiness:** #32 after accepted money rules and #31 for full integration. Exact parsing/configuration may be prepared after the money decision, but the complete readiness slice depends on real availability. Coordinate shared MentorProfile/migration/DTO consumers; avoid concurrent conflicting schema changes.
+5. **Mentor home:** #16 after #31/#32. Reuse current shell/profile/detail services, integrate both forms, complete lower-page table/share content, and prove initial/partial/complete and failure/retry states. Then perform #6 combined-domain acceptance and #12 ten-screen sign-off, closing each epic only when its own remaining criteria pass.
+6. **Approved booking/completion foundation:** #25 must first produce an accepted spec and owning implementation issue; that future issue is a deliberate design output, not an invented scope in this audit. Implement/verify that separately before enabling public booking or trusting completion for reviews. #19 tracks this required dependency; retain truthful unavailable CTA until it exists.
+7. **Gated extensions:** #23 only after G1 plus actual completion source, then #24 only after G2 (the two are independent once their separate gates pass and may be reordered). Preserve off-site payment policy unless explicitly amended. Verify real provider onboarding/status in test mode before any separately authorized live enablement. Final #19 seven-screen end-to-end acceptance follows all its dependencies; do not confuse merged non-review content with completed booking/reviews/payouts.
+
+## Completion and verification contract
+
+For each production slice: isolated branch/worktree, updated source spec and continuous run log, minimal migration with up/down/parity/populated-data safeguards, meaningful 100% per-file lines/statements/functions/branches, lint/typecheck/coverage/build/disposable PostgreSQL + production HTTP/browser integration/audit. Run build before its integration consumer and keep it immutable during tests. All four required CI jobs and independent high-risk review/QA remain required before merge. No developer database reset or fabricated financial/review/booking state.
+
+For #12/#19 final UI sign-off: complete full-page lower content, loading/empty/error/retry/denied/long content, 320/390/768/1440 widths, both themes, keyboard/focus, real owner isolation and current-role changes. Explicit manual limits stay open until exercised. Only move a spec to implemented after all its required work is complete.
+
+This audit changed tracker state and planning metadata only. Runtime lint/typecheck/coverage/build/integration/audit were not rerun; existing PR/run evidence is historical, not a fresh test result. Documentation validation checks paths, links, complete issue coverage and git diff --check. No automatic closure was made from a bare PR mention. No runtime changes, new feature issues, PRs or commits were created by this audit.
+
+## Published outcome
+
+- [Canonical tracker copy of this plan](https://github.com/AndreiRymskikh/dev_mentor/issues/12#issuecomment-6573437543) covers all 12 remaining issues.
+- Updated #6/#12/#19 progress checklists and stale unmerged/not-started descriptions; #20/#21/#22 remain closed following merged PRs #27/#28/#29.
+- Updated residual scope on #4/#17 and current dependency/readiness notes on #16/#23/#24/#25/#30/#31/#32. Added missing existing feature/priority-medium/risk-high labels to #4 with a rationale comment. No other label changes were needed.
+- Confirmed final open issue set exactly equals the plan's rows: #4, #6, #12, #16, #17, #19, #23, #24, #25, #30, #31, #32. Nothing was omitted by pagination (15 initial issues and 11 PRs, below the 100-item limits).
+- Existing completed PR close-links all point to already-closed issues (#1/#7/#8/#20/#21/#22); no automatic-close repair was needed. Bare mentions of active epics (#6/#12/#19) and authentication #4 remain valid tracking references, not missed completion claims. The only manual scope-based closures were #13/#14/#15 under the user's explicit cleanup request.
+
