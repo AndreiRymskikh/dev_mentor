@@ -147,3 +147,44 @@ never clear content merely to make down succeed. Existing MentorPageView owner-p
 The public page composes the existing core DTO and separate details; optional empty sections disappear.
 The offer CTA remains disabled because #6 prices/slots and #25 booking destination are not delivered. This
 slice neither closes #22 nor claims full screenshot04 completion. Public reviews remain separately gated.
+
+## Owned availability (E02 slice 3 / #31)
+
+The profile and optional-details DTOs remain unchanged. Additive endpoints:
+
+- `GET /api/availability/slots` returns only the current verified mentor's active future records by default, serverNow, refreshAt, lastPublishedAvailabilityAt, availabilityComplete and current publication/eligibility policy.
+- `POST /api/availability/slots` accepts exactly `{startsAt}`: a valid ISO instant with explicit `Z`/offset and second or millisecond precision. Returns the current owner projection. Malformed/oversize JSON is 400; field/policy errors are 422; duplicate active starts are 409.
+- `DELETE /api/availability/slots/[id]` removes only an active owned slot. Another owner's, absent, malformed or already removed id returns 404. Current-role denial returns 403. Removal is historical, not destructive.
+- `GET /api/mentors/[slug]/slots` is public only for a currently published profile and current verified mentor. Its explicit DTO is `{serverNow,refreshAt,nextCursor,slots:[{id,startsAt,eligible}]}`. Past/removed starts and owner metadata never cross this boundary.
+
+All endpoints use no-store envelopes; owner mutations require session, current mentor role and CSRF.
+Both GET endpoints return bounded pages: optional `limit` (integer1–100, default50), `after`
+(the previous response's `nextCursor`, URL-encoded) and `view` (`future` default, owner `all` includes past).
+Public reads always filter to future, even with `view=all`. `nextCursor:null` ends traversal;
+otherwise it encodes the last returned `(startsAt,id)` in ascending order. Concurrent insertions
+before a cursor appear when returning to the first page. Each page reauthorizes the current actor
+or public profile; cursors carry no authority. Unknown parameters and malformed cursors return422.
+The unmerged PR's clients now navigate pages explicitly; no consumer should treat one page as the full list.
+Completion and refresh boundaries cover all active slots, independently of the requested page.
+POST/DELETE return the default first future page captured in the write transaction, without a
+post-commit database read. A projection failure rolls back the write and publication timestamp.
+Reads accept no owner selector; query parameters cannot change the authenticated owner.
+Publication requires `now < startsAt <= now + 6 UTC calendar months`, with month-end clamping and an
+inclusive upper limit. Public eligibility is `startsAt >= now + 2 hours`; nearer future starts remain
+visible with an unavailable reason. Owner availability progress requires at least one eligible,
+unremoved start, and is recomputed on every read. `refreshAt` tells consumers when to reload;
+loading/errors replace previous progress while preserving an unsaved editor draft. Successful publication or Cancel resets the form; authorization denial clears protected controls. This is preparation readiness, not booking readiness.
+
+Migration202611020001 adds slots (owner FK, historical removedAt, partial active-start uniqueness and
+read index) and mentor_profiles.last_published_availability_at. User-first transactional locks serialize
+slot writes with profile and role mutations. Publication updates the timestamp in the same transaction;
+removal/expiration retain the last-publication history. Successful publication emits the in-process
+`availability.slot.published` notification; observer failures cannot undo the committed result. No booking relation, occupancy or payment is added.
+The minimal /mentor/slots consumer uses explicit UTC input and timezone-labelled LocalTime display.
+The public profile adds availability separately; prices and booking remain unavailable.
+
+Production application rollback: redeploy previous application code and retain this additive schema
+and all data. Do not execute destructive down in production or delete slot/publication history to force
+it through. The down migration locks both tables and refuses any slot history (including removed rows)
+or nonnull publication timestamp. Empty disposable databases can migrate up/down; populated rollback and
+schema parity are verified in the disposable integration suite. Complete mentor-home composition is #16.

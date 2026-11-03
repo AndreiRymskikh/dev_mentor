@@ -1,3 +1,5 @@
+import { Slot } from "./entities/availability/slot.entity";
+import { Migration202611020001 } from "./migrations/Migration202611020001";
 import { Migration202611010001 } from "./migrations/Migration202611010001";
 import { Migration202610260002 } from "./migrations/Migration202610260002";
 import { Migration202610260001 } from "./migrations/Migration202610260001";
@@ -28,9 +30,9 @@ export function databaseOptions() {
   }
   return defineConfig({
     clientUrl,
-    entities: [User, UserRole, Credential, AuthSession, ActionToken, RateLimitBucket, Invitation, MentorProfile],
+    entities: [User, UserRole, Credential, AuthSession, ActionToken, RateLimitBucket, Invitation, MentorProfile, Slot],
     extensions: [Migrator],
-    migrations: { migrationsList: [Migration202610210001, Migration202610260001, Migration202610260002, Migration202611010001], snapshot: false, transactional: true, allOrNothing: true },
+    migrations: { migrationsList: [Migration202610210001, Migration202610260001, Migration202610260002, Migration202611010001, Migration202611020001], snapshot: false, transactional: true, allOrNothing: true },
     discovery: { warnWhenNoEntities: false },
     allowGlobalContext: false,
     debug: false,

@@ -686,3 +686,18 @@ than deleting it. See [compatibility contract](BACKWARD_COMPATIBILITY.md#optiona
 
 The public page includes the non-review content sections and a truthful unavailable offer. Prices, future
 slots and an accepted booking destination remain dependencies; reviews and payouts are separate capabilities.
+
+### Mentor availability
+
+Current verified mentors manage individual starts at `/mentor/slots`. Enter UTC as
+`YYYY-MM-DDTHH:mm`; saved timestamps render in the viewer's labelled timezone. Publication accepts
+strictly future starts up to six UTC calendar months ahead, including the upper limit (month-end
+clamped). A published profile shows future starts publicly, qualifying at exactly two hours ahead;
+nearer starts explain why they are unavailable. Removed and past starts are private. Availability
+progress is server-calculated on each read and expires when no qualifying start remains. Prices,
+bookings and payments are separate work; publishing availability does not launch booking.
+
+The owner API is GET/POST `/api/availability/slots` and DELETE `/api/availability/slots/[id]`; public reads use
+GET `/api/mentors/[slug]/slots`. See `BACKWARD_COMPATIBILITY.md` for DTOs, errors and data-preserving
+rollback. Run `npm run test:integration -- --scenario=availability` for disposable database, production
+HTTP and responsive browser acceptance. The full integration suite also exercises this scenario.

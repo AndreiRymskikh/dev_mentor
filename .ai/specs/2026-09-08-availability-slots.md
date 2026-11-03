@@ -2,8 +2,9 @@
 
 Date: 2026-09-08
 Status: active
-Issue: [#17](https://github.com/open-mercato/ai_techleaders_project/issues/17) (epic #8)
-Depends on: E02-S01 (#15), E02-S02 (#16); E01 Slices 1, 2 and 4
+Issue: [#31](https://github.com/AndreiRymskikh/dev_mentor/issues/31) (epic #6)
+Historical provenance: external open-mercato issue #17 (epic #8)
+Depends on: merged invitation/profile slices; owner-approved availability policy from #30 (recorded below)
 Design authority for architecture, data model and the occupancy rule:
 `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 3, and the "occupancy rule" section)
 
@@ -87,3 +88,14 @@ D22/R14, R13, R18. R09 is handed to E03 above.
   reading of D22. Recurrence needs an expansion engine and a DST policy and is a later story if D22 is
   superseded.
 - **How the mentor learns a slot was booked** — #23 owns the notification. Non-blocking.
+
+
+## Accepted availability policy — 2026-11-02 (#30 / #31)
+
+Owner confirmed in the #31 implementation chat: mentors may publish any strictly future instant up to six UTC calendar months ahead (inclusive upper bound; preserve UTC time and clamp month-end days). Publication does not require a two-hour lead. Public future, unremoved slots qualify at exactly two hours ahead and become disabled immediately afterward. Past slots are excluded publicly. Qualification and owner availability progress are computed from server time on every read; at least one eligible, unremoved slot is required. No persisted checklist flag and no booking/payment launch claim. This supersedes stricter screenshot publication hints and any unbounded future-publication wording above. Money-policy reconciliation remains separate for #32.
+
+See [availability implementation log](../runs/2026-11-02-issue-31-availability.md).
+
+## PR33 repair acceptance — 2026-11-03
+
+Reads use bounded stable cursor pages (default50, max100); the owner Show past toggle selects all active history, public reads always filter future in PostgreSQL. Global eligibility and time boundaries include off-page rows. Mutation response capture is transactional, so projection failure rolls back and no post-commit read can falsely fail a committed save. Refresh preserves the editor draft/focus; explicit Cancel and successful publication clear it. Regression checks cover large history, page traversal/isolation, transaction faults and timed UI refresh. Required verification remains active until all checks and audit/QA blockers are resolved. See [repair run](../runs/2026-11-03-pr33-repairs.md).

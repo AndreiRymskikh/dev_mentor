@@ -1,0 +1,8 @@
+.dm-slots { max-width: 58rem; margin: auto; padding: 1.5rem; }
+.dm-slots > * + * { margin-top: 1rem; }
+.dm-slots-table { overflow-x: auto; max-width: 100%; }
+.dm-slots-table table { width: 100%; min-width: 36rem; border-collapse: collapse; }
+.dm-slots-table th, .dm-slots-table td { text-align: left; overflow-wrap: normal; padding: .75rem; border-bottom: 1px solid var(--border-subtle); }
+.dm-slots input { max-width: 100%; }
+
+.dm-slots-table button { white-space: nowrap; }

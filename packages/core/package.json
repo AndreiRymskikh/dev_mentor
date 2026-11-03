@@ -9,7 +9,8 @@
     "./container": "./src/container/index.ts",
     "./config": "./src/config/index.ts",
     "./validators/users": "./src/validators/users/index.ts",
-    "./validators/mentors": "./src/validators/mentors/index.ts"
+    "./validators/mentors": "./src/validators/mentors/index.ts",
+    "./validators/availability": "./src/validators/availability/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

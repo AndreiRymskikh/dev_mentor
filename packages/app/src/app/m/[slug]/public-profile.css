@@ -33,3 +33,6 @@
 .dm-public-profile .dm-public-footer { max-width: 1160px; margin: 80px auto 0; padding: 28px var(--space-page-gutter); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; border-top: 1px solid var(--border-subtle); font-size: var(--font-size-label); color: var(--text-muted); }
 @media(max-width:900px) { .dm-public-columns { gap: 32px; grid-template-columns: minmax(0,1fr); } .dm-public-offer { grid-row: 2; } }
 @media(max-width:480px) { .dm-public-profile .dm-public-header { align-items: start; flex-direction: column; padding-block: 20px; } .dm-public-columns { margin-top: 28px; } .dm-public-content h1 { font-size: 28px; } .dm-public-content section { padding-block: 32px; } .dm-public-sample, .dm-public-offer { padding: 20px; } .dm-public-identity { gap: 16px; } .dm-public-avatar { width: 52px; height: 52px; font-size: 18px; } }
+
+.dm-public-profile .dm-public-slots { list-style: none; padding: 0; }
+.dm-public-profile .dm-public-slots li { display: grid; gap: .25rem; margin-block: 1rem; overflow-wrap: anywhere; }
