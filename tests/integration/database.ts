@@ -105,6 +105,30 @@ export async function testDatabase(clientUrl: string) {
     for (let attempt = 0; attempt < 4; attempt++) await limits.consume([{ keyDigest: "e".repeat(64), limit: 3 }]);
     assert.equal((await limits.consume([{ keyDigest: "e".repeat(64), limit: 3 }, { keyDigest: "f".repeat(64), limit: 20 }])).allowed, false);
     assert.equal((await sql.execute<{ attempt_count: number }[]>("select attempt_count from rate_limit_buckets where key_digest = ?", ["f".repeat(64)]))[0].attempt_count, 1);
+    // Execute the production quota SQL with controlled DB instants on both sides of an hour.
+    // This reproduces the HTTP fixture's three-before/seven-after reset without waiting for a real hour.
+    let epoch=1793689199;
+    const controlled: typeof runtime={...runtime,transaction:work=>runtime.transaction(async em=>{
+      const execute=em.execute.bind(em);
+      Object.defineProperty(em,"execute",{value:(query:string,parameters:unknown[])=>{
+        let index=0;const values:unknown[]=[];
+        const sql=query.replace(/statement_timestamp\(\)|\?/g,match=>{
+          values.push(match==="?"?parameters[index++]:epoch);
+          return match==="?"?"?":"to_timestamp(?)";
+        });
+        return execute(sql,values);
+      }});
+      return work(em);
+    })};
+    const hourly=new RateLimitRepository(controlled),bucket={keyDigest:"a".repeat(64),limit:10};
+    for(let n=0;n<3;n++)assert.equal((await hourly.consume([bucket])).allowed,true);
+    epoch+=1;
+    for(let n=0;n<7;n++)assert.equal((await hourly.consume([bucket])).allowed,true);
+    assert.equal((await hourly.consume([bucket])).allowed,true,"the old HTTP fixture's eighth request correctly succeeds after rollover");
+    for(let n=0;n<2;n++)assert.equal((await hourly.consume([bucket])).allowed,true);
+    assert.equal((await hourly.consume([bucket])).allowed,false,"the eleventh request within one bucket is denied");
+    epoch+=3600;assert.equal((await hourly.consume([bucket])).allowed,true,"a new hourly bucket permits registration again");
+    await sql.execute("delete from rate_limit_buckets where key_digest = ?",[bucket.keyDigest]);
     await testRegistrationEmail(runtime);
     await testVerification(runtime);
     await testSessions(runtime);

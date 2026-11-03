@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export function GET(request: Request) {
   return withScope(({sessionService, slotService}) => ownedAction({
     authorize: request => authorizeMentorSession(sessionService, request), role: "mentor",
-    action: session => slotService.getMine(session.userId),
+    action: session => slotService.getMine(session.userId, Object.fromEntries(new URL(request.url).searchParams)),
   })(request));
 }
 export function POST(request: Request) {

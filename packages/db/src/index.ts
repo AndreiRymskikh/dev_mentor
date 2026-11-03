@@ -34,4 +34,4 @@ export { InvitationRepository, type InvitationRecord, type InvitationResult } fr
 export { MentorProfileRepository, SlugCollisionError, type MentorProfileRecord, type PublicMentorProfileRecord } from "./repositories/mentors/mentor-profile.repository";
 
 export { Slot } from "./entities/availability/slot.entity";
-export { SlotRepository, DuplicateSlotError, type SlotRecord, type AvailabilityRecord } from "./repositories/availability/slot.repository";
+export { SlotRepository, DuplicateSlotError, type SlotRecord, type SlotQuery, type AvailabilityRecord } from "./repositories/availability/slot.repository";

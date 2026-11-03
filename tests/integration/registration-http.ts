@@ -140,8 +140,10 @@ export async function registrationFixture() {
             assert.equal((await verificationPost("confirm", { token: invalidToken })).status, 400);
           }
           console.log("Verification HTTP passed: same-account failed-email resend recovery, replacement, generic outcomes, CSRF POST-only, single-use replay, expiry and purpose.");
-          const remaining = await Promise.all(Array.from({ length: 7 }, (_, index) => post({ ...input, email: `http-${index}@example.test` }, { "x-forwarded-for": `10.0.0.${index}` })));
-          assert.ok(remaining.every((response) => response.status === 202));
+          // Earlier SMTP/verification flows can cross a fixed-hour boundary. Seed
+          // this disposable fixture's shared IP at quota in current/next buckets.
+          const registrationDigest = createHmac("sha256", this.environment.RATE_LIMIT_SECRET).update(JSON.stringify(["registration:ip", "shared-untrusted-peer"])).digest("hex");
+          await client.query("insert into rate_limit_buckets(key_digest,window_start,attempt_count,expires_at) select $1,to_timestamp((floor(extract(epoch from statement_timestamp())/3600)+n)*3600),10,to_timestamp((floor(extract(epoch from statement_timestamp())/3600)+n+1)*3600) from generate_series(0,1) n on conflict(key_digest,window_start) do update set attempt_count=10", [registrationDigest]);
           const limited = await post({ ...input, email: "over-limit@example.test" }, { "x-forwarded-for": "9.8.7.6", "x-real-ip": "8.8.8.8" });
           assert.equal(limited.status, 429); assert.ok(Number(limited.headers.get("retry-after")) >= 1); assert.ok(Number(limited.headers.get("retry-after")) <= 3600);
           assert.equal(limited.headers.get("cache-control"), "no-store");

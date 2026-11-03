@@ -152,18 +152,28 @@ slice neither closes #22 nor claims full screenshot04 completion. Public reviews
 
 The profile and optional-details DTOs remain unchanged. Additive endpoints:
 
-- `GET /api/availability/slots` returns only the current verified mentor's active records (including past starts), serverNow, refreshAt, lastPublishedAvailabilityAt, availabilityComplete and current publication/eligibility policy.
+- `GET /api/availability/slots` returns only the current verified mentor's active future records by default, serverNow, refreshAt, lastPublishedAvailabilityAt, availabilityComplete and current publication/eligibility policy.
 - `POST /api/availability/slots` accepts exactly `{startsAt}`: a valid ISO instant with explicit `Z`/offset and second or millisecond precision. Returns the current owner projection. Malformed/oversize JSON is 400; field/policy errors are 422; duplicate active starts are 409.
 - `DELETE /api/availability/slots/[id]` removes only an active owned slot. Another owner's, absent, malformed or already removed id returns 404. Current-role denial returns 403. Removal is historical, not destructive.
-- `GET /api/mentors/[slug]/slots` is public only for a currently published profile and current verified mentor. Its explicit DTO is `{serverNow,refreshAt,slots:[{id,startsAt,eligible}]}`. Past/removed starts and owner metadata never cross this boundary.
+- `GET /api/mentors/[slug]/slots` is public only for a currently published profile and current verified mentor. Its explicit DTO is `{serverNow,refreshAt,nextCursor,slots:[{id,startsAt,eligible}]}`. Past/removed starts and owner metadata never cross this boundary.
 
 All endpoints use no-store envelopes; owner mutations require session, current mentor role and CSRF.
+Both GET endpoints return bounded pages: optional `limit` (integer1–100, default50), `after`
+(the previous response's `nextCursor`, URL-encoded) and `view` (`future` default, owner `all` includes past).
+Public reads always filter to future, even with `view=all`. `nextCursor:null` ends traversal;
+otherwise it encodes the last returned `(startsAt,id)` in ascending order. Concurrent insertions
+before a cursor appear when returning to the first page. Each page reauthorizes the current actor
+or public profile; cursors carry no authority. Unknown parameters and malformed cursors return422.
+The unmerged PR's clients now navigate pages explicitly; no consumer should treat one page as the full list.
+Completion and refresh boundaries cover all active slots, independently of the requested page.
+POST/DELETE return the default first future page captured in the write transaction, without a
+post-commit database read. A projection failure rolls back the write and publication timestamp.
 Reads accept no owner selector; query parameters cannot change the authenticated owner.
 Publication requires `now < startsAt <= now + 6 UTC calendar months`, with month-end clamping and an
 inclusive upper limit. Public eligibility is `startsAt >= now + 2 hours`; nearer future starts remain
 visible with an unavailable reason. Owner availability progress requires at least one eligible,
 unremoved start, and is recomputed on every read. `refreshAt` tells consumers when to reload;
-loading/errors replace previous progress. This is preparation readiness, not booking readiness.
+loading/errors replace previous progress while preserving an unsaved editor draft. Successful publication or Cancel resets the form; authorization denial clears protected controls. This is preparation readiness, not booking readiness.
 
 Migration202611020001 adds slots (owner FK, historical removedAt, partial active-start uniqueness and
 read index) and mentor_profiles.last_published_availability_at. User-first transactional locks serialize

@@ -10,7 +10,7 @@ import {SessionService} from "../packages/core/src/services/users/session.servic
 import type {OwnerAvailability} from "@devmentor/core/validators/availability";
 vi.mock("next/headers",()=>({headers:async()=>new Headers()}));
 vi.mock("next/navigation",()=>({redirect:(url:string)=>{throw new Error("redirect:"+url);}}));
-const empty:OwnerAvailability={serverNow:"2026-11-02T12:00:00.000Z",refreshAt:null,slots:[],lastPublishedAvailabilityAt:null,availabilityComplete:false,policy:{publicationMonths:6,eligibilityLeadHours:2,latestPublishAt:"2027-05-02T12:00:00.000Z"}},rich={...empty,availabilityComplete:true,lastPublishedAvailabilityAt:empty.serverNow,slots:[{id:"future",startsAt:"2026-12-01T14:30:00.000Z",eligible:true},{id:"soon",startsAt:"2026-11-02T13:00:00.000Z",eligible:false},{id:"past",startsAt:"2026-11-01T12:00:00.000Z",eligible:false}]};
+const empty:OwnerAvailability={serverNow:"2026-11-02T12:00:00.000Z",refreshAt:null,nextCursor:null,slots:[],lastPublishedAvailabilityAt:null,availabilityComplete:false,policy:{publicationMonths:6,eligibilityLeadHours:2,latestPublishAt:"2027-05-02T12:00:00.000Z"}},rich={...empty,availabilityComplete:true,lastPublishedAvailabilityAt:empty.serverNow,slots:[{id:"future",startsAt:"2026-12-01T14:30:00.000Z",eligible:true},{id:"soon",startsAt:"2026-11-02T13:00:00.000Z",eligible:false},{id:"past",startsAt:"2026-11-01T12:00:00.000Z",eligible:false}]};
 async function mount(element:ReactNode){
  const dom=new JSDOM("<div id='root'></div>",{url:"https://local.test"});
  for(const [name,value]of Object.entries({window:dom.window,document:dom.window.document,navigator:dom.window.navigator,FormData:dom.window.FormData,Event:dom.window.Event,HTMLElement:dom.window.HTMLElement,Node:dom.window.Node,IS_REACT_ACT_ENVIRONMENT:true}))vi.stubGlobal(name,value);
@@ -29,9 +29,9 @@ test("UTC publication validates input, handles failure, duplicate pending submis
 });
 test("owner table shows past only on request, current eligibility and historical timestamp; removal failure retries safely",async()=>{
  const fetcher=vi.fn().mockResolvedValueOnce(Response.json({ok:false,error:{code:"OFFLINE",message:"Removal failed"}},{status:503})).mockResolvedValueOnce(Response.json({ok:true,data:empty}));vi.stubGlobal("fetch",fetcher);const reload=vi.fn(),view=await mount(<SlotForm data={rich} reload={reload}/>);
- expect(view.host.textContent).toContain("checklist: complete");expect(view.host.querySelectorAll("tbody tr")).toHaveLength(2);expect(view.host.textContent).toContain("Last publication");
+ expect(view.host.textContent).toContain("checklist: complete");expect(view.host.querySelectorAll("tbody tr")).toHaveLength(3);expect(view.host.textContent).toContain("Last publication");
  await act(async()=>view.host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click());expect(view.host.querySelectorAll("tbody tr")).toHaveLength(3);
- await view.click("Remove");expect(view.host.textContent).toContain("Removal failed");expect(reload).not.toHaveBeenCalled();await view.click("Remove");expect(reload).toHaveBeenCalledTimes(1);expect(fetcher.mock.calls[0][0]).toBe("/api/availability/slots/future");await view.close();
+ await view.click("Remove");expect(view.host.textContent).toContain("Removal failed");expect(reload).not.toHaveBeenCalled();await view.click("Remove");expect(reload).toHaveBeenCalledTimes(1);expect(view.host.textContent).toContain("Start removed.");expect(fetcher.mock.calls[0][0]).toBe("/api/availability/slots/future");await view.close();
 });
 test("owner resource clears stale content on load failure and supports retry",async()=>{
  const fetcher=vi.fn().mockResolvedValueOnce(Response.json({ok:false,error:{code:"OFFLINE",message:"Try later"}},{status:503})).mockResolvedValueOnce(Response.json({ok:true,data:empty}));vi.stubGlobal("fetch",fetcher);const view=await mount(<SlotEditor/>);expect(view.host.textContent).toContain("Try later");await view.click("Try again");expect(view.host.textContent).toContain("Publish start");await view.close();
@@ -51,4 +51,26 @@ test("the same UTC start renders across the Warsaw DST transition without changi
  expect(formatInstant("2027-03-28T00:30:00.000Z","UTC")).toBe("28 Mar 2027, 00:30");
  expect(formatInstant("2027-03-28T00:30:00.000Z","Europe/Warsaw")).toBe("28 Mar 2027, 01:30");
  expect(formatInstant("2027-03-28T01:30:00.000Z","Europe/Warsaw")).toBe("28 Mar 2027, 03:30");
+});
+
+test("owner draft and focus survive timer, visibility, pending reads, failed refresh and retry; success/Cancel clear it",async()=>{
+ const fresh={...empty,refreshAt:"2026-11-02T12:00:00.030Z"};let complete!:(response:Response)=>void;
+ const fetcher=vi.fn().mockResolvedValueOnce(Response.json({ok:true,data:fresh})).mockImplementationOnce(()=>new Promise<Response>(resolve=>{complete=resolve;})).mockImplementation(async()=>Response.json({ok:true,data:empty}));vi.stubGlobal("fetch",fetcher);
+ const view=await mount(<SlotEditor/>),input=view.host.querySelector<HTMLInputElement>('[name="startsAt"]')!;view.fill("2026-12-01T14:30");input.focus();
+ await act(async()=>new Promise(resolve=>setTimeout(resolve,45)));expect(view.host.textContent).toContain("Loading");expect(view.host.querySelector('[name="startsAt"]')).toBe(input);expect(input.value).toBe("2026-12-01T14:30");expect(view.dom.window.document.activeElement).toBe(input);
+ await act(async()=>complete(Response.json({ok:false,error:{code:"OFFLINE",message:"Refresh failed"}},{status:503})));expect(view.host.textContent).toContain("Refresh failed");expect(input.value).toBe("2026-12-01T14:30");await view.click("Try again");expect(view.host.querySelector('[name="startsAt"]')).toBe(input);
+ Object.defineProperty(view.dom.window.document,"visibilityState",{value:"visible"});await act(async()=>view.dom.window.document.dispatchEvent(new view.dom.window.Event("visibilitychange")));expect(input.value).toBe("2026-12-01T14:30");
+ fetcher.mockResolvedValueOnce(Response.json({ok:true,data:empty})).mockResolvedValueOnce(Response.json({ok:false,error:{code:"OFFLINE",message:"List refresh failed"}},{status:503}));await view.click("Publish start");expect(view.host.textContent).toContain("Start published.");expect(view.host.textContent).toContain("List refresh failed");expect(view.host.querySelector<HTMLInputElement>('[name="startsAt"]')!.value).toBe("");view.fill("2026-12-02T14:30");await view.click("Cancel");expect(view.host.querySelector<HTMLInputElement>('[name="startsAt"]')!.value).toBe("");await view.close();
+});
+test("owner cursor and past toggle fetch bounded pages while retaining the draft",async()=>{
+ const cursor="2026-12-01T14:30:00.000Z|11111111-1111-4111-8111-111111111111",fetcher=vi.fn().mockImplementation(async()=>Response.json({ok:true,data:{...rich,nextCursor:cursor}}));vi.stubGlobal("fetch",fetcher);const view=await mount(<SlotEditor/>);view.fill("2026-12-02T14:30");
+ await view.click("Next page");expect(fetcher.mock.lastCall![0]).toBe("/api/availability/slots?view=future&after="+encodeURIComponent(cursor));expect(view.host.querySelector<HTMLInputElement>('[name="startsAt"]')!.value).toBe("2026-12-02T14:30");await view.click("First page");expect(fetcher.mock.lastCall![0]).toBe("/api/availability/slots?view=future");
+ await act(async()=>view.host.querySelector<HTMLInputElement>('input[type="checkbox"]')!.click());expect(fetcher.mock.lastCall![0]).toBe("/api/availability/slots?view=all");await view.click("Remove");expect(fetcher.mock.calls.some(call=>call[1]?.method==="DELETE")).toBe(true);await view.close();
+});
+test("public pagination exposes the next page and return to first without leaking owner metadata",async()=>{
+ const cursor="2026-12-01T14:30:00.000Z|11111111-1111-4111-8111-111111111111",fetcher=vi.fn().mockImplementation(async()=>Response.json({ok:true,data:{...empty,nextCursor:cursor}}));vi.stubGlobal("fetch",fetcher);const view=await mount(<PublicSlots slug="mentor"/>);
+ await view.click("Next page");expect(fetcher.mock.lastCall![0]).toBe("/api/mentors/mentor/slots?after="+encodeURIComponent(cursor));await view.click("First page");expect(fetcher.mock.lastCall![0]).toBe("/api/mentors/mentor/slots");await view.close();
+});
+test("owner discards draft and protected controls when refreshed authorization is denied",async()=>{
+ for(const code of ["FORBIDDEN","UNAUTHORIZED"]){const fetcher=vi.fn().mockResolvedValueOnce(Response.json({ok:true,data:rich})).mockResolvedValueOnce(Response.json({ok:false,error:{code,message:"Access denied"}},{status:403}));vi.stubGlobal("fetch",fetcher);const view=await mount(<SlotEditor/>);view.fill("2026-12-02T14:30");Object.defineProperty(view.dom.window.document,"visibilityState",{value:"visible"});await act(async()=>view.dom.window.document.dispatchEvent(new view.dom.window.Event("visibilitychange")));expect(view.host.querySelector('[name="startsAt"]')).toBeNull();expect(view.host.querySelector("table")).toBeNull();expect(view.host.textContent).toContain("Mentor access is required");await view.close();}
 });
