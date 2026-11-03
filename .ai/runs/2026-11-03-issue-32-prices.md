@@ -37,3 +37,9 @@ Owner confirmed the complete proposed policy on 2026-11-03. Implementing with ex
 - Online `npm audit` reports 27 moderate existing dependency findings (glob/minimatch and tooling dependents), no high/critical and no available fixes. No dependency or lockfile changes. Audit is not clean; this is a remaining gate, not suppressed.
 
 Next: push reviewable implementation, run all four CI jobs (including actual Linux browser scenarios), inspect evidence, and retain independent high-risk review/QA requirement before merge. Do not close #32 or mark its source spec implemented while these verification gates remain.
+
+## CI and visual verification
+
+Implementation commit `7cc837b1e9f6f064b608228ad0f7d4035b1629fb` passed all four required jobs in [CI run 41646592296](https://github.com/AndreiRymskikh/dev_mentor/actions/runs/41646592296): Lint and TypeScript, Production build, Unit tests (100% coverage), and the complete PostgreSQL/browser integration suite. The new prices browser scenario ran against production HTTPS with disposable fixtures alongside all existing scenarios. Downloaded the integration artifact and visually inspected all ten price screenshots: owner at 1440/390/320 and public at 1440/320 in light/dark. Labels, bounds, exact values and actions are readable; no clipping/document overflow was observed.
+
+`npm audit --omit=dev` passed with zero vulnerabilities. Full audit still reports the 27 moderate tooling findings with no available fix. Draft [PR #34](https://github.com/AndreiRymskikh/dev_mentor/pull/34) contains the implementation. No merge or issue closure performed. Independent high-risk review/QA and resolution/acceptance of the existing full-audit gate remain; source spec stays active for that reason. This final metadata update changes no production code.
