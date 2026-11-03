@@ -188,3 +188,9 @@ and all data. Do not execute destructive down in production or delete slot/publi
 it through. The down migration locks both tables and refuses any slot history (including removed rows)
 or nonnull publication timestamp. Empty disposable databases can migrate up/down; populated rollback and
 schema parity are verified in the disposable integration suite. Complete mentor-home composition is #16.
+
+## Mentor prices and offer preparation (#32)
+
+Additive `GET/PUT /api/mentors/me/prices` return owner-only saved integer minor units, current PLN bounds and authoritative preparation readiness. PUT accepts exactly two decimal strings (`price25`, `price50`) and saves both or neither; invalid fields return 422, current membership/verification remains mandatory and mutations require CSRF. Existing owner/public profile DTOs retain their fields unchanged. Additive public `GET /api/mentors/[slug]/offer` allowlists valid prices/currency, three readiness booleans, `mentorOfferReady`, `bookingAvailable:false`, `serverNow` and `refreshAt`; it never exposes bounds or user identifiers. All new API responses are no-store standard envelopes. Failed policy/data reads return errors rather than ready state.
+
+`Migration202611030001` adds nullable positive integer `price_25_cents` and `price_50_cents`. Deploy migrations before application code. Application rollback retains prices; destructive down refuses either populated column. Existing availability migration tests explicitly target their migration now that prices is newer. Owner-confirmed 2026-11-03 policy is PLN/two decimals with inclusive 90–600 and 180–1,200 bounds. Configuration is required and lazy, preserving database-independent build/boot; invalid configuration fails closed. Current policy/eligible-slot changes can invalidate readiness without deleting saved values. No booking, payment or historical obligation behavior is introduced.

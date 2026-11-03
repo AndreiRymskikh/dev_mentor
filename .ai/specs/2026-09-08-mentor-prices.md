@@ -99,3 +99,7 @@ D09/R08, R01/D01, D11/R10, D19/R18.
 - **Platform currency** (founders, approved 2026-09-10): PLN, with two decimal minor units.
 - **Initial bounds** (founders, approved 2026-09-10): 25 minutes PLN 90–600; 50 minutes
   PLN 180–1,200. E05-S02 may later change their storage behind the settings service.
+
+## Accepted money and offer policy — 2026-11-03 (#32)
+
+Owner explicitly confirmed in the issue-32 implementation chat: PLN with two decimal minor units; inclusive 25-minute PLN 90–600 and 50-minute PLN 180–1,200 bounds. This supersedes all stale USD proposals and unresolved initial money-policy questions in this document. Offer preparation requires a published profile, both saved prices valid under the current policy, and at least one currently unremoved start at least two hours ahead, inclusive. Recompute from server time on every read; expiration or bounds changes invalidate readiness. Preparation never implies booking/payment capability. Missing or malformed resolved configuration fails closed. See [implementation run](../runs/2026-11-03-issue-32-prices.md).

@@ -701,3 +701,13 @@ The owner API is GET/POST `/api/availability/slots` and DELETE `/api/availabilit
 GET `/api/mentors/[slug]/slots`. See `BACKWARD_COMPATIBILITY.md` for DTOs, errors and data-preserving
 rollback. Run `npm run test:integration -- --scenario=availability` for disposable database, production
 HTTP and responsive browser acceptance. The full integration suite also exercises this scenario.
+
+### Mentor prices and offer preparation
+
+Set `PLATFORM_CURRENCY=PLN` and `PLATFORM_PRICE_BOUNDS` to the JSON object in `.env.example`. Owner confirmation on 2026-11-03 reconciles the historical epic: two decimal minor units, inclusive PLN 90–600 for 25 minutes and PLN 180–1,200 for 50 minutes. No implicit fallback exists; missing, malformed, oversized (>256 characters), unknown-key, noninteger, inconsistent or unsupported resolved policy fails closed. Bounds must be positive PostgreSQL integers. Read on every service request so changed bounds invalidate readiness immediately. Currency expansion requires a separate product/schema decision.
+
+`/mentor/prices` loads authoritative prices, bounds and preparation progress through authenticated `GET /api/mentors/me/prices`. CSRF-protected `PUT` accepts exactly `{price25: "90.00", price50: "180.00"}` and saves both atomically with current mentor membership checked under the user lock. Exact ASCII decimals reject excess precision, exponents, signs, whitespace, oversized values and rounding. Failed saves retain input; repeat saves are safe. Owner data includes saved minor units even when changed bounds invalidate them.
+
+Public `GET /api/mentors/[slug]/offer` separately allowlists valid prices/currency, readiness and server refresh timestamps; no owner bounds or private identity fields. Existing profile DTO fields remain unchanged. Preparation requires a published profile, both prices valid under current bounds and an unremoved start at least two hours ahead (inclusive). Time boundaries and visibility refreshes recheck the server; read failures never claim readiness. `bookingAvailable` is always false: no checkout or payment launch. Public draft, revoked and unverified owners return 404.
+
+Run migrations before starting the new application. The price migration is additive; application rollback retains price data. Destructive migration rollback refuses any saved price. Never reset the developer database to test migrations.

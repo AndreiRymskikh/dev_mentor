@@ -91,3 +91,13 @@ test('readiness retries and timeout/exit/shutdown paths are bounded and clean', 
   const stopFailure=fixture();stopFailure.child.stop.mockRejectedValue(new Error('stop'));await expect(setup(stopFailure.io)).rejects.toThrow('stop');expect(stopFailure.lease.release).toHaveBeenCalled();
   const signal=fixture();signal.io.signals.mockImplementation((stop?: () => void) => {stop?.();return signal.signal;});await setup(signal.io);
 });
+
+test('setup preserves explicit money policy from template and process overrides without inventing defaults', async () => {
+  const policy = {PLATFORM_CURRENCY: 'PLN', PLATFORM_PRICE_BOUNDS: '{"25":{"minCents":9000,"maxCents":60000},"50":{"minCents":18000,"maxCents":120000}}'};
+  const template = text + '\n' + Object.entries(policy).map(([key,value]) => `${key}='${value}'`).join('\n');
+  expect(configuration(template, {})).toEqual({...values,...policy});
+  expect(configuration(template, {PLATFORM_CURRENCY: 'USD'}).PLATFORM_CURRENCY).toBe('USD');
+  const {io} = fixture(); io.read.mockResolvedValue(template); await setup(io);
+  expect(io.startDev).toHaveBeenCalledWith(3000, {...values,...policy});
+  expect(configuration(text, {}).PLATFORM_CURRENCY).toBeUndefined();
+});

@@ -61,7 +61,7 @@ export function createRuntime(root, host = process) {
     },
     async publishEnvironment(values) {
       const temp = path.join(state, `env-${randomUUID()}.tmp`);
-      await fs.writeFile(temp, Object.entries(values).map(([key, value]) => `${key}=${JSON.stringify(value)}`).join('\n') + '\n', { flag: 'wx', mode: 0o600 });
+      await fs.writeFile(temp, Object.entries(values).map(([key, value]) => `${key}=${key === "PLATFORM_PRICE_BOUNDS" ? `'${value}'` : JSON.stringify(value)}`).join('\n') + '\n', { flag: 'wx', mode: 0o600 });
       try { await fs.link(temp, path.join(root, '.env')); }
       catch { throw new SetupError('Environment: could not publish .env without overwrite. Preserve existing files or configure .env manually.'); }
       finally { await fs.unlink(temp); }

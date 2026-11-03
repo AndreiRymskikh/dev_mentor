@@ -2,6 +2,7 @@ import { test, expect, vi, afterEach } from 'vitest';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import {parseEnv} from 'node:util';
 import { EventEmitter } from 'node:events';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -43,8 +44,9 @@ test('filesystem, dependency fingerprint and installed-lock drift checks',async(
 });
 test('environment publication is complete, private and never overwrites',async()=>{
  const f=await fixture();try {
-  await f.io.publishEnvironment({POSTGRES_PASSWORD:'a@:$',DATABASE_URL:'encoded'});
-  const original=await f.io.read('.env');expect(original).toContain('a@:$');
+  const bounds='{"25":{"minCents":9000,"maxCents":60000},"50":{"minCents":18000,"maxCents":120000}}';
+  await f.io.publishEnvironment({POSTGRES_PASSWORD:'a@:$',DATABASE_URL:'encoded',PLATFORM_PRICE_BOUNDS:bounds});
+  const original=await f.io.read('.env');expect(original).toContain('a@:$');expect(parseEnv(original!).PLATFORM_PRICE_BOUNDS).toBe(bounds);
   await expect(f.io.publishEnvironment({POSTGRES_PASSWORD:'changed'})).rejects.toThrow(/without overwrite/);expect(await f.io.read('.env')).toBe(original);
   expect((await fs.readdir(path.join(f.root,'.devmentor'))).filter(name=>name.endsWith('.tmp'))).toEqual([]);
  }finally{await f.dispose();}

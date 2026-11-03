@@ -1,3 +1,4 @@
+import { PublicOfferPanel } from "./public-offer";
 import { PublicSlots } from "./public-availability";
 import type { PublicMentorProfile, PublicMentorProfileDetails } from "@devmentor/core/validators/mentors";
 import { SessionLanguages, StackTags } from "@devmentor/core/validators/mentors";
@@ -15,6 +16,6 @@ export function PublicProfile({profile,details}:{profile:PublicMentorProfile;det
   {details.helpTopics.length>0&&<section><h2>What I can help with</h2><ul className="dm-public-topics">{details.helpTopics.map(topic=><li key={topic.title}><span aria-hidden="true">✓</span><div><h3>{topic.title}</h3><p>{topic.description}</p></div></li>)}</ul></section>}
   {details.sampleAnswer&&<section><h2>Sample answer</h2><div className="dm-public-sample"><p className="dm-public-eyebrow">Example walkthrough</p><h3>{details.sampleAnswer.title}</h3><p>{details.sampleAnswer.intro}</p>{details.sampleAnswer.codeExcerpt&&<pre tabIndex={0} aria-label="Sample code excerpt"><code>{details.sampleAnswer.codeExcerpt}</code></pre>}<details><summary>Read the sample answer</summary><p className="dm-public-answer">{details.sampleAnswer.body}</p></details></div></section>}
   {details.sessionSteps.length>0&&<section><h2>How I run a session</h2><ol className="dm-public-steps">{details.sessionSteps.map((step,index)=><li key={step.title}><span aria-hidden="true">{String(index+1).padStart(2,"0")}</span><div><h3>{step.title}</h3><p>{step.description}</p></div></li>)}</ol></section>}</article>
-  <aside className="dm-public-offer" aria-label="Session availability"><p>Sessions with {profile.displayName}</p><h2>Choose your session.</h2><p>Session prices are not available yet.</p><PublicSlots slug={profile.slug!}/><Button disabled>Choose a session</Button><p>Booking is not available on DevMentor yet. This page shares the mentor’s public work and approach.</p></aside></main>
+  <aside className="dm-public-offer" aria-label="Session availability"><p>Sessions with {profile.displayName}</p><h2>Choose your session.</h2><PublicOfferPanel slug={profile.slug!}/><PublicSlots slug={profile.slug!}/><Button disabled>Choose a session</Button><p>Booking is not available on DevMentor yet. This page shares the mentor’s public work and approach.</p></aside></main>
   <footer className="dm-public-footer"><p>Get coding help from a mentor.</p><Link href="/account">Your workspace</Link></footer></div>;
 }

@@ -6,10 +6,14 @@ export const MentorProfile = defineEntity({
   name: "MentorProfile",
   tableName: "mentor_profiles",
   checks: [
+    { name: "mentor_profiles_price_25_check", expression: "price_25_cents > 0" },
+    { name: "mentor_profiles_price_50_check", expression: "price_50_cents > 0" },
     { name: "mentor_profiles_published_slug_check", expression: "published_at is null or slug is not null" },
     { name: "mentor_profiles_stack_tags_check", expression: "stack_tags <@ ARRAY['typescript','react','python','ai-agents']::text[] and array_position(stack_tags, null) is null" },
   ],
   properties: {
+    price25Cents: p.integer().fieldName("price_25_cents").nullable(),
+    price50Cents: p.integer().fieldName("price_50_cents").nullable(),
     sessionLanguage: p.string().length(35).nullable(),
     mentorTimeZone: p.string().length(100).nullable(),
     helpTopics: p.json<MentorDetails["helpTopics"]>().default([]),
