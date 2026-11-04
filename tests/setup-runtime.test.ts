@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import {parseEnv} from 'node:util';
+import {readPricePolicy} from '../packages/core/src/services/prices/policy';
 import { EventEmitter } from 'node:events';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -112,5 +113,23 @@ test('native npm forwarding, signals and process-tree shutdown',async()=>{
   const windows=Object.assign(new EventEmitter(),{...host,env:{npm_execpath:'npm-cli'},versions:{node:'24'},execPath:process.execPath,platform:'win32'});const win=createRuntime(f.root,windows as unknown as NodeJS.Process);const winChild=Object.assign(new EventEmitter(),{pid:456});vi.mocked(spawn).mockReturnValueOnce(winChild as unknown as ChildProcess);vi.spyOn(win,'run').mockImplementation(async()=>{winChild.emit('exit',0);return{code:0,stdout:''};});await (await win.startDev(3000,{})).stop();expect(win.run).toHaveBeenCalledWith('taskkill',['/pid','456','/T','/F'],{},false);
   const winStubborn=Object.assign(new EventEmitter(),{pid:654});vi.mocked(spawn).mockReturnValueOnce(winStubborn as unknown as ChildProcess);vi.mocked(win.run).mockResolvedValue({code:1,stdout:''});vi.spyOn(win,'sleep').mockResolvedValue(undefined);const winKill=vi.fn(()=>{winStubborn.emit('exit',0);});Object.assign(windows,{kill:winKill});await (await win.startDev(3000,{})).stop();expect(winKill).toHaveBeenCalledWith(654,'SIGKILL');
   vi.spyOn(io,'sleep').mockResolvedValue(undefined);const stubborn=Object.assign(new EventEmitter(),{pid:789});vi.mocked(spawn).mockReturnValueOnce(stubborn as unknown as ChildProcess);host.kill.mockImplementation((_pid:number,signal:string)=>{if(signal==='SIGKILL')stubborn.emit('exit',0);});const forced=await io.startDev(3000,{});const stopping=forced.stop();await stopping;expect(host.kill).toHaveBeenCalledWith(-789,'SIGKILL');
+ }finally{await f.dispose();}
+});
+
+test('publication rejects quote-delimited policy corruption before creating an environment file', async () => {
+ const f=await fixture();try {
+  const valid='{"25":{"minCents":9000,"maxCents":60000},"50":{"minCents":18000,"maxCents":120000}}';
+  for (const malformed of [valid+"'", valid+"'\nPLATFORM_CURRENCY=USD\n'"]) {
+   const values={PLATFORM_CURRENCY:'PLN',PLATFORM_PRICE_BOUNDS:malformed};
+   expect(()=>readPricePolicy(values)).toThrow(expect.objectContaining({status:503}));
+   await expect(f.io.publishEnvironment(values)).rejects.toThrow(/losslessly/);
+   expect(await f.io.read('.env')).toBeNull();
+   expect((await fs.readdir(path.join(f.root,'.devmentor'))).filter(name=>name.endsWith('.tmp'))).toEqual([]);
+  }
+  await f.io.publishEnvironment({PLATFORM_CURRENCY:'PLN',PLATFORM_PRICE_BOUNDS:valid});
+  const original=await f.io.read('.env');
+  expect(readPricePolicy(parseEnv(original!)).currency).toBe('PLN');
+  await expect(f.io.publishEnvironment({PLATFORM_PRICE_BOUNDS:valid+"'"})).rejects.toThrow(/losslessly/);
+  expect(await f.io.read('.env')).toBe(original);
  }finally{await f.dispose();}
 });

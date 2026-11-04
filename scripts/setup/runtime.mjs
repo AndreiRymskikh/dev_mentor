@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { parseEnv } from 'node:util';
 import { execFile, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { createServer as httpServer } from 'node:http';
@@ -60,8 +61,12 @@ export function createRuntime(root, host = process) {
       return volumes.stdout.split('\n').includes(name);
     },
     async publishEnvironment(values) {
+      const content = Object.entries(values).map(([key, value]) => `${key}=${key === "PLATFORM_PRICE_BOUNDS" ? `'${value}'` : JSON.stringify(value)}`).join('\n') + '\n';
+      const restored = parseEnv(content);
+      // A quote delimiter must never silently turn malformed policy into valid policy.
+      if (Object.entries(values).some(([key, value]) => restored[key] !== value)) throw new SetupError('Environment: values cannot be represented losslessly in .env. Configure .env manually; no file was published.');
       const temp = path.join(state, `env-${randomUUID()}.tmp`);
-      await fs.writeFile(temp, Object.entries(values).map(([key, value]) => `${key}=${key === "PLATFORM_PRICE_BOUNDS" ? `'${value}'` : JSON.stringify(value)}`).join('\n') + '\n', { flag: 'wx', mode: 0o600 });
+      await fs.writeFile(temp, content, { flag: 'wx', mode: 0o600 });
       try { await fs.link(temp, path.join(root, '.env')); }
       catch { throw new SetupError('Environment: could not publish .env without overwrite. Preserve existing files or configure .env manually.'); }
       finally { await fs.unlink(temp); }
