@@ -6,7 +6,7 @@ import { protectedRequest } from "../../../auth/protected-request";
 import { ResourcePanel } from "@devmentor/ui/backend/panels";
 import { CrudForm } from "@devmentor/ui/backend/forms";
 import { DataTable } from "@devmentor/ui/backend/tables";
-import { ErrorMessage } from "@devmentor/ui/backend/feedback";
+import { EmptyState, ErrorMessage } from "@devmentor/ui/backend/feedback";
 import { Button } from "@devmentor/ui/components/ui/button";
 import { LocalTime } from "@devmentor/ui/time";
 export function SlotEditor({ request: transport = protectedRequest, onChanged }: { request?: typeof protectedRequest; onChanged?: () => void }) {
@@ -45,7 +45,7 @@ export function SlotForm({data, reload, resource, showPast = false, onShowPast, 
     <ResourcePanel resource={resource ?? {data, loading:false, error:null, reload}}>{data => <>
     <p>Latest permitted start: <LocalTime value={data.policy.latestPublishAt}/></p>
     <p role="status">Availability checklist: {data.availabilityComplete ? "complete" : "incomplete"}. Rechecked against server time; it expires when no eligible start remains. Booking is not available yet.</p>
-    <div className="dm-slots-table" role="region" aria-label="Published starts" tabIndex={0} aria-busy={pending}><DataTable rows={data.slots} rowKey={slot => slot.id} columns={[{key: "startsAt", label: "Start (UTC)", render: slot => <time dateTime={slot.startsAt}>{slot.startsAt.replace("T", " ").replace(":00.000Z", " UTC")}</time>}, {key: "eligibility", label: "Public eligibility", render: slot => slot.eligible ? "Eligible" : "Less than two hours ahead or past"}]} actions={slot => <Button variant="text" disabled={pending} onClick={() => void remove(slot.id)}>Remove</Button>}/></div>
+    <div className="dm-slots-table" role="region" aria-label="Published starts" tabIndex={0} aria-busy={pending}>{data.slots.length === 0 ? <EmptyState message="No times published. Add a future start above."/> : <DataTable rows={data.slots} rowKey={slot => slot.id} columns={[{key: "startsAt", label: "Start (UTC)", render: slot => <time dateTime={slot.startsAt}>{slot.startsAt.replace("T", " ").replace(":00.000Z", " UTC")}</time>}, {key: "eligibility", label: "Public eligibility", render: slot => slot.eligible ? "Eligible" : "Less than two hours ahead or past"}]} actions={slot => <Button variant="text" disabled={pending} onClick={() => void remove(slot.id)}>Remove</Button>}/>}</div>
     <div aria-label="Availability pages"><Button variant="text" disabled={!cursor} onClick={() => onPage?.(null)}>First page</Button><Button variant="text" disabled={!data.nextCursor} onClick={() => onPage?.(data.nextCursor)}>Next page</Button></div>
     {data.lastPublishedAvailabilityAt && <p>Last publication: <LocalTime value={data.lastPublishedAvailabilityAt}/></p>}
     </>}</ResourcePanel></section>

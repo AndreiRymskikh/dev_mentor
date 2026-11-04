@@ -11,8 +11,9 @@ export async function testMentorHome(context: IntegrationContext, client: Client
  const request=(pathname:string)=>fetch(internalBaseUrl+pathname,{method:"POST",headers:{cookie:ownerCookie,origin:baseUrl,"X-DevMentor-CSRF":"1"},signal:AbortSignal.timeout(config.authRequestTimeoutMs)});
  await client.query("delete from slots where mentor_profile_id=$1",[userId]);
  await client.query("update mentor_profiles set published_at=null,price_25_cents=null,price_50_cents=null where user_id=$1",[userId]);
- await browser("open",`${baseUrl}/mentor`);await wait("0 of 3 steps complete");await wait("No results");await wait("Publish your profile before sharing");
+ await browser("set","media","light");await browser("set","viewport","1440","1000");await browser("open",`${baseUrl}/mentor`);await wait("0 of 3 steps complete");await wait("No times published");await wait("Publish your profile before sharing");
  await browser("wait","--fn","document.querySelectorAll('.dm-mentor-home form').length === 2 && !document.querySelector('.dm-home-share a[href^=\"/m/\"]')");
+ await browser("wait","--fn","getComputedStyle(document.querySelector('.dm-workspace')).display === 'flex' && getComputedStyle(document.querySelector('.dm-workspace-sidebar')).display === 'flex' && parseFloat(getComputedStyle(document.querySelector('.dm-home-setup')).paddingLeft) > 0");
  await browser("screenshot",path.join(artifacts,"mentor-home-initial.png"),"--full");
  assert.equal((await request("/api/mentors/me/publish")).status,200);
  await browser("reload");await wait("1 of 3 steps complete");await wait("View public profile");
@@ -30,7 +31,7 @@ export async function testMentorHome(context: IntegrationContext, client: Client
  await browser("eval","(()=>{const real=window.fetch.bind(window);window.fetch=(url,options)=>url==='/api/mentors/me/prices'&&!options?.method?Promise.resolve(Response.json({ok:false,error:{code:'OFFLINE',message:'Home readiness outage'}},{status:503})):real(url,options);document.querySelector('[name=price25]').dataset.identity='retained';document.dispatchEvent(new Event('visibilitychange'));})()");
  await wait("Home readiness outage");await browser("wait","--fn","!document.querySelector('.dm-home-setup progress') && !document.querySelector('.dm-home-share a[href^=\"/m/\"]') && document.querySelector('[name=price25]').value === '199.99'");
  await browser("reload");await wait("3 of 3 steps complete");
- for(const theme of ["light","dark"]){await browser("set","media",theme);for(const width of [1440,390,320]){await browser("set","viewport",String(width),"1000");await browser("wait","--fn","document.documentElement.scrollWidth <= innerWidth");await browser("screenshot",path.join(artifacts,`mentor-home-ready-${theme}-${width}.png`),"--full");}}
+ for(const theme of ["light","dark"]){await browser("set","media",theme);for(const width of [1440,390,320]){await browser("set","viewport",String(width),"1000");await browser("wait","--fn",`document.documentElement.scrollWidth <= innerWidth && getComputedStyle(document.querySelector('.dm-workspace-sidebar')).display === '${width<=768?"none":"flex"}'`);await browser("screenshot",path.join(artifacts,`mentor-home-ready-${theme}-${width}.png`),"--full");}}
  await browser("eval","document.querySelector('.dm-slot-list [role=region]').scrollLeft=10000");await click("Remove");await wait("Start removed");await wait("2 of 3 steps complete");
  await client.query("delete from user_roles where user_id=$1 and role='mentor'",[userId]);await browser("eval","document.dispatchEvent(new Event('visibilitychange'))");await wait("Mentor access is required");await browser("wait","--fn","!document.querySelector('.dm-mentor-home form') && !document.querySelector('.dm-mentor-home table') && !document.querySelector('.dm-home-share a')");
  // Restore this scenario's fixture for the existing standalone consumer checks.

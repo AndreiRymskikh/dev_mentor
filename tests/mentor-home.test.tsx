@@ -46,7 +46,7 @@ test("0/1/2/3 server states drive progress and share visibility, without implyin
   expect(view.host.querySelector('a[href="/m/real-mentor"]') !== null).toBe(count>0);
   expect(view.host.textContent!.includes("Your profile is ready to share")).toBe(count===3);
   expect(view.host.textContent).toContain("Booking and cancellation are not available yet"); expect(view.host.querySelector('a[href*=payout]')).toBeNull(); expect(view.host.querySelectorAll("form")).toHaveLength(2);
-  expect(view.host.textContent).toContain("No results"); await view.close();
+  expect(view.host.textContent).toContain("No times published"); await view.close();
  }
 });
 test("readiness and profile failures/loading hide stale share/readiness; retries and visibility refresh keep drafts", async () => {

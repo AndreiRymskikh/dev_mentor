@@ -1,4 +1,5 @@
 import "../mentor.css";
+import "@devmentor/ui/frames.css";
 import "./slots/slots.css";
 import "./mentor-home.css";
 import { headers } from "next/headers";
