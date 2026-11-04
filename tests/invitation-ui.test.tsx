@@ -31,7 +31,7 @@ test("mentor home protects current membership and renders durable deadline or se
   vi.spyOn(MentorProfileService.prototype,"getMine").mockResolvedValue({displayName:"Name",bio:null,publicWorkUrl:null,stackTags:[],slug:null,publishedAt:null,readiness:[]});
   const resolve=vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue(null),onboarding=vi.spyOn(InvitationService.prototype,"onboarding").mockResolvedValue({initialPublishDueAt:date});
   await expect(MentorPage()).rejects.toThrow("redirect:/login");resolve.mockResolvedValue({id,displayName:"Name",roles:["developer"]});expect(renderToStaticMarkup(await MentorPage())).toContain("Mentor access is required");expect(onboarding).not.toHaveBeenCalled();
-  resolve.mockResolvedValue({id,displayName:"Name",roles:["developer","mentor"]});expect(renderToStaticMarkup(await MentorPage())).toContain("Publish at least one bookable session");onboarding.mockResolvedValue({initialPublishDueAt:null});expect(renderToStaticMarkup(await MentorPage())).toContain("Prepare your mentor profile");
+  resolve.mockResolvedValue({id,displayName:"Name",roles:["developer","mentor"]});expect(renderToStaticMarkup(await MentorPage())).toContain("Initial publication deadline");onboarding.mockResolvedValue({initialPublishDueAt:null});expect(renderToStaticMarkup(await MentorPage())).toContain("Your mentor workspace");
 });
 test("accept action prevents duplicate clicks, reports failures and navigates after success",async()=>{
   const {dom,host}=setup(),root=createRoot(host);const fetcher=vi.fn();vi.stubGlobal("fetch",fetcher);
