@@ -3,7 +3,7 @@ import { parseEnv } from 'node:util';
 
 export class SetupError extends Error {}
 
-const keys = ['POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_PORT', 'DATABASE_URL'];
+const keys = ['POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_PORT', 'DATABASE_URL', 'PLATFORM_CURRENCY', 'PLATFORM_PRICE_BOUNDS'];
 export const defaults = { port: 3000, startupMs: 120_000, pollMs: 250 };
 export const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
@@ -14,7 +14,7 @@ export function portNumber(value) {
 export function configuration(text, overrides) {
   const values = parseEnv(text);
   for (const key of keys) if (overrides[key] !== undefined) values[key] = overrides[key];
-  return Object.fromEntries(keys.map((key) => [key, values[key]]));
+  return Object.fromEntries(keys.filter((key) => values[key] !== undefined).map((key) => [key, values[key]]));
 }
 export function validateEnvironment(values) {
   if (!values.POSTGRES_DB || !values.POSTGRES_USER || !values.POSTGRES_PASSWORD || !values.DATABASE_URL) throw new SetupError('Environment: complete POSTGRES_DB/USER/PASSWORD/PORT and DATABASE_URL in .env; existing values were not changed.');

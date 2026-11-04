@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useApiResource, type apiCall } from "@devmentor/ui/backend/api";
 import type { PublicAvailability } from "@devmentor/core/validators/availability";
 /** Refresh authoritative data at its next time boundary and after returning to the page. */
-export function useAvailability<T extends PublicAvailability>(url: string, request: typeof apiCall<T>) {
+export function useAvailability<T extends Pick<PublicAvailability, "serverNow" | "refreshAt">>(url: string, request: typeof apiCall<T>) {
   const requestedAt = useRef(0);
   const timedRequest = useCallback<typeof request>((...args) => {
     requestedAt.current = Date.now();

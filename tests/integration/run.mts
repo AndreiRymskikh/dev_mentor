@@ -1,3 +1,4 @@
+import { testPricesFlow } from "./scenarios/prices";
 import { testAvailabilityFlow } from "./scenarios/availability";
 import { testMentorProfileFlow } from "./scenarios/mentor-profile";
 import { testInvitationFlow } from "./scenarios/invitations";
@@ -26,7 +27,8 @@ import { testInstaller } from "./setup.mts";
 import { registrationFixture } from "./registration-http";
 
 const argumentsList = process.argv.slice(2);
-if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=availability", "--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=availability, --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
+if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=prices", "--scenario=availability", "--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=prices, --scenario=availability, --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
+const pricesOnly = argumentsList[0] === "--scenario=prices";
 const availabilityOnly = argumentsList[0] === "--scenario=availability";
 const adminOnly = argumentsList[0] === "--scenario=admin";
 const qaOnly = argumentsList[0] === "--scenario=qa";
@@ -94,6 +96,8 @@ async function main() {
     const result = await client.query<{ value: string }>("SELECT value FROM integration_probe");
     assert.equal(result.rows[0].value, "ephemeral");
   } finally { await client.end(); }
+  process.env.PLATFORM_CURRENCY = "PLN";
+  process.env.PLATFORM_PRICE_BOUNDS = JSON.stringify({25: {minCents: 9000, maxCents: 60000}, 50: {minCents: 18000, maxCents: 120000}});
   process.env.DATABASE_URL = database.getConnectionUri();
   await testDatabase(database.getConnectionUri());
   mail = await registrationFixture();
@@ -120,22 +124,23 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
+  if (pricesOnly || !argumentsList.length) await testPricesFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
   if (availabilityOnly || !argumentsList.length) await testAvailabilityFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
-  if (!availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
+  if (!pricesOnly && !availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
   await mail.test(baseUrl, database.getConnectionUri());
   await testAuthForms({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, mail.environment.RATE_LIMIT_SECRET);
   await testAuthActions({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages, baseUrl);
   await testHome(context);
   }
-  if (!availabilityOnly && !adminOnly && !qaOnly) await testInvitationFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl, mail.messages);
-  if (!availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly) await testMentorProfileFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
-  if (!availabilityOnly && !qaOnly && !invitationsOnly && !profilesOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
-  if (!availabilityOnly && !adminOnly && !invitationsOnly && !profilesOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
-  if (!availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
+  if (!pricesOnly && !availabilityOnly && !adminOnly && !qaOnly) await testInvitationFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl, mail.messages);
+  if (!pricesOnly && !availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly) await testMentorProfileFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
+  if (!pricesOnly && !availabilityOnly && !qaOnly && !invitationsOnly && !profilesOnly) await testAdmin({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
+  if (!pricesOnly && !availabilityOnly && !adminOnly && !invitationsOnly && !profilesOnly) await testIndependentAuthQa({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.messages);
+  if (!pricesOnly && !availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
     await testAuthOutage({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), baseUrl);
     await testInstaller();
   }
-  console.log(availabilityOnly ? "Targeted availability integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : profilesOnly ? "Targeted E02 profile/invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : invitationsOnly ? "Targeted invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : qaOnly ? "Independent QA integration passed with owned PostgreSQL/SMTP/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
+  console.log(pricesOnly ? "Targeted prices integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : availabilityOnly ? "Targeted availability integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : profilesOnly ? "Targeted E02 profile/invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : invitationsOnly ? "Targeted invitation integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : adminOnly ? "Targeted admin integration passed with owned PostgreSQL/HTTPS/browser and cleanup." : qaOnly ? "Independent QA integration passed with owned PostgreSQL/SMTP/HTTPS/browser and cleanup." : "Integration passed: ephemeral PostgreSQL, home page and protected administration.");
 }
 try { await main(); }
 catch (error: unknown) {

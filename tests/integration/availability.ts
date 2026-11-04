@@ -61,11 +61,11 @@ export async function testAvailability(runtime:ReturnType<typeof createDatabaseR
   assert.equal((await service.getMine(ids[1],{after:first.nextCursor})).slots.length,0);
   await assert.rejects(service.getMine(ids[0],{after:"invalid"}),{status:422});
   const boundedRecord=await repository.publicBySlug(slug,{limit:50,view:"future"},()=>clock,7200000);assert.equal(boundedRecord!.slots.length,50);
-  const orm=await runtime.getOrm();await assert.rejects(orm.migrator.down(),/Refusing destructive availability rollback/);assert.equal(await orm.schema.getUpdateSchemaSQL({wrap:false}),"");
+  const orm=await runtime.getOrm();await assert.rejects(orm.migrator.down({to:"Migration202611010001"}),/Refusing destructive availability rollback/);assert.equal(await orm.schema.getUpdateSchemaSQL({wrap:false}),"");
   await profiles.unpublish(ids[0]);await assert.rejects(service.getPublicBySlug(slug,{after:first.nextCursor}),{status:404});await profiles.publish(ids[0]);
   await runtime.transaction(async em=>{const user=await em.findOneOrFail(User,{id:ids[0]});user.emailVerifiedAt=null;});await assert.rejects(service.getPublicBySlug(slug),{status:404});
   await runtime.transaction(async em=>{const user=await em.findOneOrFail(User,{id:ids[0]});user.emailVerifiedAt=now;await em.nativeDelete(UserRole,{userId:ids[0],role:"mentor"});});await assert.rejects(service.getMine(ids[0]),{status:403});await assert.rejects(service.getPublicBySlug(slug),{status:404});await assert.rejects(service.remove(ids[0],slotId),{status:403});
-  await runtime.transaction(async em=>{await em.nativeDelete(Slot,{mentorProfileId:ids[0]});});await assert.rejects(orm.migrator.down(),/availability history exists/);
+  await runtime.transaction(async em=>{await em.nativeDelete(Slot,{mentorProfileId:ids[0]});});await assert.rejects(orm.migrator.down({to:"Migration202611010001"}),/availability history exists/);
   console.log("Availability DB passed: concurrent duplicate conflict, owner isolation, exact 2h/6-month boundaries, guarded rollback, expiration, removal/republish, atomic response rollback/acknowledgement, bounded historical/future pages, off-page progress/timing, private/revoked mentors and schema parity.");
  } finally {await runtime.transaction(async em=>{await em.nativeDelete(Slot,{mentorProfileId:{$in:ids}});await em.nativeDelete(MentorProfile,{userId:{$in:ids}});await em.nativeDelete(UserRole,{userId:{$in:ids}});await em.nativeDelete(User,{id:{$in:ids}});});}
 }

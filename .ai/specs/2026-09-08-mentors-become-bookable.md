@@ -357,8 +357,7 @@ no product value in E02 (#16's open question, answered: keep).
 
 **The two prices move together.** An `updatePrices` call always carries both values and validates them
 against the single configured platform currency's bounds in one transaction. Currency is not stored
-per mentor in 1.0. The initial currency remains a founder-owned product choice; the implementation is
-blocked until founder A confirms the proposed `USD` default or records another two-decimal currency.
+per mentor in 1.0. Owner confirmed PLN and inclusive 25-minute PLN 90–600 / 50-minute PLN 180–1,200 bounds on 2026-11-03.
 
 ### `slots` — Slice 3 (new)
 
@@ -579,10 +578,7 @@ a div listening for clicks.
    bounded in the single platform currency. The client never supplies the amount charged by E03.
    `risk-high` on Slice 4, second reviewer.
 
-**Currency remains a product confirmation, not hidden framework scope.** The smallest 1.0 design is
-one platform currency with a proposed `USD` default; there is no per-mentor currency column or picker.
-Founder A must confirm the currency and initial bounds before Slice 4 starts. Changing platform
-currency after stored prices or bookings exist is a migration, not a config-only change.
+**Currency is an approved product policy.** Owner confirmed PLN with two decimal minor units and the bounds below on 2026-11-03; there is no per-mentor currency column or picker. Changing platform currency after stored prices or bookings exist requires a migration and product approval.
 
 **The framework risk.** Seventeen catalogued entries is an invitation to build seventeen abstractions.
 The ship gate is the control and it was exercised: three candidates were rejected in review for
@@ -819,9 +815,7 @@ across the whole epic:
   simultaneously implementable as written. **This blocks production launch of Checkout and collection
   of money**, not the four E02 preparation slices. The founders must either bring Connect + settlement
   into the iteration or approve a superseding payment decision.
-- **Initial platform currency and price bounds** (owner: founder A). Proposed smallest scope: USD and
-  one approved bounds object. Both values are **blocking before Slice 4 implementation**; placeholder
-  money policy must not become a production default.
+- **Initial platform currency and price bounds:** resolved by owner confirmation on 2026-11-03; see accepted money policy below.
 - **Whether the mentor's publish-by report is needed before #30** (owner: both founders). D18's check
   is "5 of the first 20 within two weeks", and until #30 the operator counts by hand from
   `publish_due_at` (R18). Non-blocking; the column makes the query one line.
@@ -838,6 +832,10 @@ across the whole epic:
 
 ## Accepted availability policy — 2026-11-02 (#30 / #31)
 
-Owner confirmed in the #31 implementation chat: mentors may publish any strictly future instant up to six UTC calendar months ahead (inclusive upper bound; preserve UTC time and clamp month-end days). Publication does not require a two-hour lead. Public future, unremoved slots qualify at exactly two hours ahead and become disabled immediately afterward. Past slots are excluded publicly. Qualification and owner availability progress are computed from server time on every read; at least one eligible, unremoved slot is required. No persisted checklist flag and no booking/payment launch claim. This supersedes stricter screenshot publication hints and any unbounded future-publication wording above. Money-policy reconciliation remains separate for #32.
+Owner confirmed in the #31 implementation chat: mentors may publish any strictly future instant up to six UTC calendar months ahead (inclusive upper bound; preserve UTC time and clamp month-end days). Publication does not require a two-hour lead. Public future, unremoved slots qualify at exactly two hours ahead and become disabled immediately afterward. Past slots are excluded publicly. Qualification and owner availability progress are computed from server time on every read; at least one eligible, unremoved slot is required. No persisted checklist flag and no booking/payment launch claim. This supersedes stricter screenshot publication hints and any unbounded future-publication wording above. Money-policy reconciliation was confirmed on 2026-11-03 for #32; see below.
 
 See [availability implementation log](../runs/2026-11-02-issue-31-availability.md).
+
+## Accepted money and offer policy — 2026-11-03 (#32)
+
+Owner explicitly confirmed in the issue-32 implementation chat: PLN with two decimal minor units; inclusive 25-minute PLN 90–600 and 50-minute PLN 180–1,200 bounds. This supersedes all stale USD proposals and unresolved initial money-policy questions in this document. Offer preparation requires a published profile, both saved prices valid under the current policy, and at least one currently unremoved start at least two hours ahead, inclusive. Recompute from server time on every read; expiration or bounds changes invalidate readiness. Preparation never implies booking/payment capability. Missing or malformed resolved configuration fails closed. See [implementation run](../runs/2026-11-03-issue-32-prices.md).
