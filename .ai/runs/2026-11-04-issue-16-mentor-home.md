@@ -16,11 +16,13 @@ Verification: meaningful unit tests and full per-file coverage; lint, typecheck,
 
 ## Progress
 
+PR: #35
+
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
 
 ### Phase 1: Compose the workspace
-- [ ] 1.1 Verify E02 entry contracts and compose workspace sections with reused forms and authoritative refresh.
-- [ ] 1.2 Add meaningful unit coverage for progress, sharing, draft retention, mutations and denied/error states.
+- [x] 1.1 Verify E02 entry contracts and compose workspace sections with reused forms and authoritative refresh.
+- [x] 1.2 Add meaningful unit coverage for progress, sharing, draft retention, mutations and denied/error states.
 
 ### Phase 2: Verify and deliver
 - [ ] 2.1 Add deterministic stories and production browser flows for initial/partial/ready and lower-page interactions.
@@ -30,3 +32,7 @@ Verification: meaningful unit tests and full per-file coverage; lint, typecheck,
 ## Activity
 - Read issue/comments, reference screenshots, specs, lessons, engineering standards, installed Next headers/forms docs and current consumers.
 - Created isolated worktree /private/tmp/devmentor-issue16 from current origin/develop; npm ci --ignore-scripts passed.
+
+- Phase 1 committed as cd594c9: shared shell/current-role authorization/deadline, reused price and slot consumers, authoritative progress, public-share panel and unavailable payouts. Slot list now explicitly renders UTC; standalone URLs preserved. Any denied request clears all home controls; aborted obsolete denial is ignored. Embedded prices omit their independent readiness summary to avoid stale duplication.
+- Passed lint, application/test typecheck, Storybook typecheck, and all 222 tests with per-file 100% lines/statements/functions/branches (177 executable production/harness files). First sandbox run failed disposable localhost probes; elevated full coverage passed. No thresholds weakened.
+- Added deterministic home stories and extended disposable price browser fixtures to cover home 0/1/2/3 progress, atomic failure/retry/duplicate saves, exact UTC persistence, removal, stale-read errors, revocation and light/dark 1440/390/320 screenshots. Browser execution pending.
