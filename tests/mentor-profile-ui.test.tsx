@@ -82,8 +82,9 @@ test("new partial forms default textarea text and multiselect values to empty wh
  try{expect(view.host.querySelector<HTMLTextAreaElement>("textarea")!.value).toBe("");expect(view.host.querySelectorAll('[role="checkbox"][data-state="checked"]').length).toBe(0);await view.click("Save");expect(save).toHaveBeenCalledWith({bio:"",stackTags:[]});}finally{await view.close();}
 });
 
-test("mentor home links each readiness item to the editor and distinguishes unpublished from published pages",async()=>{
- vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue({id,displayName:"Mentor",roles:["developer","mentor"]});vi.spyOn(InvitationService.prototype,"onboarding").mockResolvedValue({initialPublishDueAt:null});const get=vi.spyOn(MentorProfileService.prototype,"getMine").mockResolvedValue(draft);const pending=renderToStaticMarkup(await MentorHome());expect(pending).toContain("Missing");expect(pending).toContain('href="/mentor/profile"');get.mockResolvedValue(published);expect(renderToStaticMarkup(await MentorHome())).toContain("Complete");
+test("mentor home keeps publication controls reachable while authoritative readiness loads",async()=>{
+ vi.spyOn(SessionService.prototype,"resolve").mockResolvedValue({id,displayName:"Mentor",roles:["developer","mentor"]});vi.spyOn(InvitationService.prototype,"onboarding").mockResolvedValue({initialPublishDueAt:null});const html=renderToStaticMarkup(await MentorHome());expect(html).toContain("Checking mentor setup");expect(html).toContain('href="/mentor/profile"');expect(html).not.toContain("3 of 3");
+ expect(renderToStaticMarkup(<ReadinessChecklist items={[{field:"bio",label:"Experience",met:false,href:"/mentor/profile"},{field:"publishedAt",label:"Published mentor page",met:true,href:"/mentor/profile"}]}/>)).toContain('href="/mentor/profile"');
 });
 
 test("resource hook consumes real fetch abort rejections on URL changes and unmount",async()=>{

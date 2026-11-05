@@ -171,3 +171,7 @@ See [availability implementation log](../runs/2026-11-02-issue-31-availability.m
 ## Accepted money and offer policy — 2026-11-03 (#32)
 
 Owner explicitly confirmed in the issue-32 implementation chat: PLN with two decimal minor units; inclusive 25-minute PLN 90–600 and 50-minute PLN 180–1,200 bounds. This supersedes all stale USD proposals and unresolved initial money-policy questions in this document. Offer preparation requires a published profile, both saved prices valid under the current policy, and at least one currently unremoved start at least two hours ahead, inclusive. Recompute from server time on every read; expiration or bounds changes invalidate readiness. Preparation never implies booking/payment capability. Missing or malformed resolved configuration fails closed. See [implementation run](../runs/2026-11-03-issue-32-prices.md).
+
+## Initial mentor workspace delivery — 2026-11-04
+
+[PR #35](https://github.com/AndreiRymskikh/dev_mentor/pull/35) implements screenshot02 through existing #16, sharing the same initial/partial/ready home as E01 S04 and consuming the shipped E02 APIs. It includes actual deadline/progress, both forms, empty/paginated availability and honest unpublished/share/payout states. This does not implement or approve reviews, Stripe, booking or cancellation. Verification and outstanding audit/independent review/QA gates are recorded in [the run](../runs/2026-11-04-issue-16-mentor-home.md); this multi-slice spec remains active.
