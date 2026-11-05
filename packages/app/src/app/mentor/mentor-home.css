@@ -19,7 +19,7 @@
 .dm-home-share { text-align: center; justify-items: center; }
 .dm-mentor-home .dm-crud-fields { min-width: 0; }
 @media (max-width: 1000px) { .dm-home-editors { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 480px) { .dm-home-setup li { flex-wrap: wrap; } .dm-home-setup li > .dm-link { margin-left: auto; } }
+@media (max-width: 480px) { .dm-home-setup li { display: grid; grid-template-columns: auto minmax(0, 1fr); } .dm-home-setup li > .dm-link { grid-column: 2; justify-self: start; } }
 
 .dm-home-setup progress::-webkit-progress-bar { background: var(--surface-support); border-radius: var(--radius-control); }
 .dm-home-setup progress::-webkit-progress-value { background: var(--action-primary); border-radius: var(--radius-control); }
