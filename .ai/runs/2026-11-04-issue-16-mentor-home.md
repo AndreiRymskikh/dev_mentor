@@ -25,7 +25,7 @@ PR: #35
 - [x] 1.2 Add meaningful unit coverage for progress, sharing, draft retention, mutations and denied/error states.
 
 ### Phase 2: Verify and deliver
-- [ ] 2.1 Add deterministic stories and production browser flows for initial/partial/ready and lower-page interactions.
+- [x] 2.1 Add deterministic stories and production browser flows for initial/partial/ready and lower-page interactions.
 - [ ] 2.2 Run full gate, inspect screenshots/diff and address review findings.
 - [ ] 2.3 Publish verification and ready PR or document concrete unresolved gates.
 
@@ -40,3 +40,5 @@ PR: #35
 - Browser evidence on the first production build proved the E02 interaction flow but revealed missing shared frame CSS on `/mentor`: Workspace was previously only consumed inside auth/admin layouts importing frames.css. Added an explicit import and computed sidebar/mobile-collapse/panel-padding assertions. The corrected production build and new screenshots must be verified before claiming visual completion. Recorded the prevention rule in lessons.md.
 - Storybook: all 20 home stories/checks passed across light/dark; initial sandbox socket failure resolved by the required elevated retry. Production build passed with lazy database configuration. Full audit: 25 moderate dev-tool findings, no high/critical; production-only audit zero. Suggested automated fixes are breaking downgrades (ESLint 4, Next ESLint 12, Storybook 8, Testcontainers 10), outside this UI slice; audit remains a blocker, not waived.
 - Final empty-state/frame import adjustment: lint/typecheck and coverage rerun; all 222 unit tests remain at 100% on all four metrics. Disposable full integration is running against the first immutable production build; home/prices/availability flows and database checks passed so far. Final corrected-build evidence remains pending.
+
+- First full local run and CI run41861969573 stopped at the legacy profile navigation selector `Edit your mentor profile`, after home/prices/availability, DB, auth HTTP/forms/actions and invitation checks passed. Updated the test to click the actual heading-scoped Edit profile link, preserving the home→editor navigation assertion. The corrected production build passes; full final integration is running. Last production change is token-colored progress styling; no TypeScript changed after full 100% coverage.
