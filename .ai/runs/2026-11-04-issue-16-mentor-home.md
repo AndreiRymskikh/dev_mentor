@@ -27,7 +27,7 @@ PR: #35
 ### Phase 2: Verify and deliver
 - [x] 2.1 Add deterministic stories and production browser flows for initial/partial/ready and lower-page interactions.
 - [ ] 2.2 Run full gate, inspect screenshots/diff and address review findings.
-- [ ] 2.3 Publish verification and ready PR or document concrete unresolved gates.
+- [x] 2.3 Publish verification and ready PR or document concrete unresolved gates.
 
 ## Activity
 - Read issue/comments, reference screenshots, specs, lessons, engineering standards, installed Next headers/forms docs and current consumers.
@@ -44,3 +44,17 @@ PR: #35
 - First full local run and CI run41861969573 stopped at the legacy profile navigation selector `Edit your mentor profile`, after home/prices/availability, DB, auth HTTP/forms/actions and invitation checks passed. Updated the test to click the actual heading-scoped Edit profile link, preserving the home→editor navigation assertion. The corrected production build passes; full final integration is running. Last production change is token-colored progress styling; no TypeScript changed after full 100% coverage.
 
 - Resumed 2026-11-05 in the original run. Corrected-build home/prices/availability and computed desktop/mobile shell checks pass. Inspected initial/ready desktop, light390 and dark320 screenshots: frame styles are correct; at320 checklist links squeezed the description column. Moved small-screen step links below text and added a >=120px description-width browser assertion. Lint and test-source typecheck pass. The full suite continues on the immutable prior build; after it exits, rebuild and rerun the targeted prices/home scenario for the CSS-only adjustment.
+
+## Final evidence — 2026-11-05
+
+- Implementation head: 5ceecd37d7036de57efaf9f2952fb692a2b4d020; remaining commit changes only metadata. PR35 remains draft, Status: in-progress, because the audit gate fails. No merge or issue closure.
+- PASS: lint; application/workspace/test typecheck; Storybook typecheck; all222 unit tests with 100% per-file lines/statements/functions/branches; all20 light/dark home story checks; final production build; diff whitespace check.
+- PASS: full disposable PostgreSQL/SMTP/production HTTPS/browser integration after the profile selector migration, including owner isolation/CSRF, home0/1/2/3, auth/verification/recovery, invitation deadline, profile/public details, admin/revocation, session expiry, actual database outage/recovery and installer preservation/cleanup. The prior run's old navigation failure was corrected, not skipped.
+- PASS: after that suite exited, rebuilt for the CSS-only320px fix and ran `npm run test:integration -- --scenario=prices`; database checks, complete home scenarios, standalone prices, readable >=120px step-description column, computed shell/sidebar/card layout and light/dark1440/390/320 screenshots all passed; owned resources cleaned up. Inspected initial/partial/ready desktop and light/dark narrow screenshots, including the lower table and share panel. The narrow times table intentionally scrolls inside its labelled region; removal was exercised after scrolling.
+- Final fixture-only screenshots: public branch `qa-evidence-issue16`, directory `issue16/`, eight `mentor-home-*.png` files; linked inline from PR35. Local copies retained outside the temporary worktree at `/private/tmp/issue16-final-evidence`.
+- FAIL: refreshed full npm audit now reports16 moderate tooling findings, zero high/critical; production-only audit passes with zero. The earlier25 findings are historical. No dependency/lockfile changes; automatic suggestions still require breaking Storybook/Testcontainers/Next-ESLint downgrades. Gate is neither waived nor suppressed. Phase2 step2.2 remains unchecked for this reason.
+- Author-side full code/compatibility/security review posted as COMMENT review5781975494 with REQUEST CHANGES verdict for audit; no remaining actionable code finding identified. Independent high-risk reviewer and QA are still required; no self-QA label granted. Full current-head CI integration was still running at review publication; build, lint/typecheck and unit coverage were green. Its final result will be reported separately if received before cleanup.
+
+## Outcome / next action
+
+The complete mentor-home code and automated local behavior/visual verification are delivered on PR35. Resolve the tooling audit gate or record an explicit maintainer decision, then obtain independent high-risk review/QA. Resume from this same plan/PR; never duplicate the implementation. Source specs remain active because broader milestones and required gates are unfinished. Rollback restores the previous UI without database or policy changes. Temporary worktree cleanup follows publication of the evidence; the user's primary checkout is untouched.

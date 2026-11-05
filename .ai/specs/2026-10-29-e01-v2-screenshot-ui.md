@@ -1,6 +1,6 @@
 # E01 v2 — Screenshot-driven account and workspace UI
 
-Date: 2026-10-29. Status: partially implemented in PR #26; S04 and final all-screen sign-off remain dependency-blocked.
+Date: 2026-10-29. Status: S01–S03/S05 delivered in PR #26; S04 implemented and automatically verified in PR #35, with dependency-audit and independent review/QA gates outstanding. Final all-screen sign-off remains separate.
 Source: all ten owner-supplied PNGs in `.ai/docs/designs/e01/`.
 
 ## 📝 TLDR
@@ -157,7 +157,7 @@ Every slice includes its own meaningful tests and leaves the app working. Checkb
 ### S04 — Complete mentor-home UI (depends on S01 and owning E02 services)
 - [x] Step 10: verify S04 entry criteria: the E02 owner has recorded the accepted price policy/publication boundary in #6 and delivered tested owner API/DTO contracts. If absent, keep S04 blocked; consume these contracts without making domain policy decisions or implementing parallel services.
 - [x] Step 11: compose all E01-06 sections, field failures/retries, live readiness and public link; keep absent payouts/booked/cancellation capabilities explicit.
-- [ ] Step 12: prove owner isolation, no optimistic false completion, correct UTC conversion, all lower-page content and desktop/narrow behavior; remain blocked if required backing capabilities are absent.
+- [x] Step 12: prove owner isolation, no optimistic false completion, correct UTC conversion, all lower-page content and desktop/narrow behavior; remain blocked if required backing capabilities are absent.
 
 ### S05 — Expiry/mobile (depends on S01–S03; independently shippable before S04)
 - [x] Step 13: add safe expired-session transition, reason-specific warning and private-content cleanup; preserve 403/503 and safe invitation continuation.
@@ -205,4 +205,4 @@ Owner explicitly confirmed in the issue-32 implementation chat: PLN with two dec
 
 [PR #35](https://github.com/AndreiRymskikh/dev_mentor/pull/35) composes the current workspace shell and real E02 profile/prices/availability contracts, including E02 screenshot02 initial/partial state. Entry criteria are satisfied by merged #31 and #32/PR #34, with the owner-confirmed PLN and publication policies recorded in their specs. Server identity/deadline and current-role authorization remain; the client island is required for the two mutation forms, authoritative eligibility refresh and retained drafts. Four bounded owner reads initialize it (readiness/prices, price editor, profile and paginated availability); no global provider or unrelated route imports these editors.
 
-All home sections are implemented, including live 0/1/2/3-step progress, atomic prices/bounds, UTC publication, paginated times/removal, public sharing and unavailable payouts/booking/cancellation. Unit coverage is 100% on all four metrics. Step12 stays pending until corrected production screenshot verification finishes; full audit and independent high-risk review/QA remain outstanding. The parent final all-screen milestone is separate and is not marked complete. See [run](../runs/2026-11-04-issue-16-mentor-home.md) for exact results.
+All home sections are implemented, including live 0/1/2/3-step progress, atomic prices/bounds, UTC publication, paginated times/removal, public sharing and unavailable payouts/booking/cancellation. Unit coverage is 100% on all four metrics. Step12 automated verification passed, including corrected frame styles and readable320px checklist layout; full audit and independent high-risk review/QA remain outstanding. The parent final all-screen milestone is separate and is not marked complete. See [run](../runs/2026-11-04-issue-16-mentor-home.md) for exact results.
