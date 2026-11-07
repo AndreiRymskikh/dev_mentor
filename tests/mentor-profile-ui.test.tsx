@@ -118,3 +118,9 @@ test("resource hook renders safe retry feedback for a rejected request contract"
    expect(view.host.textContent).toContain("Recovered");
  }finally{await view.close();}
 });
+
+test("profile publication errors stay beneath required fields without a readiness checklist",async()=>{
+ const fetcher=vi.fn().mockResolvedValueOnce(response({ok:true,data:{...draft,publicWorkUrl:null,bio:null,stackTags:[]}})).mockResolvedValueOnce(response({ok:true,data:{}})).mockResolvedValueOnce(response({ok:false,error:{code:"NOT_READY",message:"Complete the highlighted fields before publishing.",fieldErrors:{bio:["Experience description is required."],stackTags:["At least one technology or topic is required."]}}},422));
+ vi.stubGlobal("fetch",fetcher);const view=await mount(<ProfileEditor options={StackTags.options} origin=""/>);
+ try{expect(view.host.querySelector('[aria-label="Profile readiness"]')).toBeNull();await view.click("Save and publish");const bio=view.host.querySelector<HTMLTextAreaElement>('[name="bio"]')!;expect(bio.getAttribute("aria-invalid")).toBe("true");expect(view.dom.window.document.activeElement).toBe(bio);expect(bio.closest(".dm-field")!.querySelector(".dm-field-error")!.textContent).toContain("Experience description is required.");expect(view.host.querySelector('[name="publicWorkUrl"]')!.getAttribute("aria-invalid")).toBe("false");expect(view.host.querySelector('fieldset .dm-field-error')!.textContent).toContain("Experience description");expect(view.host.textContent).not.toContain("Missing:");expect(view.host.textContent).not.toContain("Complete:");expect(view.host.querySelector('[role="checkbox"]')!.getAttribute("aria-invalid")).toBe("true");expect(view.host.textContent).toContain("At least one technology or topic is required.");}finally{await view.close();}
+});

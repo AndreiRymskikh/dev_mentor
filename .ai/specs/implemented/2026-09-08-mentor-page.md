@@ -1,5 +1,9 @@
 # DevMentor — E02-S02: The mentor page and its share link
 
+## Owner correction — 2026-11-07
+
+Public work links are optional for draft saves, publication and published edits. Publication requires an experience description and at least one stack tag. The editor shows red inline validation errors beneath missing fields after submission; remove the Missing/Complete checklist. This supersedes historical complete-trio requirements below.
+
 ## Implementation decisions — 2026-10-26
 
 Owner-approved adaptation for this checkout: retain verified self-service mentor enrollment and add

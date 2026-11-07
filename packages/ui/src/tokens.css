@@ -8,6 +8,7 @@
  * This file defines values only; it does not style or import application UI.
  */
 :root {
+  --text-error: #b42318;
   --surface-success: #e3f7ec;
   --text-success: #0b4627;
   --surface-warning: #fff3eb;
@@ -219,6 +220,7 @@
 }
 
 :root[data-theme="dark"] {
+  --text-error: #ff938a;
   --surface-success: #123323;
   --text-success: #9fe2bc;
   --surface-warning: #392719;
@@ -253,6 +255,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --text-error: #ff938a;
     --surface-success: #123323;
     --text-success: #9fe2bc;
     --surface-warning: #392719;
