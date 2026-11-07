@@ -6,5 +6,7 @@
 .dm-details-field { display: grid; gap: var(--space-related); }
 .dm-details-field input, .dm-details-field textarea, .dm-details-field select { min-width: 0; width: 100%; padding: var(--space-related); border: 1px solid var(--border-subtle); border-radius: var(--radius-control); background: var(--surface-card); color: var(--foreground); }
 .dm-details-field textarea { min-height: 100px; }
-.dm-details-form p { color: var(--text-muted); }
+.dm-details-form p:not(.dm-field-error):not(.dm-save-confirmation) { color: var(--text-muted); }
 .dm-details-row { border-left: 2px solid var(--border-subtle); padding-left: var(--space-group); }
+
+.dm-details-form input.dm-checkbox[aria-invalid="true"] { outline: var(--border-width) solid var(--text-error); outline-offset: var(--space-focus-offset); }

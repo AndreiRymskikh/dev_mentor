@@ -27,3 +27,5 @@
 
 .dm-profile-preview > header { display: grid; gap: var(--space-related); }
 .dm-profile-preview > header p { color: var(--text-muted); font-size: var(--font-size-label); }
+
+.dm-profile-card .dm-save-confirmation { margin-block: var(--space-group); }

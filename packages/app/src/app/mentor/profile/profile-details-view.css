@@ -1,0 +1,18 @@
+.dm-profile-details { min-width: 0; overflow-wrap: anywhere; }
+.dm-profile-details > section { padding-block: var(--space-section); border-bottom: 1px solid var(--border-subtle); }
+.dm-profile-details :is(h2,h4) { margin: 0 0 var(--space-panel); font-size: var(--font-size-section); font-weight: var(--weight-heading); line-height: var(--line-heading); }
+.dm-profile-details :is(h3,h5) { margin: 0 0 var(--space-related); font-size: var(--font-size-body); font-weight: var(--weight-heading); }
+.dm-profile-details p { white-space: pre-wrap; }
+.dm-profile-details .dm-public-meta { display: flex; flex-wrap: wrap; gap: var(--space-panel); padding-block: var(--space-panel); border-bottom: 1px solid var(--border-subtle); }
+.dm-profile-details dt, .dm-profile-details .dm-public-eyebrow { font-size: var(--font-size-label); color: var(--text-muted); }
+.dm-profile-details dd { margin: 0; }
+.dm-profile-details :is(ul,ol) { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-panel); }
+.dm-profile-details li { display: flex; gap: var(--space-group); }
+.dm-profile-details .dm-public-topics li > span { color: var(--action-primary); }
+.dm-profile-details .dm-public-steps li > span { white-space: nowrap; flex-shrink: 0; min-width: 2ch; font-family: var(--font-code); font-size: var(--font-size-label); }
+.dm-profile-details li p, .dm-profile-details .dm-public-sample p { color: var(--text-muted); }
+.dm-profile-details .dm-public-sample { display: grid; gap: var(--space-panel); padding: var(--space-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-panel); }
+.dm-profile-details .dm-public-sample pre { max-width: 100%; overflow-x: auto; padding: var(--space-group); background: var(--background); border-radius: var(--radius-control); font-family: var(--font-code); font-size: var(--font-size-label); }
+.dm-profile-details summary { cursor: pointer; color: var(--text-accent); text-decoration: underline; font-weight: var(--weight-heading); }
+.dm-profile-details .dm-public-answer { padding-top: var(--space-panel); }
+@media(max-width:480px) { .dm-profile-details > section { padding-block: var(--space-panel); } .dm-profile-details .dm-public-sample { padding: var(--space-group); } }

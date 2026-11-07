@@ -66,3 +66,11 @@ Additive migrations require up/down/schema parity and refusal to drop saved publ
 - [ ] Phase R3: verify spam/duplicate/self-review/incomplete/wrong-user/moderation/withdrawal and public privacy paths; mandatory 100% meaningful production coverage, lint/typecheck/build/audit/disposable integration, four CI jobs and independent QA.
 
 C1 implementation and evidence are tracked in [the issue-22 run](../runs/2026-11-01-issue-22-public-content.md). Optional content/authoring and the non-review layout are delivered on PR #29; no review backend is delivered. This specification remains active because C2 offer/booking dependencies, R1–R3 and release gates are unfinished. Final screenshot04 feature completion requires approved live reviews and real offer/booking dependencies; a C2-only release is labelled partial.
+
+## Details validation clarification — 2026-11-07
+
+Sections remain optional. Added help topics and session steps require title and description; an enabled sample requires title, introduction, body and ownership confirmation. Labels must reflect this conditional requirement. Timezone, session language and code excerpt remain optional. Required-field failures use clear red inline messages and red invalid-control borders, with no duplicated error list; preserve section-level validation messages.
+
+## Saved optional details preview — 2026-11-07
+
+The owner profile preview includes saved language/timezone, help topics, sample answer with real disclosure and escaped code, and ordered session steps. Use the same presentation component and styles as the public page; hide absent content. Load optional details independently through the authenticated owner API so drafts can preview them and errors can retry without replacing the core edit form.
