@@ -1,5 +1,9 @@
 # DevMentor — E02-S02: The mentor page and its share link
 
+## Preview presentation — 2026-11-07
+
+Owner preview and public profile share core presentation: prominent name, separate About my mentoring section with preserved paragraph breaks, Technologies and topics heading above wrapping badges, and optional Explore my work link. Preview explicitly describes saved profile details; empty sections are hidden.
+
 ## Owner correction — 2026-11-07
 
 Public work links are optional for draft saves, publication and published edits. Publication requires an experience description and at least one stack tag. The editor shows red inline validation errors beneath missing fields after submission; remove the Missing/Complete checklist. This supersedes historical complete-trio requirements below.

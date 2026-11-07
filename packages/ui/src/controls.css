@@ -49,3 +49,11 @@
 .dm-crud-fields { display: grid; gap: var(--space-group); }
 .dm-choice { display: flex; align-items: center; gap: var(--space-related); min-height: var(--size-control); }
 .dm-form-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-related); }
+
+/* Shared saved-profile presentation for the owner preview and public page. */
+.dm-mentor-profile-view { display: grid; gap: var(--space-panel); min-width: 0; overflow-wrap: anywhere; }
+.dm-mentor-profile-view .dm-mentor-profile-name { margin: 0; font-size: var(--font-size-section); font-weight: var(--weight-heading); line-height: var(--line-heading); }
+.dm-mentor-profile-view .dm-mentor-profile-section { display: grid; gap: var(--space-control-inline); padding: 0; border: 0; }
+.dm-mentor-profile-view .dm-mentor-profile-section > :is(h2,h4) { margin: 0; font-size: var(--font-size-body); font-weight: var(--weight-heading); line-height: var(--line-body); }
+.dm-mentor-profile-bio { margin: 0; max-width: var(--size-body-measure); white-space: pre-wrap; line-height: var(--line-body); }
+.dm-mentor-profile-tags { display: flex; flex-wrap: wrap; gap: var(--space-related); padding: 0; margin: 0; list-style: none; }
