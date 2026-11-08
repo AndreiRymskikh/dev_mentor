@@ -1,3 +1,4 @@
+import MentorNotFound from "../packages/app/src/app/m/[slug]/not-found";
 import {test, expect, vi} from "vitest";
 import {act} from "react";
 import {createRoot} from "react-dom/client";
@@ -85,4 +86,10 @@ test("periodic reconciliation refreshes current visibility and clears its timer 
     await act(async()=>vi.advanceTimersByTimeAsync(60000));
     expect(fetch.mock.calls.length).toBe(count+1);expect(view.host.textContent).not.toContain("React Mentor");
   } finally {await view.close();vi.useRealTimers();}
+});
+
+test("unavailable public profiles provide a semantic, keyboard-accessible route back to current mentors", () => {
+  const html = renderToStaticMarkup(<MentorNotFound/>);
+  expect(html).toContain("<main"); expect(html).toContain("Mentor profile not available");
+  expect(html).toContain('href="/mentors"'); expect(html).toContain("Browse mentors");
 });
