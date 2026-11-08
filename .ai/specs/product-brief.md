@@ -5,14 +5,14 @@
 - Evidence basis: seven interview notes, including contrary accounts; community export and self-selected survey from the same Discord, not independent demand samples. Founders' board exports describe intentions. Initial session reported no new agreements/payments; refresh includes a user report of at least one participating mentor, without supplied availability details or completed-payment evidence. Most consequential unknown: whether paid text help can be supplied when needed.
 - Coverage: 21 claims — 19 sourced (interview 4, data 2, document 13, product 0, benchmark 0), 0 synthetic, 2 assumed; 2 entries on the collection plan
 - Synthetic hypotheses outside Coverage: 3 (Seen once; no repeated findings)
-- Definition of Ready signed by: no formal ticket-level gate configured; core flow clarified in D04, ready for proposed backlog review. Booking-change and completion mechanics remain proposals to settle in story/spec review, not approved defaults.
+- Definition of Ready signed by: no formal ticket-level gate configured; core flow amended by D05 on 2026-11-08: immediate booking, private reason-required cancellation until completion, atomic rescheduling and developer confirmation. Technical contract remains subject to specification review.
 - Sources: linked below; research source provenance is supplied, not independently authenticated.
 
 ## Decision summary
 
 The owner revised the first MVP through D02: site mentor list, mentor-entered availability and developer booking; text session, direct payment and support happen outside the site. Budget remains 25 hours; vault, subscriptions and MCP remain deferred.
 
-Specific incidents support the problem, not recurring paid demand. The owner reports a participating mentor. D04 resolves mentor approval, developer control of own bookings, external support contacts and feedback after service. The next step is review of proposed backlog criteria; real availability and outcome records arise during use, not before drafting. Synthetic results remain exploratory questions from a different demonstration flow.
+Specific incidents support the problem, not recurring paid demand. The owner reports a participating mentor. D04 established developer control, external support and post-service feedback; D05 removes mentor approval and defines cancellation/completion policy. The next step is review of proposed backlog criteria; real availability and outcome records arise during use, not before drafting. Synthetic results remain exploratory questions from a different demonstration flow.
 
 ## Vision
 
@@ -50,7 +50,7 @@ Fresh competitor comparison deferred: historical notes are not current verificat
 
 ## Scope
 
-- **Now:** D02 catalog, availability entered by mentors through their profile calendar (D03), and developer booking; mentor approval, developer management of own reservations, support contact information and post-service feedback follow D04.
+- **Now:** D02 catalog, availability entered by mentors through their profile calendar (D03), and developer booking; immediate booking, developer management of reservations, reason-required private cancellation and developer-confirmed completion follow D05; external support and post-service feedback retain D04 boundaries.
 - **Later:** vault, subscriptions and MCP; external calendar synchronization is outside the chosen manual-slot approach.
 - **Not doing:** see N01/N02; no on-site payment or session chat in D02.
 
@@ -64,7 +64,7 @@ Fresh competitor comparison deferred: historical notes are not current verificat
 ## Key flows
 
 - Current state: see Problems; search/read → ask community → wait or work around.
-- Agreed future flow: site mentor list → mentor profile/price → reserve free time from mentor-entered calendar → mentor approval → externally arranged payment/text session → developer feedback after service (D03/D04). Mentor approval is required; the developer can change their own reservation. Service precedes feedback. Payment stays external and the site displays support contacts (D04). D02 supersedes the old D01 sequence; it makes no instant-help promise.
+- Agreed future flow: site mentor list → mentor profile/price → book free time from mentor-entered calendar immediately → externally arranged payment/text session → developer confirms completion → post-service feedback (D03–D05). No mentor approval is required; developer rescheduling is atomic. Either participant can cancel with a required reason until completion; history is private to participants/administrators and retained six months. Service precedes feedback. Payment stays external and the site displays support contacts (D04). D02 supersedes the old D01 sequence; it makes no instant-help promise.
 
 ## Business rules
 
@@ -87,7 +87,8 @@ Fresh competitor comparison deferred: historical notes are not current verificat
 | D01 | 2026-10-15 | Original narrow MVP; retained constraints in record | Accepted agent recommendation | Session owner | superseded in part by D02 | Initial test; date unset | Owner supersedes | `[DOCUMENT]` [D01](research/decisions/D01-first-mvp.md) | none |
 | D02 | 2026-10-15 | Catalog/manual calendar; external session/payment/support | Explicit user choices; manual slots/external channel adopted from agent proposal | Session owner | active | Before implementation planning | Owner supersedes | `[DOCUMENT]` [D02](research/decisions/D02-mvp-booking.md) | D01 in part |
 | D03 | 2026-10-15 | Profile calendar availability; developer feedback as outcome | Direct user clarification | Session owner | active | Before detailed acceptance criteria | Owner supersedes | `[DOCUMENT]` [D03](research/decisions/D03-availability-and-feedback.md) | none |
-| D04 | 2026-10-15 | Mentor approval; own booking changes; support contacts; post-service feedback | Direct answers to Q02–Q05 | Session owner | active | Backlog criteria review | Owner supersedes | `[DOCUMENT]` [D04](research/decisions/D04-booking-support-feedback.md) | none |
+| D04 | 2026-10-15 | Mentor approval; own booking changes; support contacts; post-service feedback | Direct answers to Q02–Q05 | Session owner | superseded in part by D05 | Backlog criteria review | Owner supersedes | `[DOCUMENT]` [D04](research/decisions/D04-booking-support-feedback.md) | none |
+| D05 | 2026-11-08 | Immediate booking; atomic rescheduling; private cancellation reason/history until completion; developer-only confirmation; six-month retention | Direct owner answers on #25 | Session owner | active | Technical specification review | Owner supersedes | `[DOCUMENT]` [D05](research/decisions/D05-immediate-booking-and-completion.md) | D04 mentor approval and lifecycle proposals |
 
 ## Riskiest assumptions
 
@@ -115,14 +116,14 @@ S03 reiterates an already represented low-salience alternative; S04 concerns abs
 | Id | Question | Blocking | Who can answer | Status |
 |---|---|---|---|---|
 | Q01 | Which mentors commit, who operates manual steps, and what response/availability can they deliver? | Partially resolved: owner reports one or more; self-selection/calendar replace manual matching; details move to Q04/Q05 | Scope owner and mentor | participation reported; calendar ownership settled by D03 |
-| Q02 | How is a reservation confirmed and changed? | No for drafting: mentor approval required, developer can change own reservation; reapproval/holds proposed in story review | Scope owner and technical maintainer | core resolved by D04; detailed lifecycle proposal pending |
-| Q03 | When can developer feedback be left? | No: after mentor provides service; completion marker proposed in story review | Scope owner and technical maintainer | eligibility resolved by D04; experiment targets deferred |
+| Q02 | How is a reservation confirmed and changed? | Policy resolved by D05: immediate booking, atomic rescheduling and reason-required cancellation until completion; technical review pending | Scope owner and technical maintainer | D05 accepted; owning contract #25 under review |
+| Q03 | When can developer feedback be left? | D05: authenticated developer confirms service after delivery; no mentor action | Scope owner and technical maintainer | D05 authority accepted; public reviews remain gated by N02 |
 | Q04 | Who controls slots and reservations? | No for drafting: mentor manages availability through profile, developer manages own reservations; timezones/concurrency follow technical design | Scope owner and technical maintainer | core resolved by D03/D04; technical proposals pending |
 | Q05 | What support capability is in scope? | No: display configured external contact; no on-site dispute/refund engine | Scope owner | resolved by D04; actual contact configured before launch |
 
 ## Definition of Ready addendum (own)
 
-Real accounts support specific problems and users. D02–D04 establish the core flow. Draft backlog criteria may now be reviewed without waiting for actual mentor slots or session outcomes. Proposed reservation/reapproval and service-completion mechanics require acceptance before implementation of dependent stories. Business demand remains untested; this is not product validation. Formal discovery pipeline readiness checks are not configured.
+Real accounts support specific problems and users. D02–D05 establish the core flow. Draft backlog criteria may now be reviewed without waiting for actual mentor slots or session outcomes. D05 owner choices supersede mentor approval; detailed booking/completion contracts require maintainer review before #37 implementation. Business demand remains untested; this is not product validation. Formal discovery pipeline readiness checks are not configured.
 
 ## Collection plan
 

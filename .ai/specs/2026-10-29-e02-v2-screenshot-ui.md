@@ -175,3 +175,8 @@ Owner explicitly confirmed in the issue-32 implementation chat: PLN with two dec
 ## Initial mentor workspace delivery — 2026-11-04
 
 [PR #35](https://github.com/AndreiRymskikh/dev_mentor/pull/35) implements screenshot02 through existing #16, sharing the same initial/partial/ready home as E01 S04 and consuming the shipped E02 APIs. It includes actual deadline/progress, both forms, empty/paginated availability and honest unpublished/share/payout states. This does not implement or approve reviews, Stripe, booking or cancellation. Verification and outstanding audit/independent review/QA gates are recorded in [the run](../runs/2026-11-04-issue-16-mentor-home.md); this multi-slice spec remains active.
+
+
+## Booking dependency amendment — 2026-11-08
+
+Owner-accepted [D05](research/decisions/D05-immediate-booking-and-completion.md) supersedes mentor approval: booking is immediate, rescheduling is atomic, cancellation by either participant requires a reason until developer-confirmed completion, and cancellation history is private to participants/current administrators with six-month retention. No mentor completion action is required. The [owning contract](2026-11-08-booking-and-completion-contract.md) defines #25's proposed route/handoff, concurrency, completion and retention mechanics; [#37](https://github.com/AndreiRymskikh/dev_mentor/issues/37) owns actual implementation and [#38](https://github.com/AndreiRymskikh/dev_mentor/issues/38) consumes participant actions. Until accepted design and actual implementation ship, booking remains unavailable. N02/G1 public-review gates remain unchanged; developer confirmation is not verified payment or independently observed delivery.

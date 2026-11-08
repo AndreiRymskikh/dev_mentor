@@ -74,3 +74,8 @@ Sections remain optional. Added help topics and session steps require title and 
 ## Saved optional details preview — 2026-11-07
 
 The owner profile preview includes saved language/timezone, help topics, sample answer with real disclosure and escaped code, and ordered session steps. Use the same presentation component and styles as the public page; hide absent content. Load optional details independently through the authenticated owner API so drafts can preview them and errors can retry without replacing the core edit form.
+
+
+## Booking dependency amendment — 2026-11-08
+
+Owner-accepted [D05](research/decisions/D05-immediate-booking-and-completion.md) supersedes mentor approval: booking is immediate, rescheduling is atomic, cancellation by either participant requires a reason until developer-confirmed completion, and cancellation history is private to participants/current administrators with six-month retention. No mentor completion action is required. The [owning contract](2026-11-08-booking-and-completion-contract.md) defines #25's proposed route/handoff, concurrency, completion and retention mechanics; [#37](https://github.com/AndreiRymskikh/dev_mentor/issues/37) owns actual implementation and [#38](https://github.com/AndreiRymskikh/dev_mentor/issues/38) consumes participant actions. Until accepted design and actual implementation ship, booking remains unavailable. N02/G1 public-review gates remain unchanged; developer confirmation is not verified payment or independently observed delivery.

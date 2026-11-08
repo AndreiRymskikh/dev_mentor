@@ -4,7 +4,7 @@
 - Owner/confirmer: product owner in this session (name unspecified).
 - Source: direct response to Q02/Q04/Q05/Q03 in the backlog conversation.
 - Decisions: booking requires mentor approval. Developer reserves slots and can edit/change their own reservation. Site displays how to contact external support (WhatsApp, email or another configured channel; provider not fixed). Developer can leave feedback after the mentor has provided the service.
-- Status: active.
+- Status: superseded in part by [D05](D05-immediate-booking-and-completion.md). Mentor approval is removed; cancellation and developer-only completion are clarified. Other boundaries remain active. The text below preserves the historical decision.
 - Supersedes: none; clarifies D02/D03. Mentor acceptance from original D01 is explicitly restored under the revised flow, not silently inferred.
 - Scope boundaries: payment remains external. Support is contact information, not an on-site ticketing or refund engine. Feedback is post-service; public profile reviews/ratings are not authorized by this clarification and N02 remains active.
 - Review: when proposed booking/feedback acceptance criteria are reviewed; date unset.
