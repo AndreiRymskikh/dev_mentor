@@ -711,3 +711,18 @@ Set `PLATFORM_CURRENCY=PLN` and `PLATFORM_PRICE_BOUNDS` to the JSON object in `.
 Public `GET /api/mentors/[slug]/offer` separately allowlists valid prices/currency, readiness and server refresh timestamps; no owner bounds or private identity fields. Existing profile DTO fields remain unchanged. Preparation requires a published profile, both prices valid under current bounds and an unremoved start at least two hours ahead (inclusive). Time boundaries and visibility refreshes recheck the server; read failures never claim readiness. `bookingAvailable` is always false: no checkout or payment launch. Public draft, revoked and unverified owners return 404.
 
 Run migrations before starting the new application. The price migration is additive; application rollback retains price data. Destructive migration rollback refuses any saved price. Never reset the developer database to test migrations.
+
+### Public mentor discovery
+
+Open `/mentors`, or use **Find a mentor** on `/account` / **Browse mentors** in the workspace.
+The public catalog shows verified current mentors with published profiles, newest publication
+first, even when prices or availability are incomplete. Each **View profile** link opens the
+existing stable `/m/<slug>` page. Price and availability summaries reflect current policy;
+booking and payment remain unavailable. Loading, empty and error states are distinct, with
+retry and bounded Next/Back to first page navigation.
+
+`GET /api/mentors` is a no-store public read with standard envelopes. It accepts `limit`
+(default12, maximum24) and an optional returned `after` cursor; unknown, duplicated or malformed
+parameters fail with422. See [catalog compatibility](BACKWARD_COMPATIBILITY.md#public-mentor-catalog-issue-36).
+Run `npm run test:integration -- --scenario=catalog` after a production build for the isolated
+catalog PostgreSQL, public HTTP and browser checks. The full integration command also runs it.

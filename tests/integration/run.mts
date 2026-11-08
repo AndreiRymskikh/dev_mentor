@@ -1,3 +1,4 @@
+import { testCatalogFlow } from "./scenarios/catalog";
 import { testPricesFlow } from "./scenarios/prices";
 import { testAvailabilityFlow } from "./scenarios/availability";
 import { testMentorProfileFlow } from "./scenarios/mentor-profile";
@@ -27,7 +28,7 @@ import { testInstaller } from "./setup.mts";
 import { registrationFixture } from "./registration-http";
 
 const argumentsList = process.argv.slice(2);
-if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=prices", "--scenario=availability", "--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=prices, --scenario=availability, --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
+if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=catalog", "--scenario=prices", "--scenario=availability", "--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=catalog, --scenario=prices, --scenario=availability, --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
 const pricesOnly = argumentsList[0] === "--scenario=prices";
 const availabilityOnly = argumentsList[0] === "--scenario=availability";
 const adminOnly = argumentsList[0] === "--scenario=admin";
@@ -124,6 +125,10 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
+  if (argumentsList[0] === "--scenario=catalog" || !argumentsList.length) {
+    await testCatalogFlow({...context, baseUrl: proxy.origin}, database.getConnectionUri(), baseUrl);
+    if (argumentsList[0] === "--scenario=catalog") return;
+  }
   if (pricesOnly || !argumentsList.length) await testPricesFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
   if (availabilityOnly || !argumentsList.length) await testAvailabilityFlow({ ...context, baseUrl: proxy.origin }, database.getConnectionUri(), mail.environment.JWT_SECRET, baseUrl);
   if (!pricesOnly && !availabilityOnly && !adminOnly && !qaOnly && !invitationsOnly && !profilesOnly) {
