@@ -1,6 +1,5 @@
 import { PrivateContent } from "../../../auth/private-content";
 import { Workspace } from "../../workspace";
-import { Button } from "@devmentor/ui/components/ui/button";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -21,7 +20,7 @@ export default async function AccountPage() {
   }
   if (!principal) redirect("/login");
   return <PrivateContent><Workspace identity={principal.displayName} roles={principal.roles} current="account" signOut={<LogoutButton />}>
-    <h1>My sessions</h1><section className="dm-workspace-panel dm-empty-sessions" aria-label="Session availability"><h2>Sessions are not available yet</h2><p>Find a mentor and choose a time when the mentor catalog becomes available.</p><Button disabled disabledReason="The mentor catalog is not available yet.">Find a mentor</Button></section>
+    <h1>My sessions</h1><section className="dm-workspace-panel dm-empty-sessions" aria-label="Session availability"><h2>Sessions are not available yet</h2><p>Browse mentor profiles, their approach and current prices. Booking is not available yet.</p><Link href="/mentors">Find a mentor</Link></section>
     <section className="dm-workspace-account" aria-label="Your account"><h2>Your account</h2><p>{principal.displayName}</p>{!principal.roles.includes("mentor") && <MentorButton />}</section>
   </Workspace></PrivateContent>;
 }

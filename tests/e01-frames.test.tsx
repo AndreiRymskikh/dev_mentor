@@ -27,7 +27,7 @@ test("workspace navigation is additive, current, honest and keyboard dismissible
       assert.equal(Boolean(host.querySelector('a[href="/mentor"]')), roles.includes("mentor"));
       assert.equal(Boolean(host.querySelector('a[href="/admin/workspace"]')), roles.includes("administrator"));
       assert.match(host.querySelector('[aria-current="page"]')!.textContent!, /My sessions/);
-      assert.equal(host.querySelector('a[href*="catalog"]'), null);
+      assert.equal(host.querySelector('a[href="/mentors"]')?.textContent, 'Browse mentors');
       const trigger = host.querySelector<HTMLButtonElement>('[aria-label="Open navigation"]')!;
       await act(async () => { host.querySelector(".dm-workspace")!.dispatchEvent(new dom.window.KeyboardEvent("keydown", { bubbles: true, key: "Escape" })); trigger.click(); });
       assert.equal(trigger.getAttribute("aria-expanded"), "true");
