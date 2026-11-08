@@ -57,7 +57,7 @@ export async function testCatalogFlow({baseUrl,artifacts,browser}:IntegrationCon
     await client.query("update mentor_profiles set published_at=null where user_id=$1",[ids[0]]);await browser("eval","document.dispatchEvent(new Event('visibilitychange'))");await browser("wait","--fn","!document.querySelector('[aria-label=\"View profile: Catalog mentor 00\"]') && !!document.querySelector('table')");assert.equal((await fetch(`${internalBaseUrl}/m/catalog-${ids[0]}`)).status,404);
     await client.query("delete from user_roles where user_id=$1 and role='mentor'",[ids[1]]);assert.equal((await get()).items.some(x=>x.slug===`catalog-${ids[1]}`),false);assert.equal((await fetch(`${internalBaseUrl}/api/mentors/catalog-${ids[1]}`)).status,404);
     stage="unavailable-profile-navigation";
-    await browser("open",`${baseUrl}/m/catalog-${ids[0]}`);await browser("wait","--text","Mentor profile not available");
+    await browser("open",`${baseUrl}/m/catalog-${ids[0]}`);await browser("wait","--text","Mentor profile not available");await browser("wait","--fn","document.documentElement.scrollWidth <= innerWidth");await browser("screenshot",path.join(artifacts,"catalog-unavailable-profile.png"),"--full");
     await browser("eval","document.querySelector('a[href=\"/mentors\"]').focus()");await browser("press","Enter");await browser("wait","--url","**/mentors");await browser("wait","--text","Catalog mentor 02");
     stage="account-navigation";
     await browser("open",`${baseUrl}/login`);await browser("fill",'[name="email"]',`catalog-${ids[0]}@example.test`);await browser("fill",'[name="password"]',password);await browser("find","role","button","click","--name","Sign in","--exact");await browser("wait","--url","**/account");
