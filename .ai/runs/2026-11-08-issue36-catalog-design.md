@@ -8,3 +8,5 @@ Progress: read issue/comments/PR guard, lessons, engineering contract, profile/o
 Validation: documentation inspection in progress; code checks not run (no production changes).
 
 Outcome: independent fresh-context scope review approved one discovery capability, with no splitting findings. Manual paths/contracts/diff inspection passed. Mockup/current-app capture deferred: this checkout has no prepared test-env descriptor; actual production-browser screenshots are required on the implementation PR.
+
+Implementation handoff: PR #41 delivers the catalog. Updated design to describe the scoped profile-404 return link and separately committed tooling security repair discovered by the mandatory audit gate. Runtime catalog contract is unchanged. Local full integration passed; final recovery follow-up pending targeted verification. Human review/QA and merge remain external gates.
