@@ -16,8 +16,8 @@ Phase 3: full gate, production browser/HTTP fixtures/screenshots, authoritative 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
 
 ### Phase 1: Public contract
-- [ ] 1.1 Bounded repository, validated service, scoped DI and meaningful unit/database tests.
-- [ ] 1.2 No-store API and HTTP route tests.
+- [x] 1.1 Bounded repository, validated service, scoped DI and meaningful unit/database tests.
+- [x] 1.2 No-store API and HTTP route tests.
 
 ### Phase 2: Discovery UI
 - [ ] 2.1 Responsive catalog, states, paging, refresh, navigation and unit tests.
@@ -27,3 +27,5 @@ Phase 3: full gate, production browser/HTTP fixtures/screenshots, authoritative 
 
 ## Validation and outcome
 Not run yet. Installed Next page/route docs read before code. Four-step plain engine (threshold 20), no loop requested. Independent spec scope review approved. Design mockups deferred due absent prepared test-env descriptor; actual UI evidence required here.
+
+Phase 1: targeted public-contract unit tests passed. Disposable PostgreSQL probe passed after normalizing driver timestamp strings; the query now materializes the bounded candidate page before eligible-slot lookups. Full integration revalidates that final query. First complete coverage pass: 100% all four metrics. Production build passed with elevated execution after sandbox CSS worker stalled; no build-pipeline change.
