@@ -45,7 +45,7 @@ test("catalog page presents public links, summaries, truthful states and encoded
     const link=view.host.querySelector<HTMLAnchorElement>('[aria-label="View profile: React Mentor"]')!;link.focus();
     await act(async()=>view.dom.window.document.dispatchEvent(new view.dom.window.Event("visibilitychange")));
     // Automatic refresh preserves keyboard position; explicit page/retry owns result focus.
-    expect(view.dom.window.document.activeElement?.tagName).not.toBe("H1");
+    expect(view.dom.window.document.activeElement?.getAttribute("href")).toBe("/m/react-mentor");
     expect(view.host.querySelector('a[href^="/mentors?after="]')).toBeNull();
   } finally {await view.close();}
 });
@@ -82,9 +82,11 @@ test("periodic reconciliation refreshes current visibility and clears its timer 
   const view=await mount();
   try {
     const count=fetch.mock.calls.length;
+    view.host.querySelector<HTMLAnchorElement>('[aria-label="View profile: React Mentor"]')!.focus();
     fetch.mockImplementation(async()=>ok({...page,items:[],nextCursor:null}));
     await act(async()=>vi.advanceTimersByTimeAsync(60000));
     expect(fetch.mock.calls.length).toBe(count+1);expect(view.host.textContent).not.toContain("React Mentor");
+    expect(view.dom.window.document.activeElement?.tagName).toBe("H1");
   } finally {await view.close();vi.useRealTimers();}
 });
 
@@ -92,4 +94,42 @@ test("unavailable public profiles provide a semantic, keyboard-accessible route 
   const html = renderToStaticMarkup(<MentorNotFound/>);
   expect(html).toContain("<main"); expect(html).toContain("Mentor profile not available");
   expect(html).toContain('href="/mentors"'); expect(html).toContain("Browse mentors");
+});
+
+test("background refresh restores a surviving result, handles its removal, and offers retry on failure", async () => {
+  const fetch = vi.fn().mockImplementation(async () => ok(page)); vi.stubGlobal("fetch", fetch);
+  const view = await mount();
+  const refresh = async () => act(async () => view.dom.window.document.dispatchEvent(new view.dom.window.Event("visibilitychange")));
+  try {
+    view.host.querySelector<HTMLAnchorElement>('[aria-label="View profile: React Mentor"]')!.focus();
+    await refresh();
+    expect(view.dom.window.document.activeElement?.getAttribute("href")).toBe("/m/react-mentor");
+    // A removed publication must not be kept mounted just to retain focus.
+    fetch.mockImplementation(async () => ok({...page, items: [page.items[1]], nextCursor: null}));
+    await refresh();
+    expect(view.host.textContent).not.toContain("React Mentor"); expect(view.dom.window.document.activeElement?.tagName).toBe("H1");
+    view.host.querySelector<HTMLAnchorElement>('[aria-label="View profile: Other Mentor"]')!.focus();
+    fetch.mockImplementation(async () => Response.json({ok:false,error:{code:"UNAVAILABLE",message:"Refresh failed"}},{status:503}));
+    await refresh();
+    expect(view.host.textContent).not.toContain("Other Mentor");
+    expect(view.dom.window.document.activeElement).toBe(view.host.querySelector("button"));
+    fetch.mockImplementation(async () => ok(page));
+    await act(async () => view.host.querySelector<HTMLButtonElement>("button")!.click());
+    expect(view.dom.window.document.activeElement?.tagName).toBe("H1");
+  } finally { await view.close(); }
+});
+
+test("pending refresh hides stale results without stealing focus moved to static navigation", async () => {
+  let finish: (response: Response) => void = () => undefined;
+  const fetch = vi.fn().mockImplementation(async () => ok(page)); vi.stubGlobal("fetch", fetch);
+  const view = await mount();
+  try {
+    view.host.querySelector<HTMLAnchorElement>('[aria-label="View profile: React Mentor"]')!.focus();
+    fetch.mockImplementation(() => new Promise<Response>(resolve => {finish = resolve;}));
+    await act(async () => view.dom.window.document.dispatchEvent(new view.dom.window.Event("visibilitychange")));
+    expect(view.host.querySelector("table")).toBeNull(); expect(view.dom.window.document.activeElement).toBe(view.dom.window.document.body);
+    const signIn = view.host.querySelector<HTMLAnchorElement>('a[href="/login"]')!; signIn.focus();
+    await act(async () => finish(ok(page)));
+    expect(view.dom.window.document.activeElement).toBe(signIn);
+  } finally { await view.close(); }
 });
