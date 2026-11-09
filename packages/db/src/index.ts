@@ -37,3 +37,5 @@ export { Slot } from "./entities/availability/slot.entity";
 export { SlotRepository, DuplicateSlotError, type SlotRecord, type SlotQuery, type AvailabilityRecord } from "./repositories/availability/slot.repository";
 
 export { MentorPricesRepository, type OfferRecord } from "./repositories/prices/mentor-prices.repository";
+
+export { MentorCatalogRepository, type CatalogQuery, type CatalogRecord } from "./repositories/mentors/mentor-catalog.repository";

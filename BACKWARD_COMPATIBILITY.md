@@ -198,3 +198,21 @@ Additive `GET/PUT /api/mentors/me/prices` return owner-only saved integer minor 
 ## Complete mentor home composition (#16)
 
 `/mentor` retains current-session/current-mentor authorization and the original first-publication deadline. The shared server workspace supplies identity/navigation; its interactive home composes existing owner profile, prices and availability endpoints without changing HTTP DTOs, security, policies or persistence. Readiness is authoritative, refreshed after committed saves and eligibility/visibility changes; errors/loading hide prior completion. Unsaved forms survive refreshes; a live authorization denial clears all home forms and data. Standalone `/mentor/prices`, `/mentor/slots` and `/mentor/profile` remain available. PriceEditor/SlotEditor add optional request/notification props while preserving default standalone behavior; the availability table explicitly labels UTC. Booking, cancellation and payouts remain unavailable. Rollback redeploys the prior UI and retains all E02 data.
+
+## Public mentor catalog (issue 36)
+
+`/mentors` and read-only `GET /api/mentors` add public discovery without changing existing
+profile/offer endpoints, session or CSRF contracts. Workspace Browse mentors and account
+Find a mentor now link to `/mentors`; existing public profile navigation links back there.
+The no-store API accepts only `limit` (1–24, default12) and an optional exact returned
+`after` cursor; invalid or duplicate parameters return422 in the standard envelope.
+Cursor order is publication timestamp/UUID descending, retaining PostgreSQL microseconds.
+Each request checks published state, verification and current mentor membership; an anchor
+may disappear without invalidating continuation. Newly published/re-published mentors can
+move ahead of an existing cursor: restart to see them. Public fields are explicitly
+allowlisted. Prices use current policy, eligible slots use the existing two-hour lead,
+and booking stays unavailable. Failure returns an error rather than a fabricated empty list.
+There is no schema/data migration. Rollback removes the additive catalog routes and restores
+the old navigation controls; no persisted records are changed. Already delivered public
+content cannot be recalled; an open catalog refreshes on visibility, offer boundaries and
+once per minute.

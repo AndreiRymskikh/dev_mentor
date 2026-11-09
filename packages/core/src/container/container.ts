@@ -1,3 +1,5 @@
+import { MentorCatalogRepository } from "@devmentor/db";
+import { MentorCatalogService } from "../services/mentors/mentor-catalog.service";
 import { MentorPricesRepository } from "@devmentor/db";
 import { MentorPricesService } from "../services/prices/mentor-prices.service";
 import { SlotRepository } from "@devmentor/db";
@@ -31,6 +33,8 @@ import type { Cradle } from "./cradle";
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
+    mentorCatalogRepository: asFunction(() => new MentorCatalogRepository()).scoped(),
+    mentorCatalogService: asFunction(({mentorCatalogRepository}: Cradle) => new MentorCatalogService(mentorCatalogRepository)).scoped(),
     mentorPricesRepository: asFunction(() => new MentorPricesRepository()).scoped(),
     mentorPricesService: asFunction(({mentorPricesRepository}: Cradle) => new MentorPricesService(mentorPricesRepository)).scoped(),
     slotRepository: asFunction(() => new SlotRepository()).scoped(),

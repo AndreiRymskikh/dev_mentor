@@ -5,7 +5,7 @@ interface WorkspaceProps { identity: string; roles: readonly string[]; current: 
 export function Workspace({ identity, roles, ...props }: WorkspaceProps) {
   const navigation: WorkspaceNavigationItem[] = [
     { key: "account", label: "My sessions", href: "/account", icon: "calendar" },
-    { key: "catalog", label: "Browse mentors", reason: "The mentor catalog is not available yet.", icon: "person" },
+    { key: "catalog", label: "Browse mentors", href: "/mentors", icon: "person" },
     ...(roles.includes("mentor") ? [
       { key: "mentor", label: "Mentor home", href: "/mentor", icon: "home" as const },
       { key: "profile", label: "Mentor profile", href: "/mentor/profile", icon: "person" as const },

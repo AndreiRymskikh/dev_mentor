@@ -1,3 +1,4 @@
+import { testMentorCatalog } from "./mentor-catalog";
 import { testPrices } from "./prices";
 import { testAvailability } from "./availability";
 import { testMentorDetails } from "./mentor-details";
@@ -138,6 +139,7 @@ export async function testDatabase(clientUrl: string) {
     await testMentorProfiles(runtime);
     await testMentorDetails(runtime);
     await testAvailability(runtime);
+    await testMentorCatalog(clientUrl);
     await testPrices(runtime);
     await testRoles(runtime, clientUrl);
     await testAdminUsersDatabase(runtime);

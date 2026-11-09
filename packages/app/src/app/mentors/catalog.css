@@ -1,0 +1,12 @@
+.dm-catalog main { max-width: 960px; margin: 48px auto; padding-inline: var(--space-page-gutter); }
+.dm-catalog h1 { font-size: var(--font-size-page); font-weight: var(--weight-heading); line-height: var(--line-heading); margin-bottom: var(--space-panel); }
+.dm-catalog main > p { margin-block: var(--space-field); color: var(--text-muted); }
+.dm-catalog table { width: 100%; table-layout: fixed; margin-top: var(--space-section); border-collapse: separate; border-spacing: 0 var(--space-panel); }
+.dm-catalog th { text-align: left; font-weight: var(--weight-heading); }
+.dm-catalog td { padding: var(--space-panel); background: var(--background); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-panel); }
+.dm-catalog-summary { display: grid; gap: var(--space-field); }
+.dm-catalog .dm-catalog-summary h2 { margin: 0; }
+.dm-catalog-bio { white-space: pre-wrap; }
+.dm-catalog-summary ul { display: flex; flex-wrap: wrap; gap: var(--space-field); padding: 0; list-style: none; color: var(--text-muted); }
+.dm-catalog-pagination { display: flex; flex-wrap: wrap; gap: var(--space-panel); margin-block: var(--space-panel); }
+@media(max-width:480px) { .dm-catalog main { margin-block: 28px; } .dm-catalog h1 { font-size: var(--font-size-section); } }
