@@ -24,8 +24,8 @@ PR: #42
 
 ### Phase 2: API and journey
 
-- [ ] 2.1 Add scoped booking/options/admin APIs and protocol checks.
-- [ ] 2.2 Deliver review/detail/actions and public CTA with safe auth continuation.
+- [x] 2.1 Add scoped booking/options/admin APIs and protocol checks. — 5832f60
+- [x] 2.2 Deliver review/detail/actions and public CTA with safe auth continuation. — 5832f60
 
 ### Phase 3: Operations and verification
 
