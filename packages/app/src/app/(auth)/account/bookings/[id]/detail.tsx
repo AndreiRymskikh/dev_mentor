@@ -19,8 +19,6 @@ export function BookingDetailPanel({id}:{id:string}) {
  const [action,setAction]=useState<"cancel"|"reschedule"|"complete"|null>(null),[selected,setSelected]=useState<{id:string;start:string}|null>(null),[message,setMessage]=useState(""),[after,setAfter]=useState(""),dialog=useRef<HTMLDialogElement>(null);
  const history=useApiResource<BookingDetail>(`/api/bookings/${encodeURIComponent(id)}?after=${after||"0"}`,protectedRequest<BookingDetail>);
  useEffect(()=>{if(action==="complete")dialog.current?.showModal();},[action]);
- const reload=resource.reload;
- useEffect(()=>{const refresh=()=>{if(document.visibilityState==="visible")reload();};document.addEventListener("visibilitychange",refresh);return()=>document.removeEventListener("visibilitychange",refresh);},[reload]);
  async function mutate(operation:"cancel"|"reschedule"|"complete",values:Record<string,unknown>,version:number) {
   setMessage("");const result=await command.execute(`/api/bookings/${id}/${operation}`,{...values,expectedVersion:version});
   if(result.ok){setAction(null);dialog.current?.close();resource.reload();history.reload();setAfter("");}
