@@ -1,7 +1,7 @@
 # Issue #37 — immediate bookings
 
 Source doc: .ai/specs/2026-11-08-booking-and-completion-contract.md
-Status: in-progress
+Status: complete — implementation and automated verification; independent review/QA and deployment gates remain external.
 
 Goal: implement immediate developer bookings and private reservation lifecycle from accepted design PR #39 (merged; #25 closed). #37 is unassigned, no competing implementation PR. Engine: om-auto-create-pr (steps: 7, --loop: no).
 
@@ -30,8 +30,8 @@ PR: #42
 ### Phase 3: Operations and verification
 
 - [x] 3.1 Deliver bounded retention command and deployment/privacy runbook. — 1db4e69
-- [ ] 3.2 Complete unit coverage and disposable PostgreSQL/browser checks.
-- [ ] 3.3 Run full gate, independent review/QA and publish evidence.
+- [x] 3.2 Complete unit coverage and disposable PostgreSQL/browser checks. — bedb021 plus final locked-row regression
+- [x] 3.3 Run full gate, independent review/QA and publish evidence. — automated role-based review/evidence complete; independent human sign-off is a merge gate, not granted by this run
 
 ## Validation
 
@@ -60,3 +60,14 @@ Found/fixed reload recovery (450de2c): restore a schema-validated pending create
 Added real operator regression:501 expired bookings purge in500/1/0 batches, and creation occurs at the inclusive two-hour lead boundary. These assertions passed in the Nov11 disposable DB suite. CI exposed a TS inference issue in that test helper; explicit output typing fixed it (2dcda56). Legacy profile QA assumed a disabled placeholder and its reputation guard rejected the verb 'review booking'; tests now assert no booking links for an unpriced fixture and still reject reputation controls. This changes test expectations for the real capability, not N02 policy. Full suite before these harness corrections passed new booking/catalog/prices/availability/auth/invitation paths then stopped at public-share. It is not recorded as a full pass.
 
 Review also added booking_commands_booking_index (791164f) so bounded retention cascades do not scan global command history for every deleted booking. New migration/entity declarations stay in sync. Final full suite/CI restart is pending. Screenshot evidence is attached in https://github.com/AndreiRymskikh/dev_mentor/pull/42#issuecomment-6793399085; synthetic data only, light/dark320 and1440 screenshots. Current implementation head differs only in test/retention-index work from the pictured UI.
+
+
+## Final verification and outcome — Nov11
+
+Implemented #37 on PR #42. Full `npm run test:integration` exited0 with all PostgreSQL/SMTP/HTTPS/browser/installer scenarios, including public profile and admin after the legacy assertion fixes. After the final single-screen draft-preservation change, production build and targeted `npm run test:integration -- --scenario=bookings` both exited0; that targeted run also proved a locked expired row survives the first500-deletion batch and is removed only after release (500/1/0). All runner-owned app/browser/container resources were cleaned up; developer Compose data was untouched.
+
+Final local gate: lint passed without warnings; typecheck passed;267 tests in54 files passed;100% statements3285/3285, branches2188/2188, functions935/935, lines2185/2185; production build passed; npm audit returned zero vulnerabilities; full and final targeted integration passed. Relative Markdown paths and diff whitespace passed. No thresholds, exclusions or ignore directives were weakened.
+
+Private detail uses explicit refresh during editing so returning to a tab cannot discard cancellation text/focus. The DOM regression preserves textarea identity, value and activeElement. Unknown creates survive reload and reauthentication with their original reviewed terms/key. Review fixes are committed incrementally; no history rewriting. No remaining actionable implementation findings in the automated review; this same account cannot grant independent approval to its own PR.
+
+PR is ready for review with full evidence and needs-qa/risk-high. Independent second-person review and QA approval remain required before merge; no qa-approved/self-QA or merge is performed. Real external guidance/support, daily maintenance/alerts and bounded backup/restore operations remain launch prerequisites. Full #38 lists and independently gated public reviews are not delivered. The multi-issue contract remains active; #37 stays open until its implementing PR merges. CI status is recorded on the PR for the exact head and is never inferred from local checks.
