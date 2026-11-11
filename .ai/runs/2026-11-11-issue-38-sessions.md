@@ -10,8 +10,8 @@ Source doc: .ai/specs/2026-11-11-my-sessions.md
 4. Run lint/typecheck/coverage/build/integration/audit, review and publish implementation PR.
 
 ## Progress
-- [ ] 1.1 Reviewed design extension
-- [ ] 2.1 Participant list and account composition
+- [x] 1.1 Reviewed design extension
+- [x] 2.1 Participant list and account composition
 - [ ] 3.1 Unit and integration verification
 - [ ] 4.1 Full gate, review and PR evidence
 
@@ -20,3 +20,13 @@ Source doc: .ai/specs/2026-11-11-my-sessions.md
 
 ## Validation
 Not run yet.
+
+## Implementation progress
+Design extension published as PR #43 with fresh-context approval; server-time timer clarification applied. Implementation draft PR #44 references it. The account list uses existing protected transport, resource panel and DataTable. Cursor pages replace rows; visibility/minute/server-relative end refresh restarts page one. Focus restores the exact booking link or heading and respects deliberate user movement. No lifecycle, schema or API changes.
+
+Changed files: account page, colocated sessions TSX/CSS, sessions unit tests, booking/admin production integration scenarios and compatibility notes.
+
+## Validation results so far
+- lint and typecheck passed.
+- Full test:coverage passed outside sandbox (local-port tests require binding): 274 tests; 213 executable production/harness files at100% lines/statements/functions/branches,22 type-only files.
+- Build/integration/audit pending. No CI result claimed.
