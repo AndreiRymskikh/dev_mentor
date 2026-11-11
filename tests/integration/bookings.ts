@@ -1,3 +1,4 @@
+import {LockMode} from "@mikro-orm/postgresql";
 import {execFile} from "node:child_process";
 import {promisify} from "node:util";
 import {integrationConfig} from "./config";
@@ -50,8 +51,14 @@ export async function testBookings(runtime:ReturnType<typeof createDatabaseRunti
   assert.ok(await service.maintain()>=1);await runtime.withEntityManager(async em=>{assert.equal(await em.count(Booking,{id}),0);assert.equal(await em.count(BookingEvent,{bookingId:id}),0);assert.equal(await em.count(BookingCommand,{bookingId:id}),0);});await assert.rejects(service.create(ids[2],retry),{status:409});
   const expiredEnd=new Date(Date.now()-400*86400000),expiredStart=new Date(expiredEnd.getTime()-25*60000),expiredRetention=bookingRetention(expiredEnd);
   await runtime.transaction(async em=>{await em.execute("insert into bookings(id,developer_user_id,mentor_user_id,slot_id,starts_at,ends_at,duration_minutes,price_cents,currency,status,version,created_at,updated_at,cancelled_at,retention_expires_at) select gen_random_uuid(),?,?,?, ?,?,25,1000,'PLN','cancelled',1,?,?,?,? from generate_series(1,501)",[ids[2],ids[0],slots[4],expiredStart,expiredEnd,expiredStart,expiredEnd,expiredEnd,expiredRetention]);});
-  const execute=promisify(execFile),clientUrl=orm.config.get("clientUrl");assert.ok(clientUrl);
-  for(const deleted of [500,1,0]){const result:{stdout:string;stderr:string}=await execute("npm",["run","bookings:maintain"],{env:{...process.env,DATABASE_URL:clientUrl},timeout:integrationConfig.operatorCommandTimeoutMs});assert.ok(result.stdout.includes(JSON.stringify({event:"bookings.retention.completed",deleted})));assert.ok(!result.stderr.includes(clientUrl));}
+  const execute=promisify(execFile),configuredUrl=orm.config.get("clientUrl");assert.ok(configuredUrl);const clientUrl=configuredUrl;
+  async function runBatch(deleted:number):Promise<void>{const result:{stdout:string;stderr:string}=await execute("npm",["run","bookings:maintain"],{env:{...process.env,DATABASE_URL:clientUrl},timeout:integrationConfig.operatorCommandTimeoutMs});assert.ok(result.stdout.includes(JSON.stringify({event:"bookings.retention.completed",deleted})));assert.ok(!result.stderr.includes(clientUrl));}
+  await runtime.transaction(async em=>{
+   const expired={developerUserId:ids[2],retentionExpiresAt:{$lte:new Date()}};
+   await em.findOneOrFail(Booking,expired,{lockMode:LockMode.PESSIMISTIC_WRITE,orderBy:{id:"asc"}});
+   await runBatch(500);assert.equal(await em.count(Booking,expired),1);
+  });
+  await runBatch(1);await runBatch(0);
   assert.equal(await orm.schema.getUpdateSchemaSQL({wrap:false}),"");
   console.log("Booking DB passed: schema parity/guarded rollback, concurrent retries, distinct/cross-role interval conflict, authorization/revocation, immutable move with rollback, replay after mutable eligibility loss, cancel/complete race, private history and exact retention purge.");
  } finally {await runtime.transaction(async em=>{await em.nativeDelete(Booking,{$or:[{developerUserId:{$in:ids}},{mentorUserId:{$in:ids}}]});await em.nativeDelete(Slot,{mentorProfileId:{$in:ids}});await em.nativeDelete(MentorProfile,{userId:{$in:ids}});await em.nativeDelete(UserRole,{userId:{$in:ids}});await em.nativeDelete(User,{id:{$in:ids}});});}
