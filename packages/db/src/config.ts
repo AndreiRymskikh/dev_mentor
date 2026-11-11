@@ -1,3 +1,7 @@
+import { Migration202611090001 } from "./migrations/Migration202611090001";
+import { Booking } from "./entities/bookings/booking.entity";
+import { BookingEvent } from "./entities/bookings/booking-event.entity";
+import { BookingCommand } from "./entities/bookings/booking-command.entity";
 import { Migration202611030001 } from "./migrations/Migration202611030001";
 import { Slot } from "./entities/availability/slot.entity";
 import { Migration202611020001 } from "./migrations/Migration202611020001";
@@ -31,9 +35,9 @@ export function databaseOptions() {
   }
   return defineConfig({
     clientUrl,
-    entities: [User, UserRole, Credential, AuthSession, ActionToken, RateLimitBucket, Invitation, MentorProfile, Slot],
+    entities: [User, UserRole, Credential, AuthSession, ActionToken, RateLimitBucket, Invitation, MentorProfile, Slot, Booking, BookingEvent, BookingCommand],
     extensions: [Migrator],
-    migrations: { migrationsList: [Migration202610210001, Migration202610260001, Migration202610260002, Migration202611010001, Migration202611020001, Migration202611030001], snapshot: false, transactional: true, allOrNothing: true },
+    migrations: { migrationsList: [Migration202610210001, Migration202610260001, Migration202610260002, Migration202611010001, Migration202611020001, Migration202611030001, Migration202611090001], snapshot: false, transactional: true, allOrNothing: true },
     discovery: { warnWhenNoEntities: false },
     allowGlobalContext: false,
     debug: false,

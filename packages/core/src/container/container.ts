@@ -1,3 +1,5 @@
+import { BookingRepository } from "@devmentor/db";
+import { BookingService } from "../services/bookings/booking.service";
 import { MentorCatalogRepository } from "@devmentor/db";
 import { MentorCatalogService } from "../services/mentors/mentor-catalog.service";
 import { MentorPricesRepository } from "@devmentor/db";
@@ -33,6 +35,8 @@ import type { Cradle } from "./cradle";
 export function createAppContainer() {
   const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY, strict: true });
   container.register({
+    bookingRepository: asFunction(() => new BookingRepository()).scoped(),
+    bookingService: asFunction(({bookingRepository}: Cradle) => new BookingService(bookingRepository)).scoped(),
     mentorCatalogRepository: asFunction(() => new MentorCatalogRepository()).scoped(),
     mentorCatalogService: asFunction(({mentorCatalogRepository}: Cradle) => new MentorCatalogService(mentorCatalogRepository)).scoped(),
     mentorPricesRepository: asFunction(() => new MentorPricesRepository()).scoped(),

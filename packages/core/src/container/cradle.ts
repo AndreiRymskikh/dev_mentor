@@ -1,3 +1,5 @@
+import { BookingRepository } from "@devmentor/db";
+import { BookingService } from "../services/bookings/booking.service";
 import type { MentorCatalogRepository } from "@devmentor/db";
 import type { MentorCatalogService } from "../services/mentors/mentor-catalog.service";
 import type { MentorPricesRepository } from "@devmentor/db";
@@ -27,6 +29,8 @@ import type { RegistrationService } from "../services/users/registration.service
 import type { RateLimitService } from "../services/limits/rate-limit.service";
 import type { EmailSender } from "../services/emails/email-sender.port";
 export interface Cradle {
+  bookingRepository: BookingRepository;
+  bookingService: BookingService;
   mentorCatalogRepository: MentorCatalogRepository;
   mentorCatalogService: MentorCatalogService;
   mentorPricesRepository: MentorPricesRepository;

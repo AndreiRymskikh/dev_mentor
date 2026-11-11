@@ -39,3 +39,8 @@ export { SlotRepository, DuplicateSlotError, type SlotRecord, type SlotQuery, ty
 export { MentorPricesRepository, type OfferRecord } from "./repositories/prices/mentor-prices.repository";
 
 export { MentorCatalogRepository, type CatalogQuery, type CatalogRecord } from "./repositories/mentors/mentor-catalog.repository";
+
+export { Booking } from "./entities/bookings/booking.entity";
+export { BookingEvent } from "./entities/bookings/booking-event.entity";
+export { BookingCommand } from "./entities/bookings/booking-command.entity";
+export * from "./repositories/bookings/booking.repository";

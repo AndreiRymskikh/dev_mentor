@@ -11,7 +11,8 @@
     "./validators/prices": "./src/validators/prices/index.ts",
     "./validators/users": "./src/validators/users/index.ts",
     "./validators/mentors": "./src/validators/mentors/index.ts",
-    "./validators/availability": "./src/validators/availability/index.ts"
+    "./validators/availability": "./src/validators/availability/index.ts",
+    "./validators/bookings": "./src/validators/bookings/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
