@@ -726,3 +726,7 @@ retry and bounded Next/Back to first page navigation.
 parameters fail with422. See [catalog compatibility](BACKWARD_COMPATIBILITY.md#public-mentor-catalog-issue-36).
 Run `npm run test:integration -- --scenario=catalog` after a production build for the isolated
 catalog PostgreSQL, public HTTP and browser checks. The full integration command also runs it.
+
+### Booking operations
+
+See [booking deployment and retention](.ai/docs/bookings-operations.md) for required external service/support settings, additive rollout, daily bounded `npm run bookings:maintain`, backup expiry and restore safeguards. New bookings fail closed until valid handoff and PLN policy are configured.
