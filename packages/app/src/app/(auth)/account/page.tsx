@@ -20,7 +20,7 @@ export default async function AccountPage() {
   }
   if (!principal) redirect("/login");
   return <PrivateContent><Workspace identity={principal.displayName} roles={principal.roles} current="account" signOut={<LogoutButton />}>
-    <h1>My sessions</h1><section className="dm-workspace-panel dm-empty-sessions" aria-label="Session availability"><h2>Sessions are not available yet</h2><p>Browse mentor profiles, their approach and current prices. Booking is not available yet.</p><Link href="/mentors">Find a mentor</Link></section>
+    <h1>My sessions</h1><section className="dm-workspace-panel dm-empty-sessions" aria-label="Session availability"><h2>Booking details stay private</h2><p>Book from a mentor profile and manage that reservation on its private detail page. The full session list is coming separately.</p><Link href="/mentors">Find a mentor</Link></section>
     <section className="dm-workspace-account" aria-label="Your account"><h2>Your account</h2><p>{principal.displayName}</p>{!principal.roles.includes("mentor") && <MentorButton />}</section>
   </Workspace></PrivateContent>;
 }

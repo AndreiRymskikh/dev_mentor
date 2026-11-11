@@ -35,7 +35,7 @@ test("catalog page presents public links, summaries, truthful states and encoded
     expect(view.host.textContent).toContain("React Mentor"); expect(view.host.textContent).toContain("Build accessible interfaces");
     expect(view.host.textContent).toContain("25 minutes: PLN 90.00"); expect(view.host.textContent).toContain("50 minutes: PLN 180.00");
     expect(view.host.textContent).toContain("Prices are not set within current bounds"); expect(view.host.textContent).toContain("No eligible availability");
-    expect(view.host.textContent).toContain("at least two hours"); expect(view.host.textContent).toContain("Booking and payment are not available yet");
+    expect(view.host.textContent).toContain("at least two hours"); expect(view.host.textContent).toContain("Payment is arranged externally");
     expect(view.host.querySelector('[aria-label="Stack tags"]')?.textContent).toBe("React");
     expect(view.host.querySelector('[aria-label="View profile: React Mentor"]')?.getAttribute("href")).toBe("/m/react-mentor");
     expect(view.host.querySelector('a[href^="/mentors?after="]')?.getAttribute("href")).toBe(`/mentors?after=${encodeURIComponent(page.nextCursor!)}`);

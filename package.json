@@ -42,7 +42,8 @@
     "test:foundations": "npm run test:foundations --workspace @devmentor/ui",
     "typecheck:storybook": "npm run typecheck:storybook --workspace @devmentor/ui",
     "verify:storybook": "npm run verify:storybook --workspace @devmentor/ui",
-    "invite": "tsx --tsconfig tsconfig.base.json scripts/invite.mts"
+    "invite": "tsx --tsconfig tsconfig.base.json scripts/invite.mts",
+    "bookings:maintain": "tsx --tsconfig tsconfig.base.json scripts/maintain-bookings.mts"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

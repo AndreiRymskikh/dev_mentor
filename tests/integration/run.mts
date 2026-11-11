@@ -1,3 +1,4 @@
+import { testBookingFlow } from "./scenarios/bookings";
 import { testCatalogFlow } from "./scenarios/catalog";
 import { testPricesFlow } from "./scenarios/prices";
 import { testAvailabilityFlow } from "./scenarios/availability";
@@ -28,7 +29,7 @@ import { testInstaller } from "./setup.mts";
 import { registrationFixture } from "./registration-http";
 
 const argumentsList = process.argv.slice(2);
-if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=catalog", "--scenario=prices", "--scenario=availability", "--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=catalog, --scenario=prices, --scenario=availability, --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
+if (argumentsList.length > 1 || (argumentsList.length === 1 && !["--scenario=bookings", "--scenario=catalog", "--scenario=prices", "--scenario=availability", "--scenario=admin", "--scenario=qa", "--scenario=invitations", "--scenario=profiles"].includes(argumentsList[0]))) throw new Error("Supported options: --scenario=catalog, --scenario=prices, --scenario=availability, --scenario=admin, --scenario=qa --scenario=invitations or --scenario=profiles; omit for the full suite.");
 const pricesOnly = argumentsList[0] === "--scenario=prices";
 const availabilityOnly = argumentsList[0] === "--scenario=availability";
 const adminOnly = argumentsList[0] === "--scenario=admin";
@@ -97,6 +98,8 @@ async function main() {
     const result = await client.query<{ value: string }>("SELECT value FROM integration_probe");
     assert.equal(result.rows[0].value, "ephemeral");
   } finally { await client.end(); }
+  process.env.BOOKING_SESSION_GUIDANCE="Arrange the text session and direct payment with your mentor externally.";
+  process.env.BOOKING_SUPPORT_URL="https://example.test/support";
   process.env.PLATFORM_CURRENCY = "PLN";
   process.env.PLATFORM_PRICE_BOUNDS = JSON.stringify({25: {minCents: 9000, maxCents: 60000}, 50: {minCents: 18000, maxCents: 120000}});
   process.env.DATABASE_URL = database.getConnectionUri();
@@ -125,6 +128,10 @@ async function main() {
   }
   assert.equal(ready, true, "App readiness timed out");
   const context = { baseUrl, artifacts, browser };
+  if (argumentsList[0] === "--scenario=bookings" || !argumentsList.length) {
+    await testBookingFlow({...context,baseUrl:proxy.origin},database.getConnectionUri(),mail.environment.JWT_SECRET,baseUrl);
+    if(argumentsList[0] === "--scenario=bookings")return;
+  }
   if (argumentsList[0] === "--scenario=catalog" || !argumentsList.length) {
     await testCatalogFlow({...context, baseUrl: proxy.origin}, database.getConnectionUri(), baseUrl);
     if (argumentsList[0] === "--scenario=catalog") return;

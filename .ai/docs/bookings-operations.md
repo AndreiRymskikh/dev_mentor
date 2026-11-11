@@ -1,0 +1,13 @@
+# Booking deployment and retention
+
+Before rollout, run additive migrations through the normal database migration command. Application rollback retains booking tables and history. Migration down locks the three tables and refuses nonempty data; never delete history to enable rollback.
+
+Set BOOKING_SESSION_GUIDANCE to real plain-text instructions (1–2000 characters) explaining how participants arrange the external text session and direct payment. Set BOOKING_SUPPORT_URL to the accountable external HTTPS or mailto contact. No credentials, mail headers or invented contact. These settings are intentionally exposed to booking viewers. New booking/rescheduling is unavailable without valid handoff and current PLN policy. Existing participants can still read, cancel and confirm completion.
+
+Schedule `npm run bookings:maintain` daily with an explicit production DATABASE_URL. Each run locks/skips locked rows and deletes at most 500 expired bookings and their events/commands atomically, with 5-second lock and 30-second statement timeouts. Repeat bounded invocations when aggregate counts reach 500; alert on failure/nonzero exit and stale schedules. Reads hide expired rows immediately, even with a delayed purge. Never log cancellation reasons, bodies, participant identifiers or connection strings. Inspect aggregate counts only.
+
+Retention is six UTC calendar months after the later scheduled end or terminal transition, clamped at month-end. Unconfirmed past bookings expire six months after their scheduled end. Replays/reads do not extend it. Cancellation and completion are terminal; do not perform undocumented SQL corrections. Contact configured support for mistakes; an audited reversal policy is separate work.
+
+Deployment must enforce a bounded backup lifetime of at most 30 days and disclose that live records expire after six months while backup copies expire on that separate cycle. After restore, keep traffic disabled, repeatedly run retention until no expired records remain, verify aggregate results, then reopen traffic. Restore must never expose expired private history. No automated database scheduler or backup provider is installed by this PR; deployment ownership and alert routing must be assigned before launch.
+
+APIs are additive; existing public profile/offer/slots DTOs retain their meanings and bookingAvailable:false. New duration-specific booking-options supplies actual capability/capacity. Its optional `slot` UUID filters to one selected intent so deep-linked reviews work beyond the first options page. It does not bypass eligibility. #38 consumes participant lists and these existing action endpoints. Public reviews remain separately gated.

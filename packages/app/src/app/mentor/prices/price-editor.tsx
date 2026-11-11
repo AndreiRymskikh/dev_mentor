@@ -32,7 +32,7 @@ export function PriceEditor({ request: transport = protectedRequest, onSaved, sh
         onSubmit={async values => { setNotice(""); const result = await request("/api/mentors/me/prices", {method: "PUT", body: JSON.stringify(values)}); return result; }}
         onSuccess={() => { setNotice("Both prices saved."); resource.reload(); onSaved?.(); }} submitLabel="Save both prices"/>
       {notice && <p role="status">{notice}</p>}
-      {showReadiness && !resource.loading && !resource.error && resource.data && <p role="status">Offer preparation: {resource.data.mentorOfferReady ? "ready" : "incomplete"}. Published profile: {resource.data.readiness.profile ? "complete" : "incomplete"}; prices: {resource.data.readiness.prices ? "complete" : "incomplete"}; eligible availability: {resource.data.readiness.availability ? "complete" : "incomplete"}. Booking is not available yet.</p>}
+      {showReadiness && !resource.loading && !resource.error && resource.data && <p role="status">Offer preparation: {resource.data.mentorOfferReady ? "ready" : "incomplete"}. Published profile: {resource.data.readiness.profile ? "complete" : "incomplete"}; prices: {resource.data.readiness.prices ? "complete" : "incomplete"}; eligible availability: {resource.data.readiness.availability ? "complete" : "incomplete"}. New bookings also require free capacity and configured external service/support instructions.</p>}
     </>}
   </>;
 }

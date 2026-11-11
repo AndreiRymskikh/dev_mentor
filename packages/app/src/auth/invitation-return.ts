@@ -1,4 +1,5 @@
 "use client";
+import { parseBookingReturn } from "./booking-return";
 import { useEffect, useState } from "react";
 
 const key = "devmentor.invitation-return";
@@ -11,7 +12,7 @@ export function readInvitationReturn(): string | null {
   const query = new URLSearchParams(window.location.search);
   if (query.has("returnTo")) {
     const values = query.getAll("returnTo");
-    const path = values.length === 1 && allowed.test(values[0]) ? values[0] : null;
+    const path = values.length === 1 && (allowed.test(values[0]) || parseBookingReturn(values[0])) ? values[0] : null;
     try {
       window.localStorage.removeItem(key);
       if (path) window.localStorage.setItem(key, JSON.stringify({ path, expires: Date.now() + ttl }));
@@ -20,7 +21,7 @@ export function readInvitationReturn(): string | null {
   }
   try {
     const stored: unknown = JSON.parse(window.localStorage.getItem(key) ?? "null");
-    if (stored && typeof stored === "object" && "path" in stored && typeof stored.path === "string" && allowed.test(stored.path) && "expires" in stored && typeof stored.expires === "number" && stored.expires > Date.now() && stored.expires <= Date.now() + ttl) return stored.path;
+    if (stored && typeof stored === "object" && "path" in stored && typeof stored.path === "string" && (allowed.test(stored.path) || parseBookingReturn(stored.path)) && "expires" in stored && typeof stored.expires === "number" && stored.expires > Date.now() && stored.expires <= Date.now() + ttl) return stored.path;
     window.localStorage.removeItem(key);
   } catch {
     try { window.localStorage.removeItem(key); } catch { return null; }
