@@ -95,3 +95,16 @@ test("reloaded unknown booking reconciles even when capacity is now occupied and
   await v.close();
  }
 });
+
+test("retained create can reconcile after the public mentor offer disappears",async()=>{
+ let hidden=false;const posts:string[]=[];
+ vi.stubGlobal("fetch",vi.fn(async(_path:string,init?:RequestInit)=>{
+  if(init?.method==="POST"){posts.push(String(init.body));if(posts.length===1){hidden=true;return fail("NETWORK_ERROR");}return ok({...detail,replayed:true,appliedVersion:1});}
+  return hidden?fail("NOT_FOUND","Mentor unavailable"):ok(options);
+ }));
+ const view=await mount(<BookingReview slug="mentor" slot={slot} duration={25}/>);
+ await view.click("Book session");await view.refresh();
+ expect(view.host.textContent).toContain("Mentor unavailable");
+ expect([...view.host.querySelectorAll("button")].some(button=>button.textContent==="Reconcile booking attempt")).toBe(true);
+ await view.click("Reconcile booking attempt");expect(posts[1]).toBe(posts[0]);expect(router.push).toHaveBeenCalledWith(`/account/bookings/${id}`);await view.close();
+});
