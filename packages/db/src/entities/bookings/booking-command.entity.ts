@@ -3,6 +3,7 @@ import { Booking } from "./booking.entity";
 import { User } from "../users/user.entity";
 export const BookingCommand = defineEntity({
   name:"BookingCommand", tableName:"booking_commands",
+  indexes:[{name:"booking_commands_booking_index",properties:["bookingId"]}],
   uniques:[{name:"booking_commands_actor_request_unique",properties:["actorUserId","requestId"]}],
   checks:[{name:"booking_commands_input_check",expression:"digest ~ '^[a-f0-9]{64}$' and operation in ('create','reschedule','cancel','complete') and applied_version > 0"}],
   properties:{
