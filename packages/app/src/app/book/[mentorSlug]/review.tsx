@@ -13,7 +13,7 @@ import { BookingOptionsPanel } from "../../../bookings/booking-options";
 import { BookingTime } from "../../../bookings/booking-times";
 import { useBookingCommand } from "../../../bookings/use-booking-command";
 export function BookingReview({slug,slot,duration}:{slug:string;slot:string;duration:25|50}) {
- const router=useRouter(),command=useBookingCommand(),[message,setMessage]=useState(""),[login,setLogin]=useState(false);
+ const router=useRouter(),command=useBookingCommand({mentorSlug:slug,slotId:slot,durationMinutes:duration}),[message,setMessage]=useState(""),[login,setLogin]=useState(false);
  const resource=useAvailability<BookingOptions>(`/api/mentors/${encodeURIComponent(slug)}/booking-options?duration=${duration}&slot=${encodeURIComponent(slot)}`,apiCall<BookingOptions>);
  const continuation=`/book/${slug}?slot=${slot}&duration=${duration}`;
  return <><h1>Review your booking</h1><ResourcePanel resource={resource}>{offer=>{
@@ -21,7 +21,7 @@ export function BookingReview({slug,slot,duration}:{slug:string;slot:string;dura
   return <><h2>{offer.mentorName}</h2>{selected&&<p><BookingTime instant={selected.startsAt}/></p>}<p>{duration} minutes{price!==null?` · PLN ${formatMoney(price)}`:""}</p>
    <p>Payment goes directly to the mentor. The text session and support happen outside DevMentor. Payment is not verified here.</p>
    {offer.handoff&&<><p>{offer.handoff.guidance}</p><Link href={offer.handoff.supportUrl}>External support</Link></>}
-   {message&&<ErrorMessage message={message}/>}{login&&<Link href={`/login?returnTo=${encodeURIComponent(continuation)}`}>Sign in to continue this booking</Link>}
+   {command.uncertain&&<p role="status">Reconciliation uses your original reviewed terms, even if the current offer changed.</p>}{message&&<ErrorMessage message={message}/>}{login&&<Link href={`/login?returnTo=${encodeURIComponent(continuation)}`}>Sign in to continue this booking</Link>}
    {!selected?.bookable||!offer.bookingAvailable?<p>{offer.unavailableReason??"Selected start is no longer available. Choose a fresh option below."}</p>:null}
    <Button disabled={command.pending||(!command.uncertain&&(!selected?.bookable||price===null))} onClick={async()=>{
     setMessage("");const result=await command.execute("/api/bookings",{mentorSlug:slug,slotId:slot,durationMinutes:duration,expectedPriceCents:price,currency:"PLN"});

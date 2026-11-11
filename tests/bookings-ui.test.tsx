@@ -28,8 +28,8 @@ async function mount(element:ReactNode,url="https://local.test") {
  return {dom,host,root,async click(label:string){const button=[...host.querySelectorAll("button")].find(b=>b.textContent===label);expect(button,host.textContent??"").toBeDefined();await act(async()=>button!.click());},async refresh(visible=true){Object.defineProperty(dom.window.document,"visibilityState",{value:visible?"visible":"hidden",configurable:true});await act(async()=>dom.window.document.dispatchEvent(new dom.window.Event("visibilitychange")));},async close(){await act(async()=>root.unmount());dom.window.close();vi.unstubAllGlobals();}};
 }
 test("safe booking continuation is exact and survives auth interruption via existing bounded storage",async()=>{
- const path=`/book/mentor?slot=${slot}&duration=25`;expect(parseBookingReturn(path)).toBe(path);expect(parseBookingReturn(path.replace("25","50"))).not.toBeNull();
- for(const value of ["/account","//evil.test",path+"&extra=1",path+"#x",path+"\n",path.replace("slot=","slot=bad"),path.replace("25","30"),"x".repeat(251),"/book/mentor?duration=25"] )expect(parseBookingReturn(value)).toBeNull();
+ const path=`/book/mentor?slot=${slot}&duration=25`;expect(parseBookingReturn(path)).toBe(path);expect(parseBookingReturn(path.replace("duration=25","duration=50"))).not.toBeNull();
+ for(const value of ["/account","//evil.test",path+"&extra=1",path+"#x",path+"\n",path.replace("slot=","slot=bad"),path.replace("duration=25","duration=30"),"x".repeat(251),"/book/mentor?duration=25"] )expect(parseBookingReturn(value)).toBeNull();
  const view=await mount(<p>Test</p>,`https://local.test/login?returnTo=${encodeURIComponent(path)}`);expect(readInvitationReturn()).toBe(path);view.dom.window.history.replaceState(null,"","/verify-email");expect(readInvitationReturn()).toBe(path);await view.close();
 });
 test("server pages await params, default ambiguous inputs and mark private robots",async()=>{
@@ -80,4 +80,18 @@ test("completion requires explicit checkbox/dialog, dismiss leaves state unchang
  const checkbox=view.host.querySelector<HTMLInputElement>('[name="confirmation"]')!;await act(async()=>checkbox.click());const submit=[...view.host.querySelectorAll("button")].find(b=>b.type==="submit")!;await act(async()=>submit.click());expect(view.host.textContent).toContain("Outcome unknown");await view.click("Cancel");await act(async()=>view.host.querySelector("dialog")!.dispatchEvent(new view.dom.window.Event("cancel",{bubbles:true})));
  result=ok({...detail,replayed:true,appliedVersion:2});state={...state,booking:{...state.booking,status:"completed",allowedActions:{cancel:false,reschedule:false,complete:false}}};await view.click("Reconcile confirmation");expect(view.host.textContent).toContain("Developer-confirmed service received");await view.close();
  vi.stubGlobal("fetch",vi.fn(async()=>ok({...detail,booking:{...detail.booking,viewerRole:"mentor",serverNow:end,allowedActions:{cancel:true,reschedule:false,complete:false}}})));const mentor=await mount(<BookingDetailPanel id={id}/>);expect(mentor.host.textContent).toContain("Awaiting developer confirmation");expect(mentor.host.textContent).not.toContain("Confirm service received");await mentor.close();
+});
+test("reloaded unknown booking reconciles even when capacity is now occupied and price changed; auth denial retains that key",async()=>{
+ const body=JSON.stringify({mentorSlug:"mentor",slotId:slot,durationMinutes:25,expectedPriceCents:1000,currency:"PLN",requestId:randomUUID()});
+ const stored=JSON.stringify({path:"/api/bookings",intent:"prior",body});
+ const fetcher=vi.fn(async(_path:string,init?:RequestInit)=>init?.method==="POST"?fail("UNAUTHORIZED","Sign in"):ok({...options,prices:{price25Cents:2000,price50Cents:4000},slots:[{...options.slots[0],bookable:false,reason:"Already reserved"}]}));vi.stubGlobal("fetch",fetcher);
+ // Exercise recovery with a preloaded real store, including malformed and mismatched records.
+ for(const data of [stored,"broken",JSON.stringify({path:"bad",body}),JSON.stringify({path:"/api/bookings",body:"x".repeat(8193)}),JSON.stringify({path:"/api/bookings",body:"{}"}),JSON.stringify({path:"/api/bookings",body:body.replace("mentor","another")}),JSON.stringify({path:"/api/bookings",body:body.replace(slot,randomUUID())}),JSON.stringify({path:"/api/bookings",body:body.replace('"durationMinutes":25','"durationMinutes":50')}),"null"]) {
+  vi.stubGlobal("fetch",fetcher);let state!:ReturnType<typeof useBookingCommand>;function Consumer(){state=useBookingCommand({mentorSlug:"mentor",slotId:slot,durationMinutes:25});return <p>{String(state.uncertain)}</p>;}
+  const v=await mount(<p/>);v.dom.window.sessionStorage.setItem("devmentor.booking-attempt",data);await act(async()=>v.root.render(<Consumer/>));
+  expect(state.uncertain).toBe(data===stored);
+  if(data===stored){await act(async()=>{await state.execute("/api/bookings",{});});expect(JSON.parse(v.dom.window.sessionStorage.getItem("devmentor.booking-attempt")!).body).toBe(body);expect(state.uncertain).toBe(true);expect(fetcher.mock.calls.at(-1)?.[1]?.body).toBe(body);}
+  if(data===stored){await act(async()=>v.root.render(<BookingReview slug="mentor" slot={slot} duration={25}/>));expect([...v.host.querySelectorAll("button")].find(b=>b.textContent==="Reconcile booking attempt")!.disabled).toBe(false);}
+  await v.close();
+ }
 });

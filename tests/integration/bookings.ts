@@ -1,3 +1,6 @@
+import {execFile} from "node:child_process";
+import {promisify} from "node:util";
+import {integrationConfig} from "./config";
 import assert from "node:assert/strict";
 import {randomUUID} from "node:crypto";
 import {createDatabaseRuntime,BookingRepository,Booking,BookingEvent,BookingCommand,User,UserRole,MentorProfile,Slot,SlotRepository} from "../../packages/db/src";
@@ -15,6 +18,7 @@ export async function testBookings(runtime:ReturnType<typeof createDatabaseRunti
  try {
   const orm=await runtime.getOrm();assert.equal(await orm.schema.getUpdateSchemaSQL({wrap:false}),"");
   await assert.rejects(service.create(ids[0],input()),{status:403});await assert.rejects(service.create(ids[2],{...input(),expectedPriceCents:999}),{status:409});
+  clock=new Date(starts[0].getTime()-7200000);
   const retry=input(slots[0],50);const same=await Promise.all(Array.from({length:8},()=>service.create(ids[2],retry)));
   assert.equal(new Set(same.map(r=>r.booking.id)).size,1);assert.equal(same.filter(r=>!r.replayed).length,1);const id=same[0].booking.id;
   await runtime.withEntityManager(async em=>{assert.equal(await em.count(Booking,{id}),1);assert.equal(await em.count(BookingEvent,{bookingId:id}),1);assert.equal(await em.count(BookingCommand,{bookingId:id}),1);});
@@ -44,6 +48,10 @@ export async function testBookings(runtime:ReturnType<typeof createDatabaseRunti
   const late=await service.change(ids[0],second.booking.id,"cancel",{reason:"After service time",requestId:randomUUID(),expectedVersion:1});assert.equal(late.booking.retentionExpiresAt,bookingRetention(new Date(second.booking.endsAt),clock).toISOString());
   clock=new Date(terminal.booking.retentionExpiresAt);await assert.rejects(service.read(ids[2],id),{status:404});await assert.rejects(service.create(ids[2],retry),{status:404});assert.equal((await service.list(ids[2],{view:"history"})).items.length,0);
   assert.ok(await service.maintain()>=1);await runtime.withEntityManager(async em=>{assert.equal(await em.count(Booking,{id}),0);assert.equal(await em.count(BookingEvent,{bookingId:id}),0);assert.equal(await em.count(BookingCommand,{bookingId:id}),0);});await assert.rejects(service.create(ids[2],retry),{status:409});
+  const expiredEnd=new Date(Date.now()-400*86400000),expiredStart=new Date(expiredEnd.getTime()-25*60000),expiredRetention=bookingRetention(expiredEnd);
+  await runtime.transaction(async em=>{await em.execute("insert into bookings(id,developer_user_id,mentor_user_id,slot_id,starts_at,ends_at,duration_minutes,price_cents,currency,status,version,created_at,updated_at,cancelled_at,retention_expires_at) select gen_random_uuid(),?,?,?, ?,?,25,1000,'PLN','cancelled',1,?,?,?,? from generate_series(1,501)",[ids[2],ids[0],slots[4],expiredStart,expiredEnd,expiredStart,expiredEnd,expiredEnd,expiredRetention]);});
+  const execute=promisify(execFile),clientUrl=orm.config.get("clientUrl");assert.ok(clientUrl);
+  for(const deleted of [500,1,0]){const result=await execute("npm",["run","bookings:maintain"],{env:{...process.env,DATABASE_URL:clientUrl},timeout:integrationConfig.operatorCommandTimeoutMs});assert.ok(result.stdout.includes(JSON.stringify({event:"bookings.retention.completed",deleted})));assert.ok(!result.stderr.includes(clientUrl));}
   assert.equal(await orm.schema.getUpdateSchemaSQL({wrap:false}),"");
   console.log("Booking DB passed: schema parity/guarded rollback, concurrent retries, distinct/cross-role interval conflict, authorization/revocation, immutable move with rollback, replay after mutable eligibility loss, cancel/complete race, private history and exact retention purge.");
  } finally {await runtime.transaction(async em=>{await em.nativeDelete(Booking,{$or:[{developerUserId:{$in:ids}},{mentorUserId:{$in:ids}}]});await em.nativeDelete(Slot,{mentorProfileId:{$in:ids}});await em.nativeDelete(MentorProfile,{userId:{$in:ids}});await em.nativeDelete(UserRole,{userId:{$in:ids}});await em.nativeDelete(User,{id:{$in:ids}});});}

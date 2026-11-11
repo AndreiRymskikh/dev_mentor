@@ -6,4 +6,4 @@ try {
  console.log(JSON.stringify({event:"bookings.retention.completed",deleted}));
 } catch {
  console.error("Booking retention failed; no request or participant details logged.");process.exitCode=1;
-} finally {await database.close();}
+} finally {try {await database.close();} catch {console.error("Booking retention database cleanup failed.");process.exitCode=1;}}

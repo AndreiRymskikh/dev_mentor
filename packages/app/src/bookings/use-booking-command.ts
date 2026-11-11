@@ -1,11 +1,22 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiCall, type ApiResult } from "@devmentor/ui/backend/api";
-import type { BookingMutationResult } from "@devmentor/core/validators/bookings";
+import { bookingCreateSchema, type BookingMutationResult } from "@devmentor/core/validators/bookings";
 const key="devmentor.booking-attempt";
 /** A timeout is not failure. Freeze that intent and reconcile using the original key. */
-export function useBookingCommand() {
+export function useBookingCommand(restore?:{mentorSlug:string;slotId:string;durationMinutes:25|50}) {
  const attempt=useRef<{path:string;body:string}|null>(null),[pending,setPending]=useState(false),[uncertain,setUncertain]=useState(false);
+ const mentorSlug=restore?.mentorSlug,slotId=restore?.slotId,durationMinutes=restore?.durationMinutes;
+ useEffect(()=>{
+  if(!mentorSlug||!slotId||!durationMinutes)return;
+  try {
+   const stored:unknown=JSON.parse(sessionStorage.getItem(key)??"null");
+   if(!stored||typeof stored!=="object"||!("path" in stored)||stored.path!=="/api/bookings"||!("body" in stored)||typeof stored.body!=="string"||stored.body.length>8192)return;
+   const parsed=bookingCreateSchema.safeParse(JSON.parse(stored.body));
+   if(!parsed.success||parsed.data.mentorSlug!==mentorSlug||parsed.data.slotId!==slotId||parsed.data.durationMinutes!==durationMinutes)return;
+   attempt.current={path:"/api/bookings",body:stored.body};queueMicrotask(()=>setUncertain(true));
+  }catch { /* A corrupt or denied store cannot authorize a mutation. */ }
+ },[mentorSlug,slotId,durationMinutes]);
  async function execute(path:string,input:Record<string,unknown>):Promise<ApiResult<BookingMutationResult>> {
   if(pending)return {ok:false,error:{code:"PENDING",message:"Please wait."}};
   setPending(true);
@@ -20,8 +31,9 @@ export function useBookingCommand() {
    }
    const result=await apiCall<BookingMutationResult>(attempt.current.path,{method:"POST",body:attempt.current.body});
    const unknown=!result.ok&&["NETWORK_ERROR","INVALID_RESPONSE","INTERNAL_ERROR","SERVICE_UNAVAILABLE"].includes(result.error.code);
-   setUncertain(unknown);
-   if(!unknown){attempt.current=null;try{sessionStorage.removeItem(key);}catch{ /* No retained attempt is required after an authoritative result. */ }}
+   const retain=unknown||(uncertain&&!result.ok&&result.error.code==="UNAUTHORIZED");
+   setUncertain(retain);
+   if(!retain){attempt.current=null;try{sessionStorage.removeItem(key);}catch{ /* No retained attempt is required after an authoritative result. */ }}
    return unknown?{ok:false,error:{code:"OUTCOME_UNKNOWN",message:"Outcome unknown. Retry this same attempt to reconcile before changing your booking."}}:result;
   }finally{setPending(false);}
  }
