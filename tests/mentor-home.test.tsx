@@ -45,7 +45,7 @@ test("0/1/2/3 server states drive progress and share visibility, without implyin
   expect(view.host.textContent).toContain(`${count} of 3 steps complete`); expect(view.host.querySelector("progress")!.value).toBe(count);
   expect(view.host.querySelector('a[href="/m/real-mentor"]') !== null).toBe(count>0);
   expect(view.host.textContent!.includes("Your profile is ready to share")).toBe(count===3);
-  expect(view.host.textContent).toContain("Booking and cancellation are not available yet"); expect(view.host.querySelector('a[href*=payout]')).toBeNull(); expect(view.host.querySelectorAll("form")).toHaveLength(2);
+  expect(view.host.textContent).toContain("Published starts authorize immediate booking"); expect(view.host.querySelector('a[href*=payout]')).toBeNull(); expect(view.host.querySelectorAll("form")).toHaveLength(2);
   expect(view.host.textContent).toContain("No times published"); await view.close();
  }
 });

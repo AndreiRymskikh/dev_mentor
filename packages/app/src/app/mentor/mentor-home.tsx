@@ -45,7 +45,7 @@ export function MentorHome({ initialPublishDueAt }: { initialPublishDueAt: strin
       {offer.error && <ErrorMessage message={offer.error} onRetry={offer.reload} />}
       {data && <><p role="status">{completed} of 3 steps complete</p><progress aria-label="Mentor setup progress" value={completed!} max={3} />
         <ol>{steps.map((step, index) => <li key={step.key}><span className="dm-home-step" aria-hidden="true">{data.readiness[step.key] ? "✓" : index + 1}</span><div><h3>{step.label} <span>{data.readiness[step.key] ? "Complete" : "Incomplete"}</span></h3><p>{step.description}</p></div><Link href={step.href}>{step.action}</Link></li>)}</ol></>}
-      <p>Offer preparation does not enable booking or payments. These are not available yet.</p>
+      <p>Offer preparation is separate from free booking capacity and external service/support configuration. Payment stays external.</p>
     </section>
     <div className="dm-home-editors">
       <section className="dm-workspace-panel dm-home-prices" id="session-prices" aria-label="Session prices"><h2>Session prices</h2><PriceEditor request={request} onSaved={offer.reload} showReadiness={false}/></section>

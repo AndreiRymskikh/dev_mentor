@@ -1,0 +1,13 @@
+.dm-booking { max-width: 54rem; margin: 0 auto; padding: 2rem 1rem; display: grid; gap: 1.5rem; overflow-wrap: anywhere; }
+.dm-booking h1 { font-size: 2rem; font-weight: 700; }
+.dm-booking h2 { font-size: 1.35rem; font-weight: 600; }
+.dm-booking section, .dm-booking form { display: grid; gap: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: .75rem; }
+.dm-booking ul { display: grid; gap: 1rem; }
+.dm-booking li { display: grid; gap: .5rem; }
+.dm-booking select { max-width: 100%; color: var(--foreground); background: var(--background); border: 1px solid var(--border); padding: .5rem; }
+.dm-booking dialog { max-width: min(30rem, calc(100vw - 2rem)); margin: auto; padding: 1.5rem; color: var(--foreground); background: var(--background); border: 1px solid var(--border); border-radius: .75rem; }
+.dm-booking dialog::backdrop { background: rgb(0 0 0 / .5); }
+
+.dm-booking-options { display: grid; gap: 1rem; min-width: 0; }
+.dm-booking-options ul, .dm-booking-options li { display: grid; gap: .75rem; min-width: 0; }
+.dm-booking-options select { max-width: 100%; padding: .5rem; border: 1px solid var(--border); border-radius: .375rem; background: var(--background); color: var(--foreground); }
