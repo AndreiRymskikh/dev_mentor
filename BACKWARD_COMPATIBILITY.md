@@ -216,3 +216,11 @@ There is no schema/data migration. Rollback removes the additive catalog routes 
 the old navigation controls; no persisted records are changed. Already delivered public
 content cannot be recalled; an open catalog refreshes on visibility, offer boundaries and
 once per minute.
+
+## Immediate bookings (#37)
+
+Additive booking/options/admin endpoints and private detail/review routes implement the accepted booking contract. Legacy profile/offer/slots response shapes, including their preparation-only `bookingAvailable:false`, remain unchanged; new duration-specific booking-options owns actual capacity and launch capability. Its optional `slot` filter supports selected starts beyond the first page without relaxing eligibility. Core exports `validators/bookings` as a pure client-safe entry point.
+
+Authentication continuation now also permits only canonical `/book/<slug>?slot=<uuid>&duration=25|50` intents, preserving invitation continuation, strict single returnTo, expiry and first-party storage behavior. GET never creates a booking. Mutation retries reuse actor/request UUID identity and return an authorized current projection plus the original applied version. Private responses use no-store and exclude internal user IDs, email and command digests.
+
+Migration202611090001 adds bookings/events/commands with restrictive participant/slot FKs, interval/state checks and unique actor/request and booking/version constraints. Application rollback preserves schema/history; down refuses nonempty booking tables. No destructive account deletion is introduced. `bookings:maintain` is additive, bounded to500 expired rows with skip-locked deletion and cascading event/command cleanup. See [deployment/retention runbook](.ai/docs/bookings-operations.md) for explicit configuration, daily schedule,30-day maximum backup lifetime and restore safeguards. #38 full lists and #23 public reviews remain separate; developer completion does not verify payment.

@@ -1,6 +1,6 @@
 # D05 — Immediate booking and developer-confirmed completion
 
-Date: 2026-11-08. Owner/confirmer: product owner in the issue #25 conversation. Status: accepted owner policy; technical contract remains subject to specification review.
+Date: 2026-11-08. Owner/confirmer: product owner in the issue #25 conversation. Status: accepted owner policy and technical contract (merged PR #39, completed #25); runtime implementation/sign-off tracked in #37/PR #42.
 
 Supersedes D04's mentor-approval requirement. External text service, payment and support remain unchanged. N02 remains active; this does not authorize public reviews.
 

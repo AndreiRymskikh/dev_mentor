@@ -1,6 +1,6 @@
 # Booking destination and trusted service completion
 
-Date: 2026-11-08. Status: proposed contract ready for independent review; owner policy decisions accepted in D05, implementation not delivered. Source: [#25](https://github.com/AndreiRymskikh/dev_mentor/issues/25). Implementation owner: [#37](https://github.com/AndreiRymskikh/dev_mentor/issues/37); participant screens: [#38](https://github.com/AndreiRymskikh/dev_mentor/issues/38). Product decision owner: session owner; technical acceptance: repository maintainer/reviewer.
+Date: 2026-11-08. Status: accepted contract (merged PR #39; #25 completed). Implementation is tracked in [PR #42](https://github.com/AndreiRymskikh/dev_mentor/pull/42); independent high-risk sign-off, production launch operations and #38 full lists remain separate. Source: [#25](https://github.com/AndreiRymskikh/dev_mentor/issues/25). Implementation owner: [#37](https://github.com/AndreiRymskikh/dev_mentor/issues/37); participant screens: [#38](https://github.com/AndreiRymskikh/dev_mentor/issues/38). Product decision owner: session owner; technical acceptance: repository maintainer/reviewer.
 
 ## TLDR
 
@@ -158,7 +158,7 @@ Owner choices above are explicit decisions, not autonomous defaults. Remaining t
 Every production step requires meaningful100% per-file lines/statements/functions/branches, lint/typecheck/build/audit and applicable disposable PostgreSQL/browser checks. Finish build before starting its immutable production test process; never touch developer database volumes. CI's four checks must independently pass before any merge.
 
 - [x] Step1: record owner answers and supersede D04 approval in D05/product brief; define route, lifecycle, owning #37 and #38 consumers.
-- [ ] Step2 (#25): independent scope/security/contract review and maintainer design acceptance; link reviewable owning issues. Merging this document does not implement #37 or close the parent E02.
+- [x] Step2 (#25): independent scope/security/contract review and maintainer design acceptance; link reviewable owning issues. Accepted through merged [PR #39](https://github.com/AndreiRymskikh/dev_mentor/pull/39) and completed #25. Merging this document does not implement #37 or close the parent E02.
 - [ ] Step3 (#37): entities/migration/repository with guarded rollback, strict validators and request-scoped composition; prove real ORM persist/read, schema parity, event/command atomicity and interval concurrency across differing durations and cross-role participants.
 - [ ] Step4 (#37): create/read/options APIs, retry and current-role/CSRF protections; real review/detail destination and safe auth continuation. Prove stale price, removed/expired slot, exact lead boundary, self-booking, replay mismatch, denial, command-key concurrency (including both retries missing the first lookup and the waiter reconciling after participant locks), retries after slot removal/unpublication/price change/elapsed start and unknown-outcome reconciliation in production HTTP/browser.
 - [ ] Step5 (#37): reschedule/cancel/complete APIs and private detail/history/admin read. Test cancel during/after end, reason validation/escaping, wrong participant, current admin revocation, post-completion rejection, cancel/complete races, failed move preservation, historical price preservation and no mentor completion control.
@@ -169,3 +169,10 @@ Every production step requires meaningful100% per-file lines/statements/function
 ## Design review — 2026-11-08
 
 Independent fresh-context reviewer approved scope, architecture, security and contract after two P2 retry-order findings were corrected: lookup precedes mutable eligibility, and repeats after participant locks for concurrent waiters. Required regression scenarios are included above. This is agent design review, not maintainer merge acceptance or runtime QA. Source/tree inspection, owner-answer consistency, relative Markdown links and diff whitespace were checked. No production lint/typecheck/coverage/build/audit/integration or CI execution is claimed for this documentation-only change.
+
+
+## Implementation handoff — PR #42
+
+The #37 implementation adds the prescribed persistence, lifecycle, retry and read contracts, direct-profile review/private detail/actions, safe booking continuation and bounded retention operator. The new booking-options query also accepts an optional canonical `slot` UUID to review selected starts beyond the first page; it still applies all eligibility checks. Legacy offer/slots DTOs remain preparation-only. See [run evidence](../runs/2026-11-09-issue-37-bookings.md) and [deployment/retention runbook](../docs/bookings-operations.md).
+
+The full #38 participant list UI is not implemented by #37. This specification stays active until its remaining dependent work and independent high-risk sign-off are complete. Configuration/backup/scheduling requirements are launch gates; automated browser evidence is not second-person QA approval. No public-review, payment verification or production deployment is inferred.

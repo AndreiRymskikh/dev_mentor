@@ -29,7 +29,7 @@ PR: #42
 
 ### Phase 3: Operations and verification
 
-- [ ] 3.1 Deliver bounded retention command and deployment/privacy runbook.
+- [x] 3.1 Deliver bounded retention command and deployment/privacy runbook. — 1db4e69
 - [ ] 3.2 Complete unit coverage and disposable PostgreSQL/browser checks.
 - [ ] 3.3 Run full gate, independent review/QA and publish evidence.
 
@@ -49,3 +49,14 @@ Targeted disposable integration passed all database scenarios, including new ORM
 Resolved validation findings: canonical PostgreSQL interval/BETWEEN expressions caused perpetual schema diff; express entity constraints canonically without weakening DDL. Existing prices rollback test assumed its migration was last; explicitly target its predecessor so future additive migrations cannot silently bypass its data guard. Unit tests found/fixed empty-history list projection and hidden mentor completion-dialog mounting. No coverage thresholds/exclusions changed.
 
 Final copy alignment replaces unavailable-booking claims in profile/catalog/account/owner surfaces. Legacy public offer/slots API meanings remain unchanged. Optional selected-slot filter in the new options API supports deep links beyond page one; every selected slot is still checked server-side. Run started Nov9; resumed evidence spans subsequent dates, retaining original log.
+
+
+## Review fixes and final-gate restart — Nov11
+
+Automated om-auto-review-pr pass checked package boundaries, all new route auth/CSRF and no-store guards, participant/admin isolation, ordered participant locks, concurrent command replay and interval capacity, immutable money, terminal transitions, retention, migration scope and compatibility/product decisions. No public review/payment/chat capability added. Human/independent risk-high review and QA approval remain required before merge; this run cannot self-grant qa-approved.
+
+Found/fixed reload recovery (450de2c): restore a schema-validated pending create for its exact route before fresh bookability disables submission; preserve key/terms across unknown outcomes and reauthentication. Browser now reloads after a committed response loss and obtains the original booking. Retention cleanup failures are sanitized too. Unit suite now267 passing, all four metrics100%; lint/typecheck/build/audit passed before final index addition. Final coverage after index is recorded below when returned.
+
+Added real operator regression:501 expired bookings purge in500/1/0 batches, and creation occurs at the inclusive two-hour lead boundary. These assertions passed in the Nov11 disposable DB suite. CI exposed a TS inference issue in that test helper; explicit output typing fixed it (2dcda56). Legacy profile QA assumed a disabled placeholder and its reputation guard rejected the verb 'review booking'; tests now assert no booking links for an unpriced fixture and still reject reputation controls. This changes test expectations for the real capability, not N02 policy. Full suite before these harness corrections passed new booking/catalog/prices/availability/auth/invitation paths then stopped at public-share. It is not recorded as a full pass.
+
+Review also added booking_commands_booking_index (791164f) so bounded retention cascades do not scan global command history for every deleted booking. New migration/entity declarations stay in sync. Final full suite/CI restart is pending. Screenshot evidence is attached in https://github.com/AndreiRymskikh/dev_mentor/pull/42#issuecomment-6793399085; synthetic data only, light/dark320 and1440 screenshots. Current implementation head differs only in test/retention-index work from the pictured UI.
