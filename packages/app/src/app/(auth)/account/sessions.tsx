@@ -66,7 +66,7 @@ export function SessionsPanel() {
           { key: "time", label: "Scheduled time", render: b => <><BookingTime instant={b.startsAt}/><p>Ends <BookingTime instant={b.endsAt}/></p></> },
           { key: "terms", label: "Agreed terms", render: b => <>{b.durationMinutes} minutes<p>{b.currency} {formatMoney(b.priceCents)}</p></> },
           { key: "status", label: "Status", render: b => b.status === "completed" ? "Developer-confirmed service received" : b.status === "cancelled" ? "Cancelled" : Date.parse(b.endsAt) <= Date.parse(page.serverNow) ? b.viewerRole === "developer" ? "Awaiting your confirmation" : "Awaiting developer confirmation" : "Booked" },
-        ]} actions={b => <><Link data-booking href={`/account/bookings/${b.id}`}>View booking<span className="sr-only"> with {b.counterpart.displayName}</span></Link>
+        ]} actions={b => <><Link data-booking href={`/account/bookings/${b.id}`} aria-label={`View booking with ${b.counterpart.displayName}`}>View booking</Link>
           <p>{b.allowedActions.reschedule && "Reschedule. "}{b.allowedActions.cancel && "Cancel with a private reason. "}{b.allowedActions.complete && "Confirm service received. "}</p></>}/>
       </div>
       <nav className="dm-form-actions" aria-label="Session pagination">

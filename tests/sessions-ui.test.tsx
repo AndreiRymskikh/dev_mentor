@@ -24,7 +24,7 @@ test("participant terms, roles and truthful lifecycle labels use private detail 
   vi.stubGlobal("fetch", vi.fn(async () => ok(page(rows)))); const v = await mount();
   for (const text of ["Real mentor", "You are the developer", "You are the mentor", "PLN 90.00", "25 minutes", "50 minutes", "UTC", "Booked", "Awaiting your confirmation", "Awaiting developer confirmation", "Developer-confirmed service received", "Cancelled", "Cancel with a private reason", "Reschedule.", "Confirm service received.", "payment is not verified"]) expect(v.host.textContent).toContain(text);
   expect(v.host.querySelectorAll("tbody tr")).toHaveLength(5); expect(v.host.querySelector('a[data-booking]')!.getAttribute("href")).toBe(`/account/bookings/${row.id}`);
-  expect(v.host.querySelector("form")).toBeNull(); await v.close();
+  expect(v.host.querySelector("a[data-booking]")!.getAttribute("aria-label")).toBe("View booking with Real mentor"); expect(v.host.querySelector("form")).toBeNull(); await v.close();
 });
 test("bounded cursor pages replace rows, restart on view/refresh and show distinct authoritative empty views", async () => {
   let data = page([row], "upcoming|time|id"); const fetcher = vi.fn<(...args: [string, RequestInit?]) => Promise<Response>>(async () => ok(data)); vi.stubGlobal("fetch", fetcher); const v = await mount();
