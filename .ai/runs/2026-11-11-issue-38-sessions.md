@@ -1,7 +1,7 @@
 # Issue #38: My sessions
 
 Goal: replace the account placeholder with authoritative participant bookings and existing private management actions.
-Source doc: [design PR #43](https://github.com/AndreiRymskikh/dev_mentor/pull/43), `.ai/specs/2026-11-11-my-sessions.md` (design-only branch; not yet on base).
+Source doc: [design PR #43](https://github.com/AndreiRymskikh/dev_mentor/pull/43), `.ai/specs/2026-11-11-my-sessions.md` (design merged into base).
 
 ## Plan
 1. Review the list contract extension and publish its design PR.
@@ -21,7 +21,7 @@ PR: #44
 #37 merged through PR #42. No open PR or competing issue claim. Existing DTO supplies participant-relative roles, authoritative actions and deterministic cursors. No new persistence or lifecycle required.
 
 ## Validation
-Not run yet.
+Completed; see final verification below and [independent review run](2026-11-14-pr44-review.md).
 
 ## Implementation progress
 Design extension published as PR #43 with fresh-context approval; server-time timer clarification applied. Implementation draft PR #44 references it. The account list uses existing protected transport, resource panel and DataTable. Cursor pages replace rows; visibility/minute/server-relative end refresh restarts page one. Focus restores the exact booking link or heading and respects deliberate user movement. No lifecycle, schema or API changes.
