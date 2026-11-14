@@ -47,7 +47,7 @@ export async function testAdmin({ baseUrl, artifacts, browser }: IntegrationCont
     for (const width of [320, 390, 768, 1440]) {
       await browser("set", "viewport", String(width), "1000");
       await browser("wait", "--fn", "document.documentElement.scrollWidth <= innerWidth");
-      await wait("Booking details stay private");
+      await wait("Your bookings");
       if (width <= 768) {
         await click("Open navigation"); await wait("Operator home"); await browser("press", "Escape");
         await browser("wait", "--fn", "document.activeElement?.getAttribute('aria-label') === 'Open navigation' && document.activeElement.getAttribute('aria-expanded') === 'false'");
