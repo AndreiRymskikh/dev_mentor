@@ -50,6 +50,12 @@ export function SessionsPanel() {
     (link ?? heading.current!).focus();
   }, [resource.loading, resource.data, resource.error]);
 
+  function navigate(cursor: string) {
+    focused.current = "#sessions-heading";
+    setAfter(cursor);
+    reload();
+  }
+
   return <section ref={region} className="dm-sessions dm-workspace-panel" aria-labelledby="sessions-heading">
     <h2 id="sessions-heading" ref={heading} tabIndex={-1}>Your bookings</h2>
     <p>Bookings where you are the developer or mentor. Payment and the text session happen externally; payment is not verified.</p>
@@ -70,12 +76,12 @@ export function SessionsPanel() {
           <p>{b.allowedActions.reschedule && "Reschedule. "}{b.allowedActions.cancel && "Cancel with a private reason. "}{b.allowedActions.complete && "Confirm service received. "}</p></>}/>
       </div>
       <nav className="dm-form-actions" aria-label="Session pagination">
-        {after && <Button variant="text" onClick={restart}>First page</Button>}
-        {page.nextCursor && <Button variant="text" onClick={() => setAfter(page.nextCursor!)}>Next sessions</Button>}
+        {after && <Button variant="text" onClick={() => navigate("")}>First page</Button>}
+        {page.nextCursor && <Button variant="text" onClick={() => navigate(page.nextCursor!)}>Next sessions</Button>}
       </nav>
     </> : <>
       <EmptyState message={after ? "No more sessions in this view." : view === "history" ? "No session history yet." : "No upcoming sessions yet."}/>
-      {after ? <Button variant="text" onClick={restart}>First page</Button> : <p>{view === "upcoming" ? "Check History for ended or cancelled sessions, or find a mentor to book your first session." : "Completed, cancelled and ended sessions will appear here."}</p>}
+      {after ? <Button variant="text" onClick={() => navigate("")}>First page</Button> : <p>{view === "upcoming" ? "Check History for ended or cancelled sessions, or find a mentor to book your first session." : "Completed, cancelled and ended sessions will appear here."}</p>}
       <Link href="/mentors">Find a mentor</Link>
     </>}</ResourcePanel>
   </section>;

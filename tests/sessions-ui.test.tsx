@@ -29,7 +29,9 @@ test("participant terms, roles and truthful lifecycle labels use private detail 
 test("bounded cursor pages replace rows, restart on view/refresh and show distinct authoritative empty views", async () => {
   let data = page([row], "upcoming|time|id"); const fetcher = vi.fn<(...args: [string, RequestInit?]) => Promise<Response>>(async () => ok(data)); vi.stubGlobal("fetch", fetcher); const v = await mount();
   expect(fetcher.mock.calls[0][0]).toBe("/api/bookings?view=upcoming&limit=25");
-  data = page([{ ...row, id: "second", counterpart: { displayName: "Second" } }]); await v.click("Next sessions"); expect(fetcher.mock.calls.at(-1)?.[0]).toContain("after=upcoming%7Ctime%7Cid"); expect(v.host.textContent).not.toContain("Real mentor"); expect(v.host.querySelectorAll("tbody tr")).toHaveLength(1);
+  data = page([{ ...row, id: "second", counterpart: { displayName: "Second" } }]);
+  await act(async () => [...v.host.querySelectorAll("button")].find(b => b.textContent === "Next sessions")!.focus());
+  await v.click("Next sessions"); expect(document.activeElement).toBe(v.host.querySelector("h2")); expect(fetcher.mock.calls.at(-1)?.[0]).toContain("after=upcoming%7Ctime%7Cid"); expect(v.host.textContent).not.toContain("Real mentor"); expect(v.host.querySelectorAll("tbody tr")).toHaveLength(1);
   data = page([], "unused"); await v.click("Refresh sessions"); expect(fetcher.mock.calls.at(-1)?.[0]).not.toContain("after="); expect(v.host.textContent).toContain("No upcoming sessions yet"); expect(v.host.querySelector('a[href="/mentors"]')).not.toBeNull();
   await v.click("History"); expect(fetcher.mock.calls.at(-1)?.[0]).toBe("/api/bookings?view=history&limit=25"); expect(v.host.textContent).toContain("No session history yet"); expect(v.host.textContent).toContain("Completed, cancelled and ended sessions");
   data = page([row], "history|time|id"); await v.click("Refresh sessions"); await v.click("Next sessions"); await v.click("First page"); expect(fetcher.mock.calls.at(-1)?.[0]).not.toContain("after=");
